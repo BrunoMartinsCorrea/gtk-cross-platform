@@ -35,7 +35,7 @@
       "name": "gtk-cross-platform",
       "buildsystem": "simple",
       "build-commands": [
-        "cargo build --release",
+        "cargo --offline build --release",
         "install -Dm755 target/release/gtk-cross-platform /app/bin/gtk-cross-platform",
         "install -Dm644 data/icons/hicolor/scalable/apps/com.example.GtkCrossPlatform.svg /app/share/icons/hicolor/scalable/apps/com.example.GtkCrossPlatform.svg"
       ],
@@ -43,7 +43,8 @@
         {
           "type": "dir",
           "path": "."
-        }
+        },
+        "cargo-sources.json"
       ]
     }
   ]
