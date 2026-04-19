@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+[package]
+name = "gtk-cross-platform"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "gtk_cross_platform"
+path = "src/lib.rs"
+
+[[bin]]
+name = "gtk-cross-platform"
+path = "src/main.rs"
+
+[dependencies]
+gtk4 = { version = "0.11", features = ["v4_14"] }
+adw = { package = "libadwaita", version = "0.9", features = ["v1_6"] }
+glib = "0.22"
+gio = "0.22"
+gettext-rs = { version = "0.7", features = ["gettext-system"] }
+
+[build-dependencies]
+glib-build-tools = "0.22"

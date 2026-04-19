@@ -1,0 +1,29 @@
+# Rust build output
+target/
+
+# Meson / Ninja build output
+build/
+builddir/
+_build/
+
+# Flatpak builder artifacts
+.flatpak-builder/
+flatpak-build/
+repo/
+*.flatpak
+
+# Editor / IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*~
+
+# macOS
+.DS_Store
+
+# Compiled Vala intermediaries (generated .c/.h — never edit directly)
+*.c
+*.h
+*.o
+*.vapi

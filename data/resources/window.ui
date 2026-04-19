@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="GtkCrossPlatformMainWindow" parent="AdwApplicationWindow">
+    <property name="title" translatable="yes">GTK Cross Platform</property>
+    <property name="default-width">480</property>
+    <property name="default-height">360</property>
+    <child>
+      <object class="AdwToastOverlay" id="toast_overlay">
+        <child>
+          <object class="AdwToolbarView">
+            <child type="top">
+              <object class="AdwHeaderBar"/>
+            </child>
+            <property name="content">
+              <object class="GtkBox">
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="vexpand">true</property>
+                <property name="hexpand">true</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkButton" id="button">
+                    <property name="label" translatable="yes">Click here…</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="margin-top">48</property>
+                    <property name="margin-bottom">48</property>
+                    <property name="margin-start">48</property>
+                    <property name="margin-end">48</property>
+                    <property name="width-request">44</property>
+                    <property name="height-request">44</property>
+                    <style>
+                      <class name="pill"/>
+                      <class name="suggested-action"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwBreakpoint">
+        <condition>max-width: 768sp</condition>
+        <setter object="button" property="margin-start">32</setter>
+        <setter object="button" property="margin-end">32</setter>
+        <setter object="button" property="margin-top">32</setter>
+        <setter object="button" property="margin-bottom">32</setter>
+      </object>
+    </child>
+    <child>
+      <object class="AdwBreakpoint">
+        <condition>max-width: 600sp</condition>
+        <setter object="button" property="margin-start">24</setter>
+        <setter object="button" property="margin-end">24</setter>
+        <setter object="button" property="margin-top">24</setter>
+        <setter object="button" property="margin-bottom">24</setter>
+      </object>
+    </child>
+    <child>
+      <object class="AdwBreakpoint">
+        <condition>max-width: 360sp</condition>
+        <setter object="button" property="margin-start">16</setter>
+        <setter object="button" property="margin-end">16</setter>
+        <setter object="button" property="margin-top">16</setter>
+        <setter object="button" property="margin-bottom">16</setter>
+      </object>
+    </child>
+  </template>
+</interface>

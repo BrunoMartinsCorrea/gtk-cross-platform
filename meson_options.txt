@@ -1,0 +1,13 @@
+option('profile',
+  type: 'combo',
+  choices: ['default', 'development'],
+  value: 'default',
+  description: 'Build profile — "development" enables debug overlays and extra logging'
+)
+
+option('platform',
+  type: 'combo',
+  choices: ['linux', 'macos', 'windows', 'mobile'],
+  value: 'linux',
+  description: 'Target platform — controls platform-specific build flags and packaging'
+)

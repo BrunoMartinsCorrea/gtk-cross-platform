@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.example.GtkCrossPlatform</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>GTK Cross Platform</name>
+  <summary>A cross-platform GTK4 + Adwaita template application</summary>
+  <description>
+    <p>
+      A template application demonstrating GTK4 and Adwaita best practices
+      for cross-platform desktop development targeting Linux, macOS, Windows,
+      and GNOME Mobile.
+    </p>
+  </description>
+  <launchable type="desktop-id">com.example.GtkCrossPlatform.desktop</launchable>
+  <url type="homepage">https://example.com</url>
+  <releases>
+    <release version="0.1.0" date="2026-04-19"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </supports>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+</component>

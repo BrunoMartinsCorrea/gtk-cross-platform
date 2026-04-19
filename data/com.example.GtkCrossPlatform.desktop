@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=GTK Cross Platform
+Comment=A cross-platform GTK4 + Adwaita template application
+Exec=gtk-cross-platform
+Icon=com.example.GtkCrossPlatform
+Terminal=false
+Type=Application
+Categories=GNOME;GTK;Utility;
+StartupNotify=true
+X-GNOME-UsesNotifications=false
