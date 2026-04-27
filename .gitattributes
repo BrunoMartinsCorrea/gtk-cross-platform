@@ -1,0 +1,21 @@
+# Global normalisation
+* text=auto eol=lf
+
+# Rust source
+*.rs text eol=lf
+
+# Config / manifests
+*.toml text eol=lf
+*.json text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+
+# Flatpak bundles and compiled GResources are binary
+*.flatpak binary
+*.gresource binary
+
+# Keep Cargo.lock as text so diffs are readable
+Cargo.lock merge=text
+
+# Mark PO files for GitHub Linguist
+po/*.po text eol=lf linguist-language=po

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>GtkCrossPlatform</string>
+    <key>CFBundleDisplayName</key>
+    <string>GTK Cross Platform</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.example.GtkCrossPlatform</string>
+    <key>CFBundleVersion</key>
+    <string>0.1.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>0.1.0</string>
+    <key>CFBundleIconFile</key>
+    <string>GtkCrossPlatform</string>
+    <key>CFBundleExecutable</key>
+    <string>gtk-cross-platform-launcher</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSSupportsAutomaticGraphicsSwitching</key>
+    <true/>
+    <key>LSMinimumSystemVersion</key>
+    <string>13.0</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2026. Licensed under GPL-3.0-or-later.</string>
+</dict>
+</plist>

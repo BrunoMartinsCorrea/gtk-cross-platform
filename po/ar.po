@@ -1,0 +1,341 @@
+# Arabic translation for gtk-cross-platform.
+# Copyright (C) 2026 gtk-cross-platform contributors
+# This file is distributed under the same license as the gtk-cross-platform package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gtk-cross-platform 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-26 00:00+0000\n"
+"PO-Revision-Date: 2026-04-26 00:00+0000\n"
+"Last-Translator: NOME <email@example.com>\n"
+"Language-Team: Arabic <ar@li.org>\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+#: src/window/main_window.rs
+msgid "Containers"
+msgstr "الحاويات"
+
+#: src/window/main_window.rs
+msgid "Images"
+msgstr "الصور"
+
+#: src/window/main_window.rs
+msgid "Volumes"
+msgstr "الأقراص"
+
+#: src/window/main_window.rs
+msgid "Networks"
+msgstr "الشبكات"
+
+#: src/window/main_window.rs
+msgid "Prune System?"
+msgstr "تنظيف النظام؟"
+
+#: src/window/main_window.rs
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+"سيؤدي هذا إلى إزالة جميع الحاويات المتوقفة والصور المعلقة والشبكات غير "
+"المستخدمة. لا يمكن التراجع عن هذا الإجراء."
+
+#: src/window/main_window.rs
+msgid "Prune"
+msgstr "تنظيف"
+
+#: src/window/main_window.rs
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] "لم يتم تنظيف أي حاوية"
+msgstr[1] "تم تنظيف حاوية واحدة"
+msgstr[2] "تم تنظيف حاويتين"
+msgstr[3] "تم تنظيف {n} حاويات"
+msgstr[4] "تم تنظيف {n} حاوية"
+msgstr[5] "تم تنظيف {n} حاوية"
+
+#: src/window/main_window.rs
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] "لا توجد صور"
+msgstr[1] "صورة واحدة"
+msgstr[2] "صورتان"
+msgstr[3] "{n} صور"
+msgstr[4] "{n} صورة"
+msgstr[5] "{n} صورة"
+
+#: src/window/main_window.rs
+msgid "Prune failed"
+msgstr "فشل التنظيف"
+
+#: src/window/components/confirm_dialog.rs
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Stop container"
+msgstr "إيقاف الحاوية"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Start container"
+msgstr "تشغيل الحاوية"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Pause container"
+msgstr "إيقاف مؤقت للحاوية"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Unpause container"
+msgstr "استئناف الحاوية"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove container"
+msgstr "إزالة الحاوية"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove"
+msgstr "إزالة"
+
+#: src/window/views/containers_view.rs
+msgid "Container stopped"
+msgstr "توقفت الحاوية"
+
+#: src/window/views/containers_view.rs
+msgid "Container started"
+msgstr "بدأت الحاوية"
+
+#: src/window/views/containers_view.rs
+msgid "Container paused"
+msgstr "الحاوية في وضع الإيقاف المؤقت"
+
+#: src/window/views/containers_view.rs
+msgid "Container unpaused"
+msgstr "استُؤنفت الحاوية"
+
+#: src/window/views/containers_view.rs
+msgid "Container removed"
+msgstr "تمت إزالة الحاوية"
+
+#: src/window/views/containers_view.rs
+msgid "Container restarted"
+msgstr "أُعيد تشغيل الحاوية"
+
+#: src/window/views/containers_view.rs
+msgid "Remove Container?"
+msgstr "إزالة الحاوية؟"
+
+#: src/window/views/containers_view.rs
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr "إزالة الحاوية \"{name}\"؟ لا يمكن التراجع عن هذا الإجراء."
+
+#: src/window/views/containers_view.rs
+msgid "Failed to load containers"
+msgstr "فشل تحميل الحاويات"
+
+#: src/window/views/containers_view.rs
+msgid "Stop failed"
+msgstr "فشل الإيقاف"
+
+#: src/window/views/containers_view.rs
+msgid "Start failed"
+msgstr "فشل التشغيل"
+
+#: src/window/views/containers_view.rs
+msgid "Pause failed"
+msgstr "فشل الإيقاف المؤقت"
+
+#: src/window/views/containers_view.rs
+msgid "Unpause failed"
+msgstr "فشل الاستئناف"
+
+#: src/window/views/containers_view.rs
+msgid "Remove failed"
+msgstr "فشل الإزالة"
+
+#: src/window/views/containers_view.rs
+msgid "Restart failed"
+msgstr "فشل إعادة التشغيل"
+
+#: src/window/views/containers_view.rs
+msgid "Restart"
+msgstr "إعادة التشغيل"
+
+#: src/window/views/containers_view.rs
+msgid "Restart this container"
+msgstr "أعد تشغيل هذه الحاوية"
+
+#: src/window/views/containers_view.rs
+msgid "Name"
+msgstr "الاسم"
+
+#: src/window/views/containers_view.rs
+msgid "ID"
+msgstr "المعرّف"
+
+#: src/window/views/containers_view.rs
+msgid "Image"
+msgstr "الصورة"
+
+#: src/window/views/containers_view.rs
+msgid "Command"
+msgstr "الأمر"
+
+#: src/window/views/containers_view.rs
+msgid "Status"
+msgstr "الحالة"
+
+#: src/window/views/containers_view.rs
+msgid "Ports"
+msgstr "المنافذ"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove image"
+msgstr "إزالة الصورة"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove"
+msgstr "إزالة"
+
+#: src/window/views/images_view.rs
+msgid "Remove Image?"
+msgstr "إزالة الصورة؟"
+
+#: src/window/views/images_view.rs
+msgid "Remove image \"{tag}\"?"
+msgstr "إزالة الصورة \"{tag}\"؟"
+
+#: src/window/views/images_view.rs
+msgid "Image removed"
+msgstr "تمت إزالة الصورة"
+
+#: src/window/views/images_view.rs
+msgid "Failed to load images"
+msgstr "فشل تحميل الصور"
+
+#: src/window/views/images_view.rs
+msgid "Tag"
+msgstr "الوسم"
+
+#: src/window/views/images_view.rs
+msgid "Size"
+msgstr "الحجم"
+
+#: src/window/views/images_view.rs
+msgid "Created"
+msgstr "تاريخ الإنشاء"
+
+#: src/window/views/images_view.rs
+msgid "Digest"
+msgstr "الملخص"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr "إزالة القرص"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove"
+msgstr "إزالة"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove Volume?"
+msgstr "إزالة القرص؟"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr "إزالة القرص \"{name}\"؟ ستُفقد جميع البيانات."
+
+#: src/window/views/volumes_view.rs
+msgid "Volume removed"
+msgstr "تمت إزالة القرص"
+
+#: src/window/views/volumes_view.rs
+msgid "Failed to load volumes"
+msgstr "فشل تحميل الأقراص"
+
+#: src/window/views/volumes_view.rs
+msgid "Driver"
+msgstr "برنامج التشغيل"
+
+#: src/window/views/volumes_view.rs
+msgid "Mountpoint"
+msgstr "نقطة التحميل"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove network"
+msgstr "إزالة الشبكة"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove"
+msgstr "إزالة"
+
+#: src/window/views/networks_view.rs
+msgid "Remove Network?"
+msgstr "إزالة الشبكة؟"
+
+#: src/window/views/networks_view.rs
+msgid "Remove network \"{name}\"?"
+msgstr "إزالة الشبكة \"{name}\"؟"
+
+#: src/window/views/networks_view.rs
+msgid "Network removed"
+msgstr "تمت إزالة الشبكة"
+
+#: src/window/views/networks_view.rs
+msgid "Failed to load networks"
+msgstr "فشل تحميل الشبكات"
+
+#: src/window/views/networks_view.rs
+msgid "Scope"
+msgstr "النطاق"
+
+#: src/window/views/networks_view.rs
+msgid "Subnet"
+msgstr "الشبكة الفرعية"
+
+#: data/resources/window.ui
+msgid "Container Manager"
+msgstr "مدير الحاويات"
+
+#: data/resources/window.ui
+msgid "No Selection"
+msgstr "لا يوجد تحديد"
+
+#: data/resources/window.ui
+msgid "Select an item from the list to view its details."
+msgstr "حدد عنصراً من القائمة لعرض تفاصيله."
+
+#: data/resources/window.ui
+msgid "Main Menu"
+msgstr "القائمة الرئيسية"
+
+#: data/resources/window.ui
+msgid "Refresh"
+msgstr "تحديث"
+
+#: data/resources/window.ui
+msgid "Detail"
+msgstr "التفاصيل"
+
+#: data/resources/window.ui
+msgid "_Prune System…"
+msgstr "تنظيف النظام(_P)…"
+
+#: data/resources/window.ui
+msgid "_About Container Manager"
+msgstr "حول مدير الحاويات(_A)"

@@ -1,0 +1,256 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*.[0-9]*.[0-9]*'
+
+jobs:
+  flatpak-x86_64:
+    name: Flatpak (x86_64)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Cargo sources
+        run: |
+          curl -sSfL \
+            https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/cargo/flatpak-cargo-generator.py \
+            -o /tmp/flatpak-cargo-generator.py
+          python3 -m pip install --quiet toml
+          python3 /tmp/flatpak-cargo-generator.py Cargo.lock -o cargo-sources.json
+
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: com.example.GtkCrossPlatform-x86_64.flatpak
+          manifest-path: com.example.GtkCrossPlatform.json
+          cache-key: flatpak-release-x86_64-${{ github.ref_name }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-x86_64
+          path: com.example.GtkCrossPlatform-x86_64.flatpak
+
+  flatpak-aarch64:
+    name: Flatpak (aarch64)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Cargo sources
+        run: |
+          curl -sSfL \
+            https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/cargo/flatpak-cargo-generator.py \
+            -o /tmp/flatpak-cargo-generator.py
+          python3 -m pip install --quiet toml
+          python3 /tmp/flatpak-cargo-generator.py Cargo.lock -o cargo-sources.json
+
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: com.example.GtkCrossPlatform-aarch64.flatpak
+          manifest-path: com.example.GtkCrossPlatform.json
+          arch: aarch64
+          cache-key: flatpak-release-aarch64-${{ github.ref_name }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-aarch64
+          path: com.example.GtkCrossPlatform-aarch64.flatpak
+
+  macos:
+    name: macOS arm64 (.dmg)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: brew install gtk4 libadwaita dylibbundler create-dmg
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: macos-arm64-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: macos-arm64-cargo-
+
+      - name: Build
+        env:
+          APP_ID: com.example.GtkCrossPlatform
+          PROFILE: default
+          PKGDATADIR: ../Resources/share/gtk-cross-platform
+          LOCALEDIR: ../Resources/share/locale
+        run: cargo build --release
+
+      - name: Create .app bundle
+        run: |
+          APP="GtkCrossPlatform.app"
+          mkdir -p "$APP/Contents/MacOS"
+          mkdir -p "$APP/Contents/Frameworks"
+          mkdir -p "$APP/Contents/Resources/share/glib-2.0/schemas"
+
+          cp target/release/gtk-cross-platform "$APP/Contents/MacOS/"
+
+          # GLib compiled schemas — GTK4/Adwaita reads these at runtime.
+          # The compiled file lives under the global Homebrew prefix, not the glib formula prefix.
+          cp "$(brew --prefix)/share/glib-2.0/schemas/gschemas.compiled" \
+            "$APP/Contents/Resources/share/glib-2.0/schemas/"
+
+          cat > "$APP/Contents/Info.plist" << 'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+            "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleName</key><string>GtkCrossPlatform</string>
+            <key>CFBundleDisplayName</key><string>GtkCrossPlatform</string>
+            <key>CFBundleExecutable</key><string>gtk-cross-platform</string>
+            <key>CFBundleIdentifier</key><string>com.example.GtkCrossPlatform</string>
+            <key>CFBundlePackageType</key><string>APPL</string>
+            <key>NSHighResolutionCapable</key><true/>
+            <key>LSMinimumSystemVersion</key><string>12.0</string>
+          </dict>
+          </plist>
+          PLIST
+
+          # Re-link shared libraries to use bundled copies under Frameworks/
+          dylibbundler -od -b \
+            -x "$APP/Contents/MacOS/gtk-cross-platform" \
+            -d "$APP/Contents/Frameworks/" \
+            -p "@executable_path/../Frameworks/"
+
+      - name: Create DMG
+        run: |
+          create-dmg \
+            --volname "GtkCrossPlatform" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --icon "GtkCrossPlatform.app" 175 190 \
+            --hide-extension "GtkCrossPlatform.app" \
+            --app-drop-link 425 185 \
+            "GtkCrossPlatform-${{ github.ref_name }}-macos-arm64.dmg" \
+            "GtkCrossPlatform.app"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: GtkCrossPlatform-${{ github.ref_name }}-macos-arm64.dmg
+
+  windows:
+    name: Windows x86_64 (.zip)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gtk4
+            mingw-w64-x86_64-libadwaita
+            mingw-w64-x86_64-rust
+            mingw-w64-x86_64-pkg-config
+            mingw-w64-x86_64-gettext
+            mingw-w64-x86_64-gettext-tools
+            mingw-w64-x86_64-adwaita-icon-theme
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: windows-mingw64-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: windows-mingw64-cargo-
+
+      - name: Build
+        env:
+          APP_ID: com.example.GtkCrossPlatform
+          PROFILE: default
+          PKGDATADIR: ./share/gtk-cross-platform
+          LOCALEDIR: ./share/locale
+        run: cargo build --release
+
+      - name: Bundle DLLs and runtime data
+        run: |
+          mkdir -p dist/share/glib-2.0/schemas
+          mkdir -p dist/share/icons/hicolor
+          mkdir -p dist/lib/gdk-pixbuf-2.0
+
+          cp target/release/gtk-cross-platform.exe dist/
+
+          # Copy every MINGW64 DLL the binary depends on.
+          # ldd output: "name => /mingw64/bin/foo.dll (0x...)"
+          ldd target/release/gtk-cross-platform.exe \
+            | grep -i 'mingw64' \
+            | awk '{print $3}' \
+            | xargs -I{} cp -n {} dist/ 2>/dev/null || true
+
+          # GLib compiled schemas — GTK4/Adwaita reads these at runtime
+          cp /mingw64/share/glib-2.0/schemas/gschemas.compiled \
+            dist/share/glib-2.0/schemas/
+
+          # Hicolor index (GTK4 icon lookup falls back to hicolor)
+          cp /mingw64/share/icons/hicolor/index.theme \
+            dist/share/icons/hicolor/ 2>/dev/null || true
+
+          # GDK-Pixbuf loaders (PNG/SVG rendering in GTK4 widgets)
+          cp -r /mingw64/lib/gdk-pixbuf-2.0/. \
+            dist/lib/gdk-pixbuf-2.0/ 2>/dev/null || true
+
+      - name: Create ZIP
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist\* `
+            -DestinationPath "GtkCrossPlatform-${{ github.ref_name }}-windows-x86_64.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip
+          path: GtkCrossPlatform-${{ github.ref_name }}-windows-x86_64.zip
+
+  publish:
+    name: Publish GitHub Release
+    needs: [flatpak-x86_64, flatpak-aarch64, macos, windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create versioned release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --repo "${{ github.repository }}" \
+            --title "Release ${{ github.ref_name }}" \
+            --generate-notes \
+            artifacts/flatpak-x86_64/com.example.GtkCrossPlatform-x86_64.flatpak \
+            artifacts/flatpak-aarch64/com.example.GtkCrossPlatform-aarch64.flatpak \
+            "artifacts/macos-dmg/GtkCrossPlatform-${{ github.ref_name }}-macos-arm64.dmg" \
+            "artifacts/windows-zip/GtkCrossPlatform-${{ github.ref_name }}-windows-x86_64.zip"

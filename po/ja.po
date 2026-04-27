@@ -1,0 +1,331 @@
+# Japanese translation for gtk-cross-platform.
+# Copyright (C) 2026 gtk-cross-platform contributors
+# This file is distributed under the same license as the gtk-cross-platform package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gtk-cross-platform 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-26 00:00+0000\n"
+"PO-Revision-Date: 2026-04-26 00:00+0000\n"
+"Last-Translator: NOME <email@example.com>\n"
+"Language-Team: Japanese <ja@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/window/main_window.rs
+msgid "Containers"
+msgstr "コンテナ"
+
+#: src/window/main_window.rs
+msgid "Images"
+msgstr "イメージ"
+
+#: src/window/main_window.rs
+msgid "Volumes"
+msgstr "ボリューム"
+
+#: src/window/main_window.rs
+msgid "Networks"
+msgstr "ネットワーク"
+
+#: src/window/main_window.rs
+msgid "Prune System?"
+msgstr "システムをクリーンアップしますか？"
+
+#: src/window/main_window.rs
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+"これにより、停止中のコンテナ、ダングリングイメージ、未使用のネットワークが"
+"すべて削除されます。この操作は元に戻せません。"
+
+#: src/window/main_window.rs
+msgid "Prune"
+msgstr "クリーンアップ"
+
+#: src/window/main_window.rs
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] "{n} 個のコンテナをクリーンアップしました"
+
+#: src/window/main_window.rs
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] "{n} 個のイメージ"
+
+#: src/window/main_window.rs
+msgid "Prune failed"
+msgstr "クリーンアップ失敗"
+
+#: src/window/components/confirm_dialog.rs
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Stop container"
+msgstr "コンテナを停止"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Start container"
+msgstr "コンテナを起動"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Pause container"
+msgstr "コンテナを一時停止"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Unpause container"
+msgstr "コンテナを再開"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove container"
+msgstr "コンテナを削除"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove"
+msgstr "削除"
+
+#: src/window/views/containers_view.rs
+msgid "Container stopped"
+msgstr "コンテナを停止しました"
+
+#: src/window/views/containers_view.rs
+msgid "Container started"
+msgstr "コンテナを起動しました"
+
+#: src/window/views/containers_view.rs
+msgid "Container paused"
+msgstr "コンテナを一時停止しました"
+
+#: src/window/views/containers_view.rs
+msgid "Container unpaused"
+msgstr "コンテナを再開しました"
+
+#: src/window/views/containers_view.rs
+msgid "Container removed"
+msgstr "コンテナを削除しました"
+
+#: src/window/views/containers_view.rs
+msgid "Container restarted"
+msgstr "コンテナを再起動しました"
+
+#: src/window/views/containers_view.rs
+msgid "Remove Container?"
+msgstr "コンテナを削除しますか？"
+
+#: src/window/views/containers_view.rs
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr "コンテナ「{name}」を削除しますか？この操作は元に戻せません。"
+
+#: src/window/views/containers_view.rs
+msgid "Failed to load containers"
+msgstr "コンテナの読み込みに失敗しました"
+
+#: src/window/views/containers_view.rs
+msgid "Stop failed"
+msgstr "停止に失敗しました"
+
+#: src/window/views/containers_view.rs
+msgid "Start failed"
+msgstr "起動に失敗しました"
+
+#: src/window/views/containers_view.rs
+msgid "Pause failed"
+msgstr "一時停止に失敗しました"
+
+#: src/window/views/containers_view.rs
+msgid "Unpause failed"
+msgstr "再開に失敗しました"
+
+#: src/window/views/containers_view.rs
+msgid "Remove failed"
+msgstr "削除に失敗しました"
+
+#: src/window/views/containers_view.rs
+msgid "Restart failed"
+msgstr "再起動に失敗しました"
+
+#: src/window/views/containers_view.rs
+msgid "Restart"
+msgstr "再起動"
+
+#: src/window/views/containers_view.rs
+msgid "Restart this container"
+msgstr "このコンテナを再起動"
+
+#: src/window/views/containers_view.rs
+msgid "Name"
+msgstr "名前"
+
+#: src/window/views/containers_view.rs
+msgid "ID"
+msgstr "ID"
+
+#: src/window/views/containers_view.rs
+msgid "Image"
+msgstr "イメージ"
+
+#: src/window/views/containers_view.rs
+msgid "Command"
+msgstr "コマンド"
+
+#: src/window/views/containers_view.rs
+msgid "Status"
+msgstr "ステータス"
+
+#: src/window/views/containers_view.rs
+msgid "Ports"
+msgstr "ポート"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove image"
+msgstr "イメージを削除"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove"
+msgstr "削除"
+
+#: src/window/views/images_view.rs
+msgid "Remove Image?"
+msgstr "イメージを削除しますか？"
+
+#: src/window/views/images_view.rs
+msgid "Remove image \"{tag}\"?"
+msgstr "イメージ「{tag}」を削除しますか？"
+
+#: src/window/views/images_view.rs
+msgid "Image removed"
+msgstr "イメージを削除しました"
+
+#: src/window/views/images_view.rs
+msgid "Failed to load images"
+msgstr "イメージの読み込みに失敗しました"
+
+#: src/window/views/images_view.rs
+msgid "Tag"
+msgstr "タグ"
+
+#: src/window/views/images_view.rs
+msgid "Size"
+msgstr "サイズ"
+
+#: src/window/views/images_view.rs
+msgid "Created"
+msgstr "作成日"
+
+#: src/window/views/images_view.rs
+msgid "Digest"
+msgstr "ダイジェスト"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr "ボリュームを削除"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove"
+msgstr "削除"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove Volume?"
+msgstr "ボリュームを削除しますか？"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr "ボリューム「{name}」を削除しますか？すべてのデータが失われます。"
+
+#: src/window/views/volumes_view.rs
+msgid "Volume removed"
+msgstr "ボリュームを削除しました"
+
+#: src/window/views/volumes_view.rs
+msgid "Failed to load volumes"
+msgstr "ボリュームの読み込みに失敗しました"
+
+#: src/window/views/volumes_view.rs
+msgid "Driver"
+msgstr "ドライバー"
+
+#: src/window/views/volumes_view.rs
+msgid "Mountpoint"
+msgstr "マウントポイント"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove network"
+msgstr "ネットワークを削除"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove"
+msgstr "削除"
+
+#: src/window/views/networks_view.rs
+msgid "Remove Network?"
+msgstr "ネットワークを削除しますか？"
+
+#: src/window/views/networks_view.rs
+msgid "Remove network \"{name}\"?"
+msgstr "ネットワーク「{name}」を削除しますか？"
+
+#: src/window/views/networks_view.rs
+msgid "Network removed"
+msgstr "ネットワークを削除しました"
+
+#: src/window/views/networks_view.rs
+msgid "Failed to load networks"
+msgstr "ネットワークの読み込みに失敗しました"
+
+#: src/window/views/networks_view.rs
+msgid "Scope"
+msgstr "スコープ"
+
+#: src/window/views/networks_view.rs
+msgid "Subnet"
+msgstr "サブネット"
+
+#: data/resources/window.ui
+msgid "Container Manager"
+msgstr "コンテナマネージャー"
+
+#: data/resources/window.ui
+msgid "No Selection"
+msgstr "選択なし"
+
+#: data/resources/window.ui
+msgid "Select an item from the list to view its details."
+msgstr "リストから項目を選択して詳細を表示します。"
+
+#: data/resources/window.ui
+msgid "Main Menu"
+msgstr "メインメニュー"
+
+#: data/resources/window.ui
+msgid "Refresh"
+msgstr "更新"
+
+#: data/resources/window.ui
+msgid "Detail"
+msgstr "詳細"
+
+#: data/resources/window.ui
+msgid "_Prune System…"
+msgstr "システムをクリーンアップ(_P)…"
+
+#: data/resources/window.ui
+msgid "_About Container Manager"
+msgstr "コンテナマネージャーについて(_A)"

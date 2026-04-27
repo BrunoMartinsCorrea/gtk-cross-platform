@@ -1,0 +1,4 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Dark-mode overrides — loaded in addition to style.css when dark mode is active.
+   Adwaita's built-in color tokens handle most dark-mode adaptation automatically.
+   Add overrides here only for custom components that require explicit dark-mode rules. */

@@ -1,0 +1,232 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+
+      - uses: taiki-e/install-action@cargo-nextest
+
+      - name: Unit tests (no display required)
+        run: cargo nextest run --profile ci --lib
+
+      - name: Integration tests — container driver
+        run: cargo nextest run --profile ci --test container_driver_test
+
+      - name: Integration tests — greet use case
+        run: cargo nextest run --profile ci --test greet_use_case_test
+
+      - name: Install validation tools
+        run: sudo apt-get install -y appstream desktop-file-utils gettext
+
+      - name: Validate AppStream metadata
+        run: appstreamcli validate --pedantic data/com.example.GtkCrossPlatform.metainfo.xml
+
+      - name: Validate .desktop file
+        run: desktop-file-validate data/com.example.GtkCrossPlatform.desktop
+
+      - name: Check version consistency (Cargo.toml vs metainfo.xml)
+        run: |
+          CARGO_VER=$(grep '^version' Cargo.toml | head -1 | grep -oP '[\d.]+')
+          META_VER=$(grep -oP '(?<=<release version=")[^"]+' data/com.example.GtkCrossPlatform.metainfo.xml | head -1)
+          echo "Cargo version: $CARGO_VER"
+          echo "Metainfo version: $META_VER"
+          [ "$CARGO_VER" = "$META_VER" ] || \
+            { echo "ERROR: Version mismatch — Cargo.toml=$CARGO_VER metainfo.xml=$META_VER"; exit 1; }
+
+      - name: i18n lint (msgfmt --check)
+        run: make lint-i18n
+
+      - name: i18n POTFILES completeness
+        run: |
+          grep -rl 'gettext(' src/ | grep '\.rs$' | sort > /tmp/has_gettext.txt
+          sort po/POTFILES | grep '\.rs$' > /tmp/potfiles_rs.txt
+          MISSING=$(comm -23 /tmp/has_gettext.txt /tmp/potfiles_rs.txt)
+          if [ -n "$MISSING" ]; then
+            echo "ERROR: Files with gettext() not registered in po/POTFILES:"
+            echo "$MISSING"
+            exit 1
+          fi
+          echo "POTFILES completeness OK"
+
+      - name: i18n structural tests
+        run: cargo nextest run --profile ci --test i18n_test
+
+  editorconfig:
+    name: EditorConfig compliance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run editorconfig-checker
+        run: npx editorconfig-checker src/ data/ po/ tests/ Cargo.toml build.rs .github/
+
+  audit:
+    name: cargo audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-audit-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-audit-
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+
+      - name: Run audit
+        run: cargo audit
+
+  deny:
+    name: cargo deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check
+          arguments: --all-features
+
+  typos:
+    name: Spell check (typos)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: crate-ci/typos-action@v1
+
+  unused-deps:
+    name: Unused dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-machete
+        run: cargo install cargo-machete --locked
+
+      - name: Check for unused dependencies
+        run: cargo machete
+
+  flatpak:
+    name: Build Flatpak
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48
+      options: --privileged
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Cargo sources
+        run: |
+          curl -sSfL \
+            https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/cargo/flatpak-cargo-generator.py \
+            -o /tmp/flatpak-cargo-generator.py
+          python3 -m pip install --quiet toml
+          python3 /tmp/flatpak-cargo-generator.py Cargo.lock -o cargo-sources.json
+
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: com.example.GtkCrossPlatform.flatpak
+          manifest-path: com.example.GtkCrossPlatform.json
+          cache-key: flatpak-builder-${{ github.sha }}
+
+      - name: Publish Nightly
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete nightly --repo ${{ github.repository }} --yes --cleanup-tag || true
+          gh release create nightly \
+            --repo ${{ github.repository }} \
+            --title "Nightly Build" \
+            --notes "Automated nightly build from commit ${{ github.sha }}" \
+            --prerelease \
+            com.example.GtkCrossPlatform.flatpak
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-coverage-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-coverage-
+
+      - name: Install cargo-llvm-cov
+        run: cargo install cargo-llvm-cov --locked
+
+      - name: Run coverage (summary + threshold)
+        run: |
+          cargo llvm-cov --lib --summary-only --fail-under-lines 25
+          cargo llvm-cov --test container_driver_test --summary-only
+          cargo llvm-cov --test greet_use_case_test --summary-only
+
+      - name: Generate LCOV report
+        run: >
+          cargo llvm-cov
+          --lib
+          --test container_driver_test
+          --test greet_use_case_test
+          --lcov
+          --output-path lcov.info
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: lcov.info

@@ -1,0 +1,18 @@
+#!/bin/bash
+# Sets up GTK runtime environment relative to the bundle before exec-ing the binary.
+BUNDLE="$(cd "$(dirname "$0")/.." && pwd)"
+RES="$BUNDLE/Resources"
+
+export GSETTINGS_SCHEMA_DIR="$RES/share/glib-2.0/schemas"
+# Path has no version sub-directory so it survives gdk-pixbuf upgrades.
+export GDK_PIXBUF_MODULE_FILE="$RES/lib/gdk-pixbuf-2.0/loaders.cache"
+# Include both Homebrew prefixes: /opt/homebrew (Apple Silicon) and /usr/local (Intel).
+export XDG_DATA_DIRS="$RES/share:/opt/homebrew/share:/usr/local/share:/usr/share"
+export DYLD_LIBRARY_PATH="$BUNDLE/Frameworks"
+export GTK_DATA_PREFIX="$RES"
+export GTK_EXE_PREFIX="$RES"
+export GTK_PATH="$RES"
+# Point gettext to the bundled locale directory for translated strings.
+export TEXTDOMAINDIR="$RES/share/locale"
+
+exec "$BUNDLE/MacOS/gtk-cross-platform" "$@"

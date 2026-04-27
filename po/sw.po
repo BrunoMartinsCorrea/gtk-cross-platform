@@ -1,0 +1,333 @@
+# Swahili translation for gtk-cross-platform.
+# Copyright (C) 2026 gtk-cross-platform contributors
+# This file is distributed under the same license as the gtk-cross-platform package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gtk-cross-platform 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-26 00:00+0000\n"
+"PO-Revision-Date: 2026-04-26 00:00+0000\n"
+"Last-Translator: NOME <email@example.com>\n"
+"Language-Team: Swahili <sw@li.org>\n"
+"Language: sw\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/window/main_window.rs
+msgid "Containers"
+msgstr "Kontena"
+
+#: src/window/main_window.rs
+msgid "Images"
+msgstr "Picha"
+
+#: src/window/main_window.rs
+msgid "Volumes"
+msgstr "Sauti"
+
+#: src/window/main_window.rs
+msgid "Networks"
+msgstr "Mitandao"
+
+#: src/window/main_window.rs
+msgid "Prune System?"
+msgstr "Safisha mfumo?"
+
+#: src/window/main_window.rs
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+"Hii itaondoa kontena zote zilizosimamishwa, picha zinazoning'inia, na "
+"mitandao isiyotumika. Hii haiwezi kutenduliwa."
+
+#: src/window/main_window.rs
+msgid "Prune"
+msgstr "Safisha"
+
+#: src/window/main_window.rs
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] "Kontena 1 imesafishwa"
+msgstr[1] "Kontena {n} zimesafishwa"
+
+#: src/window/main_window.rs
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] "Picha 1"
+msgstr[1] "Picha {n}"
+
+#: src/window/main_window.rs
+msgid "Prune failed"
+msgstr "Usafishaji umeshindwa"
+
+#: src/window/components/confirm_dialog.rs
+msgid "Cancel"
+msgstr "Ghairi"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Stop container"
+msgstr "Simamisha kontena"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Start container"
+msgstr "Anzisha kontena"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Pause container"
+msgstr "Simamisha muda kontena"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Unpause container"
+msgstr "Endelea na kontena"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove container"
+msgstr "Ondoa kontena"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove"
+msgstr "Ondoa"
+
+#: src/window/views/containers_view.rs
+msgid "Container stopped"
+msgstr "Kontena imesimamishwa"
+
+#: src/window/views/containers_view.rs
+msgid "Container started"
+msgstr "Kontena imeanzishwa"
+
+#: src/window/views/containers_view.rs
+msgid "Container paused"
+msgstr "Kontena imesimamishwa kwa muda"
+
+#: src/window/views/containers_view.rs
+msgid "Container unpaused"
+msgstr "Kontena imeendelea"
+
+#: src/window/views/containers_view.rs
+msgid "Container removed"
+msgstr "Kontena imeondolewa"
+
+#: src/window/views/containers_view.rs
+msgid "Container restarted"
+msgstr "Kontena imeanzishwa upya"
+
+#: src/window/views/containers_view.rs
+msgid "Remove Container?"
+msgstr "Ondoa kontena?"
+
+#: src/window/views/containers_view.rs
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr "Ondoa kontena \"{name}\"? Hii haiwezi kutenduliwa."
+
+#: src/window/views/containers_view.rs
+msgid "Failed to load containers"
+msgstr "Imeshindwa kupakia kontena"
+
+#: src/window/views/containers_view.rs
+msgid "Stop failed"
+msgstr "Kusimamisha kumeshindwa"
+
+#: src/window/views/containers_view.rs
+msgid "Start failed"
+msgstr "Kuanzisha kumeshindwa"
+
+#: src/window/views/containers_view.rs
+msgid "Pause failed"
+msgstr "Kusimamisha kwa muda kumeshindwa"
+
+#: src/window/views/containers_view.rs
+msgid "Unpause failed"
+msgstr "Kuendelea kumeshindwa"
+
+#: src/window/views/containers_view.rs
+msgid "Remove failed"
+msgstr "Kuondoa kumeshindwa"
+
+#: src/window/views/containers_view.rs
+msgid "Restart failed"
+msgstr "Kuanzisha upya kumeshindwa"
+
+#: src/window/views/containers_view.rs
+msgid "Restart"
+msgstr "Anzisha upya"
+
+#: src/window/views/containers_view.rs
+msgid "Restart this container"
+msgstr "Anzisha upya kontena hii"
+
+#: src/window/views/containers_view.rs
+msgid "Name"
+msgstr "Jina"
+
+#: src/window/views/containers_view.rs
+msgid "ID"
+msgstr "Kitambulisho"
+
+#: src/window/views/containers_view.rs
+msgid "Image"
+msgstr "Picha"
+
+#: src/window/views/containers_view.rs
+msgid "Command"
+msgstr "Amri"
+
+#: src/window/views/containers_view.rs
+msgid "Status"
+msgstr "Hali"
+
+#: src/window/views/containers_view.rs
+msgid "Ports"
+msgstr "Bandari"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove image"
+msgstr "Ondoa picha"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove"
+msgstr "Ondoa"
+
+#: src/window/views/images_view.rs
+msgid "Remove Image?"
+msgstr "Ondoa picha?"
+
+#: src/window/views/images_view.rs
+msgid "Remove image \"{tag}\"?"
+msgstr "Ondoa picha \"{tag}\"?"
+
+#: src/window/views/images_view.rs
+msgid "Image removed"
+msgstr "Picha imeondolewa"
+
+#: src/window/views/images_view.rs
+msgid "Failed to load images"
+msgstr "Imeshindwa kupakia picha"
+
+#: src/window/views/images_view.rs
+msgid "Tag"
+msgstr "Lebo"
+
+#: src/window/views/images_view.rs
+msgid "Size"
+msgstr "Ukubwa"
+
+#: src/window/views/images_view.rs
+msgid "Created"
+msgstr "Imeundwa"
+
+#: src/window/views/images_view.rs
+msgid "Digest"
+msgstr "Muhtasari"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr "Ondoa sauti"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove"
+msgstr "Ondoa"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove Volume?"
+msgstr "Ondoa sauti?"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr "Ondoa sauti \"{name}\"? Data yote itapotea."
+
+#: src/window/views/volumes_view.rs
+msgid "Volume removed"
+msgstr "Sauti imeondolewa"
+
+#: src/window/views/volumes_view.rs
+msgid "Failed to load volumes"
+msgstr "Imeshindwa kupakia sauti"
+
+#: src/window/views/volumes_view.rs
+msgid "Driver"
+msgstr "Dereva"
+
+#: src/window/views/volumes_view.rs
+msgid "Mountpoint"
+msgstr "Eneo la kupachika"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove network"
+msgstr "Ondoa mtandao"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove"
+msgstr "Ondoa"
+
+#: src/window/views/networks_view.rs
+msgid "Remove Network?"
+msgstr "Ondoa mtandao?"
+
+#: src/window/views/networks_view.rs
+msgid "Remove network \"{name}\"?"
+msgstr "Ondoa mtandao \"{name}\"?"
+
+#: src/window/views/networks_view.rs
+msgid "Network removed"
+msgstr "Mtandao umeondolewa"
+
+#: src/window/views/networks_view.rs
+msgid "Failed to load networks"
+msgstr "Imeshindwa kupakia mitandao"
+
+#: src/window/views/networks_view.rs
+msgid "Scope"
+msgstr "Upeo"
+
+#: src/window/views/networks_view.rs
+msgid "Subnet"
+msgstr "Mtandao mdogo"
+
+#: data/resources/window.ui
+msgid "Container Manager"
+msgstr "Msimamizi wa Kontena"
+
+#: data/resources/window.ui
+msgid "No Selection"
+msgstr "Hakuna uteuzi"
+
+#: data/resources/window.ui
+msgid "Select an item from the list to view its details."
+msgstr "Chagua kipengele kutoka kwenye orodha ili kuona maelezo yake."
+
+#: data/resources/window.ui
+msgid "Main Menu"
+msgstr "Menyu kuu"
+
+#: data/resources/window.ui
+msgid "Refresh"
+msgstr "Onyesha upya"
+
+#: data/resources/window.ui
+msgid "Detail"
+msgstr "Maelezo"
+
+#: data/resources/window.ui
+msgid "_Prune System…"
+msgstr "_Safisha Mfumo…"
+
+#: data/resources/window.ui
+msgid "_About Container Manager"
+msgstr "_Kuhusu Msimamizi wa Kontena"

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="com.example.GtkCrossPlatform" path="/com/example/GtkCrossPlatform/">
+
+    <!-- Window geometry -->
+    <key name="window-width" type="i">
+      <default>1200</default>
+      <summary>Window width</summary>
+    </key>
+    <key name="window-height" type="i">
+      <default>700</default>
+      <summary>Window height</summary>
+    </key>
+    <key name="window-maximized" type="b">
+      <default>false</default>
+      <summary>Whether the window is maximized</summary>
+    </key>
+
+    <!-- Appearance -->
+    <key name="color-scheme" type="s">
+      <choices>
+        <choice value="default"/>
+        <choice value="force-light"/>
+        <choice value="force-dark"/>
+      </choices>
+      <default>'default'</default>
+      <summary>Application color scheme</summary>
+    </key>
+
+    <!-- Runtime preference -->
+    <key name="preferred-runtime" type="s">
+      <default>''</default>
+      <summary>Last selected container runtime ('docker', 'podman', 'containerd', or '')</summary>
+    </key>
+
+    <!-- Layout — fraction of the window width occupied by the sidebar (0.0–1.0) -->
+    <key name="sidebar-width-fraction" type="d">
+      <range min="0.15" max="0.5"/>
+      <default>0.25</default>
+      <summary>Sidebar width as a fraction of the window width</summary>
+    </key>
+
+  </schema>
+</schemalist>

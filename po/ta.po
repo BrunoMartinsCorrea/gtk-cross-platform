@@ -1,0 +1,333 @@
+# Tamil translation for gtk-cross-platform.
+# Copyright (C) 2026 gtk-cross-platform contributors
+# This file is distributed under the same license as the gtk-cross-platform package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gtk-cross-platform 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-26 00:00+0000\n"
+"PO-Revision-Date: 2026-04-26 00:00+0000\n"
+"Last-Translator: NOME <email@example.com>\n"
+"Language-Team: Tamil <ta@li.org>\n"
+"Language: ta\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/window/main_window.rs
+msgid "Containers"
+msgstr "கண்டெயினர்கள்"
+
+#: src/window/main_window.rs
+msgid "Images"
+msgstr "படங்கள்"
+
+#: src/window/main_window.rs
+msgid "Volumes"
+msgstr "தொகுதிகள்"
+
+#: src/window/main_window.rs
+msgid "Networks"
+msgstr "நெட்வொர்க்குகள்"
+
+#: src/window/main_window.rs
+msgid "Prune System?"
+msgstr "கணினியை சுத்தம் செய்யவா?"
+
+#: src/window/main_window.rs
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+"இது அனைத்து நிறுத்தப்பட்ட கண்டெயினர்கள், தொங்கும் படங்கள் மற்றும் "
+"பயன்படுத்தப்படாத நெட்வொர்க்குகளை நீக்கும். இதை செயல்தவிர்க்க முடியாது."
+
+#: src/window/main_window.rs
+msgid "Prune"
+msgstr "சுத்தம் செய்"
+
+#: src/window/main_window.rs
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] "1 கண்டெயினர் சுத்தம் செய்யப்பட்டது"
+msgstr[1] "{n} கண்டெயினர்கள் சுத்தம் செய்யப்பட்டன"
+
+#: src/window/main_window.rs
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] "1 படம்"
+msgstr[1] "{n} படங்கள்"
+
+#: src/window/main_window.rs
+msgid "Prune failed"
+msgstr "சுத்தம் செய்வது தோல்வியடைந்தது"
+
+#: src/window/components/confirm_dialog.rs
+msgid "Cancel"
+msgstr "ரத்து செய்"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Stop container"
+msgstr "கண்டெயினரை நிறுத்து"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Start container"
+msgstr "கண்டெயினரை தொடங்கு"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Pause container"
+msgstr "கண்டெயினரை இடைநிறுத்து"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Unpause container"
+msgstr "கண்டெயினரை மீண்டும் தொடங்கு"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove container"
+msgstr "கண்டெயினரை நீக்கு"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove"
+msgstr "நீக்கு"
+
+#: src/window/views/containers_view.rs
+msgid "Container stopped"
+msgstr "கண்டெயினர் நிறுத்தப்பட்டது"
+
+#: src/window/views/containers_view.rs
+msgid "Container started"
+msgstr "கண்டெயினர் தொடங்கியது"
+
+#: src/window/views/containers_view.rs
+msgid "Container paused"
+msgstr "கண்டெயினர் இடைநிறுத்தப்பட்டது"
+
+#: src/window/views/containers_view.rs
+msgid "Container unpaused"
+msgstr "கண்டெயினர் மீண்டும் தொடங்கியது"
+
+#: src/window/views/containers_view.rs
+msgid "Container removed"
+msgstr "கண்டெயினர் நீக்கப்பட்டது"
+
+#: src/window/views/containers_view.rs
+msgid "Container restarted"
+msgstr "கண்டெயினர் மறுதொடக்கம் செய்யப்பட்டது"
+
+#: src/window/views/containers_view.rs
+msgid "Remove Container?"
+msgstr "கண்டெயினரை நீக்கவா?"
+
+#: src/window/views/containers_view.rs
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr "கண்டெயினர் \"{name}\"ஐ நீக்கவா? இதை செயல்தவிர்க்க முடியாது."
+
+#: src/window/views/containers_view.rs
+msgid "Failed to load containers"
+msgstr "கண்டெயினர்களை ஏற்ற முடியவில்லை"
+
+#: src/window/views/containers_view.rs
+msgid "Stop failed"
+msgstr "நிறுத்துவது தோல்வியடைந்தது"
+
+#: src/window/views/containers_view.rs
+msgid "Start failed"
+msgstr "தொடங்குவது தோல்வியடைந்தது"
+
+#: src/window/views/containers_view.rs
+msgid "Pause failed"
+msgstr "இடைநிறுத்துவது தோல்வியடைந்தது"
+
+#: src/window/views/containers_view.rs
+msgid "Unpause failed"
+msgstr "மீண்டும் தொடங்குவது தோல்வியடைந்தது"
+
+#: src/window/views/containers_view.rs
+msgid "Remove failed"
+msgstr "நீக்குவது தோல்வியடைந்தது"
+
+#: src/window/views/containers_view.rs
+msgid "Restart failed"
+msgstr "மறுதொடக்கம் தோல்வியடைந்தது"
+
+#: src/window/views/containers_view.rs
+msgid "Restart"
+msgstr "மறுதொடக்கம்"
+
+#: src/window/views/containers_view.rs
+msgid "Restart this container"
+msgstr "இந்த கண்டெயினரை மறுதொடக்கம் செய்"
+
+#: src/window/views/containers_view.rs
+msgid "Name"
+msgstr "பெயர்"
+
+#: src/window/views/containers_view.rs
+msgid "ID"
+msgstr "அடையாளம்"
+
+#: src/window/views/containers_view.rs
+msgid "Image"
+msgstr "படம்"
+
+#: src/window/views/containers_view.rs
+msgid "Command"
+msgstr "கட்டளை"
+
+#: src/window/views/containers_view.rs
+msgid "Status"
+msgstr "நிலை"
+
+#: src/window/views/containers_view.rs
+msgid "Ports"
+msgstr "துறைமுகங்கள்"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove image"
+msgstr "படத்தை நீக்கு"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove"
+msgstr "நீக்கு"
+
+#: src/window/views/images_view.rs
+msgid "Remove Image?"
+msgstr "படத்தை நீக்கவா?"
+
+#: src/window/views/images_view.rs
+msgid "Remove image \"{tag}\"?"
+msgstr "படம் \"{tag}\"ஐ நீக்கவா?"
+
+#: src/window/views/images_view.rs
+msgid "Image removed"
+msgstr "படம் நீக்கப்பட்டது"
+
+#: src/window/views/images_view.rs
+msgid "Failed to load images"
+msgstr "படங்களை ஏற்ற முடியவில்லை"
+
+#: src/window/views/images_view.rs
+msgid "Tag"
+msgstr "குறிச்சொல்"
+
+#: src/window/views/images_view.rs
+msgid "Size"
+msgstr "அளவு"
+
+#: src/window/views/images_view.rs
+msgid "Created"
+msgstr "உருவாக்கப்பட்டது"
+
+#: src/window/views/images_view.rs
+msgid "Digest"
+msgstr "சுருக்கம்"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr "தொகுதியை நீக்கு"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove"
+msgstr "நீக்கு"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove Volume?"
+msgstr "தொகுதியை நீக்கவா?"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr "தொகுதி \"{name}\"ஐ நீக்கவா? அனைத்து தரவும் இழக்கப்படும்."
+
+#: src/window/views/volumes_view.rs
+msgid "Volume removed"
+msgstr "தொகுதி நீக்கப்பட்டது"
+
+#: src/window/views/volumes_view.rs
+msgid "Failed to load volumes"
+msgstr "தொகுதிகளை ஏற்ற முடியவில்லை"
+
+#: src/window/views/volumes_view.rs
+msgid "Driver"
+msgstr "இயக்கி"
+
+#: src/window/views/volumes_view.rs
+msgid "Mountpoint"
+msgstr "இணைப்பு புள்ளி"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove network"
+msgstr "நெட்வொர்க்கை நீக்கு"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove"
+msgstr "நீக்கு"
+
+#: src/window/views/networks_view.rs
+msgid "Remove Network?"
+msgstr "நெட்வொர்க்கை நீக்கவா?"
+
+#: src/window/views/networks_view.rs
+msgid "Remove network \"{name}\"?"
+msgstr "நெட்வொர்க் \"{name}\"ஐ நீக்கவா?"
+
+#: src/window/views/networks_view.rs
+msgid "Network removed"
+msgstr "நெட்வொர்க் நீக்கப்பட்டது"
+
+#: src/window/views/networks_view.rs
+msgid "Failed to load networks"
+msgstr "நெட்வொர்க்குகளை ஏற்ற முடியவில்லை"
+
+#: src/window/views/networks_view.rs
+msgid "Scope"
+msgstr "நோக்கம்"
+
+#: src/window/views/networks_view.rs
+msgid "Subnet"
+msgstr "துணை நெட்வொர்க்"
+
+#: data/resources/window.ui
+msgid "Container Manager"
+msgstr "கண்டெயினர் மேலாளர்"
+
+#: data/resources/window.ui
+msgid "No Selection"
+msgstr "தேர்வு எதுவுமில்லை"
+
+#: data/resources/window.ui
+msgid "Select an item from the list to view its details."
+msgstr "விவரங்களைக் காண பட்டியலில் இருந்து ஒரு உருப்படியைத் தேர்ந்தெடுக்கவும்."
+
+#: data/resources/window.ui
+msgid "Main Menu"
+msgstr "முதன்மை மெனு"
+
+#: data/resources/window.ui
+msgid "Refresh"
+msgstr "புதுப்பி"
+
+#: data/resources/window.ui
+msgid "Detail"
+msgstr "விவரம்"
+
+#: data/resources/window.ui
+msgid "_Prune System…"
+msgstr "கணினியை சுத்தம்(_P)…"
+
+#: data/resources/window.ui
+msgid "_About Container Manager"
+msgstr "கண்டெயினர் மேலாளர் பற்றி(_A)"

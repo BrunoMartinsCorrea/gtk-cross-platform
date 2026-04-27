@@ -1,0 +1,335 @@
+# Russian translation for gtk-cross-platform.
+# Copyright (C) 2026 gtk-cross-platform contributors
+# This file is distributed under the same license as the gtk-cross-platform package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gtk-cross-platform 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-26 00:00+0000\n"
+"PO-Revision-Date: 2026-04-26 00:00+0000\n"
+"Last-Translator: NOME <email@example.com>\n"
+"Language-Team: Russian <ru@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: src/window/main_window.rs
+msgid "Containers"
+msgstr "Контейнеры"
+
+#: src/window/main_window.rs
+msgid "Images"
+msgstr "Образы"
+
+#: src/window/main_window.rs
+msgid "Volumes"
+msgstr "Тома"
+
+#: src/window/main_window.rs
+msgid "Networks"
+msgstr "Сети"
+
+#: src/window/main_window.rs
+msgid "Prune System?"
+msgstr "Очистить систему?"
+
+#: src/window/main_window.rs
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+"Это удалит все остановленные контейнеры, неиспользуемые образы и "
+"неиспользуемые сети. Это действие нельзя отменить."
+
+#: src/window/main_window.rs
+msgid "Prune"
+msgstr "Очистить"
+
+#: src/window/main_window.rs
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] "Очищен {n} контейнер"
+msgstr[1] "Очищено {n} контейнера"
+msgstr[2] "Очищено {n} контейнеров"
+
+#: src/window/main_window.rs
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] "{n} образ"
+msgstr[1] "{n} образа"
+msgstr[2] "{n} образов"
+
+#: src/window/main_window.rs
+msgid "Prune failed"
+msgstr "Ошибка очистки"
+
+#: src/window/components/confirm_dialog.rs
+msgid "Cancel"
+msgstr "Отмена"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Stop container"
+msgstr "Остановить контейнер"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Start container"
+msgstr "Запустить контейнер"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Pause container"
+msgstr "Приостановить контейнер"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Unpause container"
+msgstr "Возобновить контейнер"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove container"
+msgstr "Удалить контейнер"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove"
+msgstr "Удалить"
+
+#: src/window/views/containers_view.rs
+msgid "Container stopped"
+msgstr "Контейнер остановлен"
+
+#: src/window/views/containers_view.rs
+msgid "Container started"
+msgstr "Контейнер запущен"
+
+#: src/window/views/containers_view.rs
+msgid "Container paused"
+msgstr "Контейнер приостановлен"
+
+#: src/window/views/containers_view.rs
+msgid "Container unpaused"
+msgstr "Контейнер возобновлён"
+
+#: src/window/views/containers_view.rs
+msgid "Container removed"
+msgstr "Контейнер удалён"
+
+#: src/window/views/containers_view.rs
+msgid "Container restarted"
+msgstr "Контейнер перезапущен"
+
+#: src/window/views/containers_view.rs
+msgid "Remove Container?"
+msgstr "Удалить контейнер?"
+
+#: src/window/views/containers_view.rs
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr "Удалить контейнер «{name}»? Это действие нельзя отменить."
+
+#: src/window/views/containers_view.rs
+msgid "Failed to load containers"
+msgstr "Не удалось загрузить контейнеры"
+
+#: src/window/views/containers_view.rs
+msgid "Stop failed"
+msgstr "Ошибка остановки"
+
+#: src/window/views/containers_view.rs
+msgid "Start failed"
+msgstr "Ошибка запуска"
+
+#: src/window/views/containers_view.rs
+msgid "Pause failed"
+msgstr "Ошибка приостановки"
+
+#: src/window/views/containers_view.rs
+msgid "Unpause failed"
+msgstr "Ошибка возобновления"
+
+#: src/window/views/containers_view.rs
+msgid "Remove failed"
+msgstr "Ошибка удаления"
+
+#: src/window/views/containers_view.rs
+msgid "Restart failed"
+msgstr "Ошибка перезапуска"
+
+#: src/window/views/containers_view.rs
+msgid "Restart"
+msgstr "Перезапустить"
+
+#: src/window/views/containers_view.rs
+msgid "Restart this container"
+msgstr "Перезапустить этот контейнер"
+
+#: src/window/views/containers_view.rs
+msgid "Name"
+msgstr "Имя"
+
+#: src/window/views/containers_view.rs
+msgid "ID"
+msgstr "ID"
+
+#: src/window/views/containers_view.rs
+msgid "Image"
+msgstr "Образ"
+
+#: src/window/views/containers_view.rs
+msgid "Command"
+msgstr "Команда"
+
+#: src/window/views/containers_view.rs
+msgid "Status"
+msgstr "Статус"
+
+#: src/window/views/containers_view.rs
+msgid "Ports"
+msgstr "Порты"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove image"
+msgstr "Удалить образ"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove"
+msgstr "Удалить"
+
+#: src/window/views/images_view.rs
+msgid "Remove Image?"
+msgstr "Удалить образ?"
+
+#: src/window/views/images_view.rs
+msgid "Remove image \"{tag}\"?"
+msgstr "Удалить образ «{tag}»?"
+
+#: src/window/views/images_view.rs
+msgid "Image removed"
+msgstr "Образ удалён"
+
+#: src/window/views/images_view.rs
+msgid "Failed to load images"
+msgstr "Не удалось загрузить образы"
+
+#: src/window/views/images_view.rs
+msgid "Tag"
+msgstr "Тег"
+
+#: src/window/views/images_view.rs
+msgid "Size"
+msgstr "Размер"
+
+#: src/window/views/images_view.rs
+msgid "Created"
+msgstr "Создан"
+
+#: src/window/views/images_view.rs
+msgid "Digest"
+msgstr "Хеш"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr "Удалить том"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove"
+msgstr "Удалить"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove Volume?"
+msgstr "Удалить том?"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr "Удалить том «{name}»? Все данные будут потеряны."
+
+#: src/window/views/volumes_view.rs
+msgid "Volume removed"
+msgstr "Том удалён"
+
+#: src/window/views/volumes_view.rs
+msgid "Failed to load volumes"
+msgstr "Не удалось загрузить тома"
+
+#: src/window/views/volumes_view.rs
+msgid "Driver"
+msgstr "Драйвер"
+
+#: src/window/views/volumes_view.rs
+msgid "Mountpoint"
+msgstr "Точка монтирования"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove network"
+msgstr "Удалить сеть"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove"
+msgstr "Удалить"
+
+#: src/window/views/networks_view.rs
+msgid "Remove Network?"
+msgstr "Удалить сеть?"
+
+#: src/window/views/networks_view.rs
+msgid "Remove network \"{name}\"?"
+msgstr "Удалить сеть «{name}»?"
+
+#: src/window/views/networks_view.rs
+msgid "Network removed"
+msgstr "Сеть удалена"
+
+#: src/window/views/networks_view.rs
+msgid "Failed to load networks"
+msgstr "Не удалось загрузить сети"
+
+#: src/window/views/networks_view.rs
+msgid "Scope"
+msgstr "Область"
+
+#: src/window/views/networks_view.rs
+msgid "Subnet"
+msgstr "Подсеть"
+
+#: data/resources/window.ui
+msgid "Container Manager"
+msgstr "Менеджер контейнеров"
+
+#: data/resources/window.ui
+msgid "No Selection"
+msgstr "Ничего не выбрано"
+
+#: data/resources/window.ui
+msgid "Select an item from the list to view its details."
+msgstr "Выберите элемент из списка, чтобы просмотреть его сведения."
+
+#: data/resources/window.ui
+msgid "Main Menu"
+msgstr "Главное меню"
+
+#: data/resources/window.ui
+msgid "Refresh"
+msgstr "Обновить"
+
+#: data/resources/window.ui
+msgid "Detail"
+msgstr "Подробности"
+
+#: data/resources/window.ui
+msgid "_Prune System…"
+msgstr "_Очистить систему…"
+
+#: data/resources/window.ui
+msgid "_About Container Manager"
+msgstr "_О менеджере контейнеров"

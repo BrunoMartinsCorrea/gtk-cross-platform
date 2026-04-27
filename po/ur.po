@@ -1,0 +1,333 @@
+# Urdu translation for gtk-cross-platform.
+# Copyright (C) 2026 gtk-cross-platform contributors
+# This file is distributed under the same license as the gtk-cross-platform package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gtk-cross-platform 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-26 00:00+0000\n"
+"PO-Revision-Date: 2026-04-26 00:00+0000\n"
+"Last-Translator: NOME <email@example.com>\n"
+"Language-Team: Urdu <ur@li.org>\n"
+"Language: ur\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/window/main_window.rs
+msgid "Containers"
+msgstr "کنٹینرز"
+
+#: src/window/main_window.rs
+msgid "Images"
+msgstr "امیجز"
+
+#: src/window/main_window.rs
+msgid "Volumes"
+msgstr "والیومز"
+
+#: src/window/main_window.rs
+msgid "Networks"
+msgstr "نیٹ ورکس"
+
+#: src/window/main_window.rs
+msgid "Prune System?"
+msgstr "سسٹم صاف کریں؟"
+
+#: src/window/main_window.rs
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+"یہ تمام بند کنٹینرز، لٹکتی امیجز اور غیر استعمال شدہ نیٹ ورکس کو ہٹا دے گا۔ "
+"یہ عمل واپس نہیں کیا جا سکتا۔"
+
+#: src/window/main_window.rs
+msgid "Prune"
+msgstr "صاف کریں"
+
+#: src/window/main_window.rs
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] "1 کنٹینر صاف کر دیا گیا"
+msgstr[1] "{n} کنٹینرز صاف کر دیے گئے"
+
+#: src/window/main_window.rs
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] "1 امیج"
+msgstr[1] "{n} امیجز"
+
+#: src/window/main_window.rs
+msgid "Prune failed"
+msgstr "صاف کرنا ناکام رہا"
+
+#: src/window/components/confirm_dialog.rs
+msgid "Cancel"
+msgstr "منسوخ"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Stop container"
+msgstr "کنٹینر روکیں"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Start container"
+msgstr "کنٹینر شروع کریں"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Pause container"
+msgstr "کنٹینر موقوف کریں"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Unpause container"
+msgstr "کنٹینر دوبارہ شروع کریں"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove container"
+msgstr "کنٹینر ہٹائیں"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove"
+msgstr "ہٹائیں"
+
+#: src/window/views/containers_view.rs
+msgid "Container stopped"
+msgstr "کنٹینر رک گیا"
+
+#: src/window/views/containers_view.rs
+msgid "Container started"
+msgstr "کنٹینر شروع ہو گیا"
+
+#: src/window/views/containers_view.rs
+msgid "Container paused"
+msgstr "کنٹینر موقوف ہوا"
+
+#: src/window/views/containers_view.rs
+msgid "Container unpaused"
+msgstr "کنٹینر دوبارہ شروع ہوا"
+
+#: src/window/views/containers_view.rs
+msgid "Container removed"
+msgstr "کنٹینر ہٹا دیا گیا"
+
+#: src/window/views/containers_view.rs
+msgid "Container restarted"
+msgstr "کنٹینر دوبارہ شروع کیا گیا"
+
+#: src/window/views/containers_view.rs
+msgid "Remove Container?"
+msgstr "کنٹینر ہٹائیں؟"
+
+#: src/window/views/containers_view.rs
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr "کنٹینر \"{name}\" ہٹائیں؟ یہ عمل واپس نہیں کیا جا سکتا۔"
+
+#: src/window/views/containers_view.rs
+msgid "Failed to load containers"
+msgstr "کنٹینرز لوڈ کرنے میں ناکامی"
+
+#: src/window/views/containers_view.rs
+msgid "Stop failed"
+msgstr "روکنے میں ناکامی"
+
+#: src/window/views/containers_view.rs
+msgid "Start failed"
+msgstr "شروع کرنے میں ناکامی"
+
+#: src/window/views/containers_view.rs
+msgid "Pause failed"
+msgstr "موقوف کرنے میں ناکامی"
+
+#: src/window/views/containers_view.rs
+msgid "Unpause failed"
+msgstr "دوبارہ شروع کرنے میں ناکامی"
+
+#: src/window/views/containers_view.rs
+msgid "Remove failed"
+msgstr "ہٹانے میں ناکامی"
+
+#: src/window/views/containers_view.rs
+msgid "Restart failed"
+msgstr "دوبارہ آغاز میں ناکامی"
+
+#: src/window/views/containers_view.rs
+msgid "Restart"
+msgstr "دوبارہ شروع کریں"
+
+#: src/window/views/containers_view.rs
+msgid "Restart this container"
+msgstr "اس کنٹینر کو دوبارہ شروع کریں"
+
+#: src/window/views/containers_view.rs
+msgid "Name"
+msgstr "نام"
+
+#: src/window/views/containers_view.rs
+msgid "ID"
+msgstr "آئی ڈی"
+
+#: src/window/views/containers_view.rs
+msgid "Image"
+msgstr "امیج"
+
+#: src/window/views/containers_view.rs
+msgid "Command"
+msgstr "کمانڈ"
+
+#: src/window/views/containers_view.rs
+msgid "Status"
+msgstr "حالت"
+
+#: src/window/views/containers_view.rs
+msgid "Ports"
+msgstr "پورٹس"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove image"
+msgstr "امیج ہٹائیں"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove"
+msgstr "ہٹائیں"
+
+#: src/window/views/images_view.rs
+msgid "Remove Image?"
+msgstr "امیج ہٹائیں؟"
+
+#: src/window/views/images_view.rs
+msgid "Remove image \"{tag}\"?"
+msgstr "امیج \"{tag}\" ہٹائیں؟"
+
+#: src/window/views/images_view.rs
+msgid "Image removed"
+msgstr "امیج ہٹا دی گئی"
+
+#: src/window/views/images_view.rs
+msgid "Failed to load images"
+msgstr "امیجز لوڈ کرنے میں ناکامی"
+
+#: src/window/views/images_view.rs
+msgid "Tag"
+msgstr "ٹیگ"
+
+#: src/window/views/images_view.rs
+msgid "Size"
+msgstr "سائز"
+
+#: src/window/views/images_view.rs
+msgid "Created"
+msgstr "بنائی گئی"
+
+#: src/window/views/images_view.rs
+msgid "Digest"
+msgstr "ڈائجسٹ"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr "والیوم ہٹائیں"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove"
+msgstr "ہٹائیں"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove Volume?"
+msgstr "والیوم ہٹائیں؟"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr "والیوم \"{name}\" ہٹائیں؟ تمام ڈیٹا ضائع ہو جائے گا۔"
+
+#: src/window/views/volumes_view.rs
+msgid "Volume removed"
+msgstr "والیوم ہٹا دیا گیا"
+
+#: src/window/views/volumes_view.rs
+msgid "Failed to load volumes"
+msgstr "والیومز لوڈ کرنے میں ناکامی"
+
+#: src/window/views/volumes_view.rs
+msgid "Driver"
+msgstr "ڈرائیور"
+
+#: src/window/views/volumes_view.rs
+msgid "Mountpoint"
+msgstr "ماؤنٹ پوائنٹ"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove network"
+msgstr "نیٹ ورک ہٹائیں"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove"
+msgstr "ہٹائیں"
+
+#: src/window/views/networks_view.rs
+msgid "Remove Network?"
+msgstr "نیٹ ورک ہٹائیں؟"
+
+#: src/window/views/networks_view.rs
+msgid "Remove network \"{name}\"?"
+msgstr "نیٹ ورک \"{name}\" ہٹائیں؟"
+
+#: src/window/views/networks_view.rs
+msgid "Network removed"
+msgstr "نیٹ ورک ہٹا دیا گیا"
+
+#: src/window/views/networks_view.rs
+msgid "Failed to load networks"
+msgstr "نیٹ ورکس لوڈ کرنے میں ناکامی"
+
+#: src/window/views/networks_view.rs
+msgid "Scope"
+msgstr "دائرہ کار"
+
+#: src/window/views/networks_view.rs
+msgid "Subnet"
+msgstr "سب نیٹ"
+
+#: data/resources/window.ui
+msgid "Container Manager"
+msgstr "کنٹینر مینیجر"
+
+#: data/resources/window.ui
+msgid "No Selection"
+msgstr "کوئی انتخاب نہیں"
+
+#: data/resources/window.ui
+msgid "Select an item from the list to view its details."
+msgstr "تفصیلات دیکھنے کے لیے فہرست سے ایک آئٹم منتخب کریں۔"
+
+#: data/resources/window.ui
+msgid "Main Menu"
+msgstr "مرکزی مینو"
+
+#: data/resources/window.ui
+msgid "Refresh"
+msgstr "تازہ کریں"
+
+#: data/resources/window.ui
+msgid "Detail"
+msgstr "تفصیل"
+
+#: data/resources/window.ui
+msgid "_Prune System…"
+msgstr "سسٹم صاف کریں(_P)…"
+
+#: data/resources/window.ui
+msgid "_About Container Manager"
+msgstr "کنٹینر مینیجر کے بارے میں(_A)"

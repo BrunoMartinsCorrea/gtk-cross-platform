@@ -1,0 +1,333 @@
+# Turkish translation for gtk-cross-platform.
+# Copyright (C) 2026 gtk-cross-platform contributors
+# This file is distributed under the same license as the gtk-cross-platform package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gtk-cross-platform 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-26 00:00+0000\n"
+"PO-Revision-Date: 2026-04-26 00:00+0000\n"
+"Last-Translator: NOME <email@example.com>\n"
+"Language-Team: Turkish <tr@li.org>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: src/window/main_window.rs
+msgid "Containers"
+msgstr "Konteynerler"
+
+#: src/window/main_window.rs
+msgid "Images"
+msgstr "İmajlar"
+
+#: src/window/main_window.rs
+msgid "Volumes"
+msgstr "Birimler"
+
+#: src/window/main_window.rs
+msgid "Networks"
+msgstr "Ağlar"
+
+#: src/window/main_window.rs
+msgid "Prune System?"
+msgstr "Sistemi temizle?"
+
+#: src/window/main_window.rs
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+"Bu, tüm durdurulmuş konteynerleri, sarkan imajları ve kullanılmayan ağları "
+"kaldıracak. Bu işlem geri alınamaz."
+
+#: src/window/main_window.rs
+msgid "Prune"
+msgstr "Temizle"
+
+#: src/window/main_window.rs
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] "1 konteyner temizlendi"
+msgstr[1] "{n} konteyner temizlendi"
+
+#: src/window/main_window.rs
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] "1 imaj"
+msgstr[1] "{n} imaj"
+
+#: src/window/main_window.rs
+msgid "Prune failed"
+msgstr "Temizleme başarısız"
+
+#: src/window/components/confirm_dialog.rs
+msgid "Cancel"
+msgstr "İptal"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Stop container"
+msgstr "Konteyneri durdur"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Start container"
+msgstr "Konteyneri başlat"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Pause container"
+msgstr "Konteyneri duraklat"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Unpause container"
+msgstr "Konteyneri devam ettir"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove container"
+msgstr "Konteyneri kaldır"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove"
+msgstr "Kaldır"
+
+#: src/window/views/containers_view.rs
+msgid "Container stopped"
+msgstr "Konteyner durduruldu"
+
+#: src/window/views/containers_view.rs
+msgid "Container started"
+msgstr "Konteyner başlatıldı"
+
+#: src/window/views/containers_view.rs
+msgid "Container paused"
+msgstr "Konteyner duraklatıldı"
+
+#: src/window/views/containers_view.rs
+msgid "Container unpaused"
+msgstr "Konteyner devam ettirildi"
+
+#: src/window/views/containers_view.rs
+msgid "Container removed"
+msgstr "Konteyner kaldırıldı"
+
+#: src/window/views/containers_view.rs
+msgid "Container restarted"
+msgstr "Konteyner yeniden başlatıldı"
+
+#: src/window/views/containers_view.rs
+msgid "Remove Container?"
+msgstr "Konteyner kaldırılsın mı?"
+
+#: src/window/views/containers_view.rs
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr "Konteyner \"{name}\" kaldırılsın mı? Bu işlem geri alınamaz."
+
+#: src/window/views/containers_view.rs
+msgid "Failed to load containers"
+msgstr "Konteynerler yüklenemedi"
+
+#: src/window/views/containers_view.rs
+msgid "Stop failed"
+msgstr "Durdurulamadı"
+
+#: src/window/views/containers_view.rs
+msgid "Start failed"
+msgstr "Başlatılamadı"
+
+#: src/window/views/containers_view.rs
+msgid "Pause failed"
+msgstr "Duraklatılamadı"
+
+#: src/window/views/containers_view.rs
+msgid "Unpause failed"
+msgstr "Devam ettirilemedi"
+
+#: src/window/views/containers_view.rs
+msgid "Remove failed"
+msgstr "Kaldırılamadı"
+
+#: src/window/views/containers_view.rs
+msgid "Restart failed"
+msgstr "Yeniden başlatılamadı"
+
+#: src/window/views/containers_view.rs
+msgid "Restart"
+msgstr "Yeniden başlat"
+
+#: src/window/views/containers_view.rs
+msgid "Restart this container"
+msgstr "Bu konteyneri yeniden başlat"
+
+#: src/window/views/containers_view.rs
+msgid "Name"
+msgstr "Ad"
+
+#: src/window/views/containers_view.rs
+msgid "ID"
+msgstr "Kimlik"
+
+#: src/window/views/containers_view.rs
+msgid "Image"
+msgstr "İmaj"
+
+#: src/window/views/containers_view.rs
+msgid "Command"
+msgstr "Komut"
+
+#: src/window/views/containers_view.rs
+msgid "Status"
+msgstr "Durum"
+
+#: src/window/views/containers_view.rs
+msgid "Ports"
+msgstr "Portlar"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove image"
+msgstr "İmajı kaldır"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove"
+msgstr "Kaldır"
+
+#: src/window/views/images_view.rs
+msgid "Remove Image?"
+msgstr "İmaj kaldırılsın mı?"
+
+#: src/window/views/images_view.rs
+msgid "Remove image \"{tag}\"?"
+msgstr "İmaj \"{tag}\" kaldırılsın mı?"
+
+#: src/window/views/images_view.rs
+msgid "Image removed"
+msgstr "İmaj kaldırıldı"
+
+#: src/window/views/images_view.rs
+msgid "Failed to load images"
+msgstr "İmajlar yüklenemedi"
+
+#: src/window/views/images_view.rs
+msgid "Tag"
+msgstr "Etiket"
+
+#: src/window/views/images_view.rs
+msgid "Size"
+msgstr "Boyut"
+
+#: src/window/views/images_view.rs
+msgid "Created"
+msgstr "Oluşturulma"
+
+#: src/window/views/images_view.rs
+msgid "Digest"
+msgstr "Özet"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr "Birimi kaldır"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove"
+msgstr "Kaldır"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove Volume?"
+msgstr "Birim kaldırılsın mı?"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr "Birim \"{name}\" kaldırılsın mı? Tüm veriler kaybolacak."
+
+#: src/window/views/volumes_view.rs
+msgid "Volume removed"
+msgstr "Birim kaldırıldı"
+
+#: src/window/views/volumes_view.rs
+msgid "Failed to load volumes"
+msgstr "Birimler yüklenemedi"
+
+#: src/window/views/volumes_view.rs
+msgid "Driver"
+msgstr "Sürücü"
+
+#: src/window/views/volumes_view.rs
+msgid "Mountpoint"
+msgstr "Bağlama noktası"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove network"
+msgstr "Ağı kaldır"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove"
+msgstr "Kaldır"
+
+#: src/window/views/networks_view.rs
+msgid "Remove Network?"
+msgstr "Ağ kaldırılsın mı?"
+
+#: src/window/views/networks_view.rs
+msgid "Remove network \"{name}\"?"
+msgstr "Ağ \"{name}\" kaldırılsın mı?"
+
+#: src/window/views/networks_view.rs
+msgid "Network removed"
+msgstr "Ağ kaldırıldı"
+
+#: src/window/views/networks_view.rs
+msgid "Failed to load networks"
+msgstr "Ağlar yüklenemedi"
+
+#: src/window/views/networks_view.rs
+msgid "Scope"
+msgstr "Kapsam"
+
+#: src/window/views/networks_view.rs
+msgid "Subnet"
+msgstr "Alt ağ"
+
+#: data/resources/window.ui
+msgid "Container Manager"
+msgstr "Konteyner Yöneticisi"
+
+#: data/resources/window.ui
+msgid "No Selection"
+msgstr "Seçim yok"
+
+#: data/resources/window.ui
+msgid "Select an item from the list to view its details."
+msgstr "Ayrıntıları görüntülemek için listeden bir öğe seçin."
+
+#: data/resources/window.ui
+msgid "Main Menu"
+msgstr "Ana Menü"
+
+#: data/resources/window.ui
+msgid "Refresh"
+msgstr "Yenile"
+
+#: data/resources/window.ui
+msgid "Detail"
+msgstr "Ayrıntı"
+
+#: data/resources/window.ui
+msgid "_Prune System…"
+msgstr "_Sistemi Temizle…"
+
+#: data/resources/window.ui
+msgid "_About Container Manager"
+msgstr "_Konteyner Yöneticisi Hakkında"

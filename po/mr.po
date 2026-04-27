@@ -1,0 +1,333 @@
+# Marathi translation for gtk-cross-platform.
+# Copyright (C) 2026 gtk-cross-platform contributors
+# This file is distributed under the same license as the gtk-cross-platform package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gtk-cross-platform 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-26 00:00+0000\n"
+"PO-Revision-Date: 2026-04-26 00:00+0000\n"
+"Last-Translator: NOME <email@example.com>\n"
+"Language-Team: Marathi <mr@li.org>\n"
+"Language: mr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/window/main_window.rs
+msgid "Containers"
+msgstr "कंटेनर"
+
+#: src/window/main_window.rs
+msgid "Images"
+msgstr "प्रतिमा"
+
+#: src/window/main_window.rs
+msgid "Volumes"
+msgstr "व्हॉल्यूम"
+
+#: src/window/main_window.rs
+msgid "Networks"
+msgstr "नेटवर्क"
+
+#: src/window/main_window.rs
+msgid "Prune System?"
+msgstr "सिस्टम साफ करायचे?"
+
+#: src/window/main_window.rs
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+"हे सर्व थांबलेले कंटेनर, लटकलेल्या प्रतिमा आणि न वापरलेले नेटवर्क काढून टाकेल. "
+"हे पूर्ववत केले जाऊ शकत नाही."
+
+#: src/window/main_window.rs
+msgid "Prune"
+msgstr "साफ करा"
+
+#: src/window/main_window.rs
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] "1 कंटेनर साफ केला"
+msgstr[1] "{n} कंटेनर साफ केले"
+
+#: src/window/main_window.rs
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] "1 प्रतिमा"
+msgstr[1] "{n} प्रतिमा"
+
+#: src/window/main_window.rs
+msgid "Prune failed"
+msgstr "साफ करणे अयशस्वी झाले"
+
+#: src/window/components/confirm_dialog.rs
+msgid "Cancel"
+msgstr "रद्द करा"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Stop container"
+msgstr "कंटेनर थांबवा"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Start container"
+msgstr "कंटेनर सुरू करा"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Pause container"
+msgstr "कंटेनर विराम द्या"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Unpause container"
+msgstr "कंटेनर पुन्हा सुरू करा"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove container"
+msgstr "कंटेनर काढा"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove"
+msgstr "काढा"
+
+#: src/window/views/containers_view.rs
+msgid "Container stopped"
+msgstr "कंटेनर थांबला"
+
+#: src/window/views/containers_view.rs
+msgid "Container started"
+msgstr "कंटेनर सुरू झाला"
+
+#: src/window/views/containers_view.rs
+msgid "Container paused"
+msgstr "कंटेनर विराम दिला"
+
+#: src/window/views/containers_view.rs
+msgid "Container unpaused"
+msgstr "कंटेनर पुन्हा सुरू झाला"
+
+#: src/window/views/containers_view.rs
+msgid "Container removed"
+msgstr "कंटेनर काढला"
+
+#: src/window/views/containers_view.rs
+msgid "Container restarted"
+msgstr "कंटेनर पुन्हा सुरू झाला"
+
+#: src/window/views/containers_view.rs
+msgid "Remove Container?"
+msgstr "कंटेनर काढायचे?"
+
+#: src/window/views/containers_view.rs
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr "कंटेनर \"{name}\" काढायचे? हे पूर्ववत होणार नाही."
+
+#: src/window/views/containers_view.rs
+msgid "Failed to load containers"
+msgstr "कंटेनर लोड करणे अयशस्वी"
+
+#: src/window/views/containers_view.rs
+msgid "Stop failed"
+msgstr "थांबवणे अयशस्वी"
+
+#: src/window/views/containers_view.rs
+msgid "Start failed"
+msgstr "सुरू करणे अयशस्वी"
+
+#: src/window/views/containers_view.rs
+msgid "Pause failed"
+msgstr "विराम देणे अयशस्वी"
+
+#: src/window/views/containers_view.rs
+msgid "Unpause failed"
+msgstr "पुन्हा सुरू करणे अयशस्वी"
+
+#: src/window/views/containers_view.rs
+msgid "Remove failed"
+msgstr "काढणे अयशस्वी"
+
+#: src/window/views/containers_view.rs
+msgid "Restart failed"
+msgstr "पुनरारंभ अयशस्वी"
+
+#: src/window/views/containers_view.rs
+msgid "Restart"
+msgstr "पुनरारंभ करा"
+
+#: src/window/views/containers_view.rs
+msgid "Restart this container"
+msgstr "हा कंटेनर पुनरारंभ करा"
+
+#: src/window/views/containers_view.rs
+msgid "Name"
+msgstr "नाव"
+
+#: src/window/views/containers_view.rs
+msgid "ID"
+msgstr "आयडी"
+
+#: src/window/views/containers_view.rs
+msgid "Image"
+msgstr "प्रतिमा"
+
+#: src/window/views/containers_view.rs
+msgid "Command"
+msgstr "आदेश"
+
+#: src/window/views/containers_view.rs
+msgid "Status"
+msgstr "स्थिती"
+
+#: src/window/views/containers_view.rs
+msgid "Ports"
+msgstr "पोर्ट"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove image"
+msgstr "प्रतिमा काढा"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove"
+msgstr "काढा"
+
+#: src/window/views/images_view.rs
+msgid "Remove Image?"
+msgstr "प्रतिमा काढायची?"
+
+#: src/window/views/images_view.rs
+msgid "Remove image \"{tag}\"?"
+msgstr "प्रतिमा \"{tag}\" काढायची?"
+
+#: src/window/views/images_view.rs
+msgid "Image removed"
+msgstr "प्रतिमा काढली"
+
+#: src/window/views/images_view.rs
+msgid "Failed to load images"
+msgstr "प्रतिमा लोड करणे अयशस्वी"
+
+#: src/window/views/images_view.rs
+msgid "Tag"
+msgstr "टॅग"
+
+#: src/window/views/images_view.rs
+msgid "Size"
+msgstr "आकार"
+
+#: src/window/views/images_view.rs
+msgid "Created"
+msgstr "तयार केले"
+
+#: src/window/views/images_view.rs
+msgid "Digest"
+msgstr "डायजेस्ट"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr "व्हॉल्यूम काढा"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove"
+msgstr "काढा"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove Volume?"
+msgstr "व्हॉल्यूम काढायचे?"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr "व्हॉल्यूम \"{name}\" काढायचे? सर्व डेटा गमावला जाईल."
+
+#: src/window/views/volumes_view.rs
+msgid "Volume removed"
+msgstr "व्हॉल्यूम काढला"
+
+#: src/window/views/volumes_view.rs
+msgid "Failed to load volumes"
+msgstr "व्हॉल्यूम लोड करणे अयशस्वी"
+
+#: src/window/views/volumes_view.rs
+msgid "Driver"
+msgstr "ड्राइव्हर"
+
+#: src/window/views/volumes_view.rs
+msgid "Mountpoint"
+msgstr "माउंट पॉइंट"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove network"
+msgstr "नेटवर्क काढा"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove"
+msgstr "काढा"
+
+#: src/window/views/networks_view.rs
+msgid "Remove Network?"
+msgstr "नेटवर्क काढायचे?"
+
+#: src/window/views/networks_view.rs
+msgid "Remove network \"{name}\"?"
+msgstr "नेटवर्क \"{name}\" काढायचे?"
+
+#: src/window/views/networks_view.rs
+msgid "Network removed"
+msgstr "नेटवर्क काढले"
+
+#: src/window/views/networks_view.rs
+msgid "Failed to load networks"
+msgstr "नेटवर्क लोड करणे अयशस्वी"
+
+#: src/window/views/networks_view.rs
+msgid "Scope"
+msgstr "कार्यक्षेत्र"
+
+#: src/window/views/networks_view.rs
+msgid "Subnet"
+msgstr "सबनेट"
+
+#: data/resources/window.ui
+msgid "Container Manager"
+msgstr "कंटेनर व्यवस्थापक"
+
+#: data/resources/window.ui
+msgid "No Selection"
+msgstr "कोणतीही निवड नाही"
+
+#: data/resources/window.ui
+msgid "Select an item from the list to view its details."
+msgstr "तपशील पाहण्यासाठी यादीतून एक आयटम निवडा."
+
+#: data/resources/window.ui
+msgid "Main Menu"
+msgstr "मुख्य मेनू"
+
+#: data/resources/window.ui
+msgid "Refresh"
+msgstr "रिफ्रेश करा"
+
+#: data/resources/window.ui
+msgid "Detail"
+msgstr "तपशील"
+
+#: data/resources/window.ui
+msgid "_Prune System…"
+msgstr "सिस्टम साफ करा(_P)…"
+
+#: data/resources/window.ui
+msgid "_About Container Manager"
+msgstr "कंटेनर व्यवस्थापकाबद्दल(_A)"

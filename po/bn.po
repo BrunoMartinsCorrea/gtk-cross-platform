@@ -1,0 +1,333 @@
+# Bengali translation for gtk-cross-platform.
+# Copyright (C) 2026 gtk-cross-platform contributors
+# This file is distributed under the same license as the gtk-cross-platform package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gtk-cross-platform 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-26 00:00+0000\n"
+"PO-Revision-Date: 2026-04-26 00:00+0000\n"
+"Last-Translator: NOME <email@example.com>\n"
+"Language-Team: Bengali <bn@li.org>\n"
+"Language: bn\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/window/main_window.rs
+msgid "Containers"
+msgstr "কন্টেইনার"
+
+#: src/window/main_window.rs
+msgid "Images"
+msgstr "ইমেজ"
+
+#: src/window/main_window.rs
+msgid "Volumes"
+msgstr "ভলিউম"
+
+#: src/window/main_window.rs
+msgid "Networks"
+msgstr "নেটওয়ার্ক"
+
+#: src/window/main_window.rs
+msgid "Prune System?"
+msgstr "সিস্টেম পরিষ্কার করবেন?"
+
+#: src/window/main_window.rs
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+"এটি সমস্ত বন্ধ কন্টেইনার, ঝুলন্ত ইমেজ এবং অব্যবহৃত নেটওয়ার্ক সরিয়ে দেবে। "
+"এটি পূর্বাবস্থায় ফেরানো যাবে না।"
+
+#: src/window/main_window.rs
+msgid "Prune"
+msgstr "পরিষ্কার করুন"
+
+#: src/window/main_window.rs
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] "১টি কন্টেইনার পরিষ্কার করা হয়েছে"
+msgstr[1] "{n}টি কন্টেইনার পরিষ্কার করা হয়েছে"
+
+#: src/window/main_window.rs
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] "১টি ইমেজ"
+msgstr[1] "{n}টি ইমেজ"
+
+#: src/window/main_window.rs
+msgid "Prune failed"
+msgstr "পরিষ্কার ব্যর্থ হয়েছে"
+
+#: src/window/components/confirm_dialog.rs
+msgid "Cancel"
+msgstr "বাতিল"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Stop container"
+msgstr "কন্টেইনার বন্ধ করুন"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Start container"
+msgstr "কন্টেইনার শুরু করুন"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Pause container"
+msgstr "কন্টেইনার পজ করুন"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Unpause container"
+msgstr "কন্টেইনার পুনরায় চালু করুন"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove container"
+msgstr "কন্টেইনার সরান"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove"
+msgstr "সরান"
+
+#: src/window/views/containers_view.rs
+msgid "Container stopped"
+msgstr "কন্টেইনার বন্ধ হয়েছে"
+
+#: src/window/views/containers_view.rs
+msgid "Container started"
+msgstr "কন্টেইনার শুরু হয়েছে"
+
+#: src/window/views/containers_view.rs
+msgid "Container paused"
+msgstr "কন্টেইনার পজ করা হয়েছে"
+
+#: src/window/views/containers_view.rs
+msgid "Container unpaused"
+msgstr "কন্টেইনার পুনরায় চালু হয়েছে"
+
+#: src/window/views/containers_view.rs
+msgid "Container removed"
+msgstr "কন্টেইনার সরানো হয়েছে"
+
+#: src/window/views/containers_view.rs
+msgid "Container restarted"
+msgstr "কন্টেইনার পুনরায় চালু করা হয়েছে"
+
+#: src/window/views/containers_view.rs
+msgid "Remove Container?"
+msgstr "কন্টেইনার সরাবেন?"
+
+#: src/window/views/containers_view.rs
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr "কন্টেইনার \"{name}\" সরাবেন? এটি পূর্বাবস্থায় ফেরানো যাবে না।"
+
+#: src/window/views/containers_view.rs
+msgid "Failed to load containers"
+msgstr "কন্টেইনার লোড করতে ব্যর্থ"
+
+#: src/window/views/containers_view.rs
+msgid "Stop failed"
+msgstr "বন্ধ করতে ব্যর্থ"
+
+#: src/window/views/containers_view.rs
+msgid "Start failed"
+msgstr "শুরু করতে ব্যর্থ"
+
+#: src/window/views/containers_view.rs
+msgid "Pause failed"
+msgstr "পজ করতে ব্যর্থ"
+
+#: src/window/views/containers_view.rs
+msgid "Unpause failed"
+msgstr "পুনরায় চালু করতে ব্যর্থ"
+
+#: src/window/views/containers_view.rs
+msgid "Remove failed"
+msgstr "সরাতে ব্যর্থ"
+
+#: src/window/views/containers_view.rs
+msgid "Restart failed"
+msgstr "পুনরায় চালু করতে ব্যর্থ"
+
+#: src/window/views/containers_view.rs
+msgid "Restart"
+msgstr "পুনরায় চালু করুন"
+
+#: src/window/views/containers_view.rs
+msgid "Restart this container"
+msgstr "এই কন্টেইনার পুনরায় চালু করুন"
+
+#: src/window/views/containers_view.rs
+msgid "Name"
+msgstr "নাম"
+
+#: src/window/views/containers_view.rs
+msgid "ID"
+msgstr "আইডি"
+
+#: src/window/views/containers_view.rs
+msgid "Image"
+msgstr "ইমেজ"
+
+#: src/window/views/containers_view.rs
+msgid "Command"
+msgstr "কমান্ড"
+
+#: src/window/views/containers_view.rs
+msgid "Status"
+msgstr "অবস্থা"
+
+#: src/window/views/containers_view.rs
+msgid "Ports"
+msgstr "পোর্ট"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove image"
+msgstr "ইমেজ সরান"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove"
+msgstr "সরান"
+
+#: src/window/views/images_view.rs
+msgid "Remove Image?"
+msgstr "ইমেজ সরাবেন?"
+
+#: src/window/views/images_view.rs
+msgid "Remove image \"{tag}\"?"
+msgstr "ইমেজ \"{tag}\" সরাবেন?"
+
+#: src/window/views/images_view.rs
+msgid "Image removed"
+msgstr "ইমেজ সরানো হয়েছে"
+
+#: src/window/views/images_view.rs
+msgid "Failed to load images"
+msgstr "ইমেজ লোড করতে ব্যর্থ"
+
+#: src/window/views/images_view.rs
+msgid "Tag"
+msgstr "ট্যাগ"
+
+#: src/window/views/images_view.rs
+msgid "Size"
+msgstr "আকার"
+
+#: src/window/views/images_view.rs
+msgid "Created"
+msgstr "তৈরি"
+
+#: src/window/views/images_view.rs
+msgid "Digest"
+msgstr "ডাইজেস্ট"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr "ভলিউম সরান"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove"
+msgstr "সরান"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove Volume?"
+msgstr "ভলিউম সরাবেন?"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr "ভলিউম \"{name}\" সরাবেন? সমস্ত ডেটা হারিয়ে যাবে।"
+
+#: src/window/views/volumes_view.rs
+msgid "Volume removed"
+msgstr "ভলিউম সরানো হয়েছে"
+
+#: src/window/views/volumes_view.rs
+msgid "Failed to load volumes"
+msgstr "ভলিউম লোড করতে ব্যর্থ"
+
+#: src/window/views/volumes_view.rs
+msgid "Driver"
+msgstr "ড্রাইভার"
+
+#: src/window/views/volumes_view.rs
+msgid "Mountpoint"
+msgstr "মাউন্টপয়েন্ট"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove network"
+msgstr "নেটওয়ার্ক সরান"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove"
+msgstr "সরান"
+
+#: src/window/views/networks_view.rs
+msgid "Remove Network?"
+msgstr "নেটওয়ার্ক সরাবেন?"
+
+#: src/window/views/networks_view.rs
+msgid "Remove network \"{name}\"?"
+msgstr "নেটওয়ার্ক \"{name}\" সরাবেন?"
+
+#: src/window/views/networks_view.rs
+msgid "Network removed"
+msgstr "নেটওয়ার্ক সরানো হয়েছে"
+
+#: src/window/views/networks_view.rs
+msgid "Failed to load networks"
+msgstr "নেটওয়ার্ক লোড করতে ব্যর্থ"
+
+#: src/window/views/networks_view.rs
+msgid "Scope"
+msgstr "পরিসর"
+
+#: src/window/views/networks_view.rs
+msgid "Subnet"
+msgstr "সাবনেট"
+
+#: data/resources/window.ui
+msgid "Container Manager"
+msgstr "কন্টেইনার ম্যানেজার"
+
+#: data/resources/window.ui
+msgid "No Selection"
+msgstr "কোনো নির্বাচন নেই"
+
+#: data/resources/window.ui
+msgid "Select an item from the list to view its details."
+msgstr "বিস্তারিত দেখতে তালিকা থেকে একটি আইটেম নির্বাচন করুন।"
+
+#: data/resources/window.ui
+msgid "Main Menu"
+msgstr "প্রধান মেনু"
+
+#: data/resources/window.ui
+msgid "Refresh"
+msgstr "রিফ্রেশ করুন"
+
+#: data/resources/window.ui
+msgid "Detail"
+msgstr "বিস্তারিত"
+
+#: data/resources/window.ui
+msgid "_Prune System…"
+msgstr "সিস্টেম পরিষ্কার(_P)…"
+
+#: data/resources/window.ui
+msgid "_About Container Manager"
+msgstr "কন্টেইনার ম্যানেজার সম্পর্কে(_A)"

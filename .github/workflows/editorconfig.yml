@@ -1,0 +1,16 @@
+name: EditorConfig
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    name: EditorConfig compliance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run editorconfig-checker
+        run: npx editorconfig-checker src/ data/ po/ tests/
