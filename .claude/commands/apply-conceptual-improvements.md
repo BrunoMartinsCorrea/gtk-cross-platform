@@ -174,18 +174,18 @@ gtk4::ListView + SignalListItemFactory
 use crate::window::components::list_factory::make_factory;
 
 let factory = make_factory(
-    |_, obj| {
-        let item = obj.downcast_ref::<gtk4::ListItem>().unwrap();
-        let row = adw::ActionRow::new();
-        item.set_child(Some(&row));
-    },
-    |_, obj| {
-        let item = obj.downcast_ref::<gtk4::ListItem>().unwrap();
-        let row = item.child().and_downcast::<adw::ActionRow>().unwrap();
-        let image_obj = item.item().and_downcast::<ImageObject>().unwrap();
-        row.set_title(&image_obj.tags());
-        row.set_subtitle(&image_obj.size().to_string());
-    },
+| _, obj| {
+let item = obj.downcast_ref::< gtk4::ListItem > ().unwrap();
+let row = adw::ActionRow::new();
+item.set_child(Some( & row));
+},
+| _, obj| {
+let item = obj.downcast_ref::< gtk4::ListItem > ().unwrap();
+let row = item.child().and_downcast::< adw::ActionRow > ().unwrap();
+let image_obj = item.item().and_downcast::< ImageObject > ().unwrap();
+row.set_title( & image_obj.tags());
+row.set_subtitle( &image_obj.size().to_string());
+},
 );
 ```
 
@@ -219,7 +219,7 @@ inner.selection_handler_id = Some(handler_id);
 // During refresh_store:
 inner.selection.block_signal(inner.selection_handler_id.as_ref().unwrap());
 inner.store.remove_all();
-for item in items { inner.store.append(&XObject::from_domain(&item)); }
+for item in items { inner.store.append( & XObject::from_domain( & item)); }
 inner.selection.unblock_signal(inner.selection_handler_id.as_ref().unwrap());
 ```
 
@@ -347,23 +347,23 @@ labels based on container state with declarative `bind_property()` bindings.
 ```rust
 // "Start" button disabled when container is already running
 container_object
-    .bind_property("status", &start_btn, "sensitive")
-    .transform_to(|_, status: String| Some(status != "running"))
-    .sync_create()
-    .build();
+.bind_property("status", & start_btn, "sensitive")
+.transform_to( | _, status: String| Some(status != "running"))
+.sync_create()
+.build();
 
 // "Stop" button disabled when container is not running
 container_object
-    .bind_property("status", &stop_btn, "sensitive")
-    .transform_to(|_, status: String| Some(status == "running"))
-    .sync_create()
-    .build();
+.bind_property("status", & stop_btn, "sensitive")
+.transform_to( | _, status: String| Some(status == "running"))
+.sync_create()
+.build();
 
 // Status label kept in sync automatically
 container_object
-    .bind_property("status", &status_label, "label")
-    .sync_create()
-    .build();
+.bind_property("status", & status_label, "label")
+.sync_create()
+.build();
 ```
 
 ### Binding lifecycle in a recycled ListView
@@ -373,34 +373,34 @@ scrolls. Without cleanup, each `connect_bind` call layers a new binding on top o
 Store bindings in the `ListItem` via `set_data` and drop them in `connect_unbind`:
 
 ```rust
-factory.connect_bind(|_, obj| {
-    let item = obj.downcast_ref::<gtk4::ListItem>().unwrap();
-    let row = item.child().and_downcast::<adw::ActionRow>().unwrap();
-    let container = item.item().and_downcast::<ContainerObject>().unwrap();
+factory.connect_bind( | _, obj| {
+let item = obj.downcast_ref::< gtk4::ListItem > ().unwrap();
+let row = item.child().and_downcast::< adw::ActionRow > ().unwrap();
+let container = item.item().and_downcast::< ContainerObject > ().unwrap();
 
-    let b1 = container
-        .bind_property("status", &start_btn, "sensitive")
-        .transform_to(|_, status: String| Some(status != "running"))
-        .sync_create()
-        .build();
-    let b2 = container
-        .bind_property("status", &stop_btn, "sensitive")
-        .transform_to(|_, status: String| Some(status == "running"))
-        .sync_create()
-        .build();
-    let b3 = container
-        .bind_property("status", &status_label, "label")
-        .sync_create()
-        .build();
+let b1 = container
+.bind_property("status", & start_btn, "sensitive")
+.transform_to(| _, status: String | Some(status != "running"))
+.sync_create()
+.build();
+let b2 = container
+.bind_property("status", & stop_btn, "sensitive")
+.transform_to(| _, status: String | Some(status == "running"))
+.sync_create()
+.build();
+let b3 = container
+.bind_property("status", & status_label, "label")
+.sync_create()
+.build();
 
-    // Store so connect_unbind can drop them
-    unsafe { item.set_data("bindings", vec![b1, b2, b3]); }
+// Store so connect_unbind can drop them
+unsafe { item.set_data("bindings", vec ! [b1, b2, b3]); }
 });
 
-factory.connect_unbind(|_, obj| {
-    let item = obj.downcast_ref::<gtk4::ListItem>().unwrap();
-    // Drop stored bindings; the Vec<Binding> destructor calls unbind() on each
-    unsafe { item.steal_data::<Vec<glib::Binding>>("bindings"); }
+factory.connect_unbind( | _, obj| {
+let item = obj.downcast_ref::< gtk4::ListItem > ().unwrap();
+// Drop stored bindings; the Vec<Binding> destructor calls unbind() on each
+unsafe { item.steal_data::< Vec < glib::Binding> > ("bindings"); }
 });
 ```
 
@@ -431,16 +431,16 @@ using `gtk4::SortListModel` instead of manual `group_by_compose()`.
 ### Default sorter (all views)
 
 ```rust
-let sorter = gtk4::CustomSorter::new(move |a, b| {
-    let a = a.downcast_ref::<ContainerObject>().unwrap();
-    let b = b.downcast_ref::<ContainerObject>().unwrap();
-    // Running first, then alphabetical by name
-    match (a.status().as_str(), b.status().as_str()) {
-        ("running", "running") => a.name().cmp(&b.name()).into(),
-        ("running", _) => gtk4::Ordering::Smaller,
-        (_, "running") => gtk4::Ordering::Larger,
-        _ => a.name().cmp(&b.name()).into(),
-    }
+let sorter = gtk4::CustomSorter::new( move | a, b| {
+let a = a.downcast_ref::< ContainerObject >().unwrap();
+let b = b.downcast_ref::< ContainerObject > ().unwrap();
+// Running first, then alphabetical by name
+match (a.status().as_str(), b.status().as_str()) {
+("running", "running") => a.name().cmp( & b.name()).into(),
+("running", _) => gtk4::Ordering::Smaller,
+(_, "running") => gtk4::Ordering::Larger,
+_ => a.name().cmp(& b.name()).into(),
+}
 });
 let sort_model = gtk4::SortListModel::new(Some(filter_model), Some(sorter));
 ```
@@ -452,16 +452,16 @@ Replace the manual `group_by_compose()` function with a `CustomSorter` that sort
 `gtk4::ListView`'s header factory (`set_header_factory`) — available since GTK 4.12.
 
 ```rust
-let section_sorter = gtk4::CustomSorter::new(move |a, b| {
-    let a = a.downcast_ref::<ContainerObject>().unwrap();
-    let b = b.downcast_ref::<ContainerObject>().unwrap();
-    let proj_a = a.compose_project();
-    let proj_b = b.compose_project();
-    match (proj_a.is_empty(), proj_b.is_empty()) {
-        (false, true) => gtk4::Ordering::Smaller,   // compose groups first
-        (true, false) => gtk4::Ordering::Larger,
-        _ => proj_a.cmp(&proj_b).then(a.name().cmp(&b.name())).into(),
-    }
+let section_sorter = gtk4::CustomSorter::new( move | a, b| {
+let a = a.downcast_ref::< ContainerObject >().unwrap();
+let b = b.downcast_ref::< ContainerObject > ().unwrap();
+let proj_a = a.compose_project();
+let proj_b = b.compose_project();
+match (proj_a.is_empty(), proj_b.is_empty()) {
+(false, true) => gtk4::Ordering::Smaller,   // compose groups first
+(true, false) => gtk4::Ordering::Larger,
+_ => proj_a.cmp(& proj_b).then(a.name().cmp( & b.name())).into(),
+}
 });
 ```
 
@@ -487,11 +487,11 @@ All phases complete when:
 - [ ] `make lint` passes (no clippy warnings)
 - [ ] `make fmt` shows no diff
 - [ ] Visual smoke test: all four resource views (containers, images, volumes, networks) display
-      correctly; search filters reactively; compose grouping is preserved
+  correctly; search filters reactively; compose grouping is preserved
 - [ ] No `ListBox` + imperative `append()`/`remove()` pattern remains in
-      `src/window/views/` (grep-verify)
+  `src/window/views/` (grep-verify)
 - [ ] `src/window/objects/` contains four files: `container_object.rs`, `image_object.rs`,
-      `volume_object.rs`, `network_object.rs`
+  `volume_object.rs`, `network_object.rs`
 
 ```sh
 # Final verification commands

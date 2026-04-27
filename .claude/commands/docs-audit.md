@@ -5,6 +5,7 @@ inconsistencies, coverage gaps, and readability failures. This command is self-c
 fresh without prior conversation context.
 
 This audit is complementary to, and does not duplicate, the scope of:
+
 - `/project:compliance-audit` — documented concepts vs. implementation (i18n, A11Y, threading, architecture)
 - `/project:concept-audit` — internal code inconsistencies
 - `/project:github-audit` — repository health (CI/CD, security, distribution)
@@ -269,6 +270,7 @@ For each gap found, emit one block:
 ```
 
 Severity levels:
+
 - **CRITICAL** — a contributor or AI agent following this document will do the wrong thing
 - **HIGH** — an important fact is wrong, stale, or missing; likely to cause confusion
 - **MEDIUM** — minor inaccuracy or omission; unlikely to block work but degrades trust in docs
@@ -276,15 +278,15 @@ Severity levels:
 
 End with a summary table:
 
-| Category                              | Gaps found | Highest severity |
-|---------------------------------------|------------|------------------|
-| Stale file paths and type names       | N          | …                |
-| Cross-document inconsistencies        | N          | …                |
-| Coverage gaps (undocumented)          | N          | …                |
-| README quality                        | N          | …                |
-| CLAUDE.md accuracy                    | N          | …                |
-| CONTRIBUTING.md accuracy              | N          | …                |
-| CHANGELOG discipline                  | N          | …                |
-| Supporting documents quality          | N          | …                |
+| Category                        | Gaps found | Highest severity |
+|---------------------------------|------------|------------------|
+| Stale file paths and type names | N          | …                |
+| Cross-document inconsistencies  | N          | …                |
+| Coverage gaps (undocumented)    | N          | …                |
+| README quality                  | N          | …                |
+| CLAUDE.md accuracy              | N          | …                |
+| CONTRIBUTING.md accuracy        | N          | …                |
+| CHANGELOG discipline            | N          | …                |
+| Supporting documents quality    | N          | …                |
 
 Do not report items that are correct. Focus only on gaps, staleness, and inconsistencies.

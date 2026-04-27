@@ -14,12 +14,12 @@ follow-up.
 O projeto é uma **aplicação GTK4 + Adwaita** escrita em Rust, targeting Linux, macOS, Windows e GNOME Mobile. Segue
 **Arquitetura Hexagonal** (Ports & Adapters) com quatro camadas:
 
-| Camada         | Caminho                        | Regra de pureza                                         |
-|----------------|--------------------------------|---------------------------------------------------------|
-| Domain         | `src/core/`                    | Sem GTK/Adw/GLib; lógica pura de negócio                |
-| Ports          | `src/ports/`                   | Traits Rust consumidas pelo core e pela UI              |
-| Adapters       | `src/infrastructure/`          | Implementam ports; podem usar GLib/IO, nunca GTK        |
-| UI             | `src/window/`                  | Widgets GTK/Adw; depende apenas de ports                |
+| Camada   | Caminho               | Regra de pureza                                  |
+|----------|-----------------------|--------------------------------------------------|
+| Domain   | `src/core/`           | Sem GTK/Adw/GLib; lógica pura de negócio         |
+| Ports    | `src/ports/`          | Traits Rust consumidas pelo core e pela UI       |
+| Adapters | `src/infrastructure/` | Implementam ports; podem usar GLib/IO, nunca GTK |
+| UI       | `src/window/`         | Widgets GTK/Adw; depende apenas de ports         |
 
 **Tipos críticos para testes:**
 

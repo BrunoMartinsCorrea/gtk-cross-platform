@@ -34,10 +34,10 @@ Não modifique `CLAUDE.md`, `README.md`, arquivos de domínio (`src/core/`), nem
 Adicione um passo que instala `appstream` e valida o metainfo com flag `--pedantic`:
 
 ```yaml
-- name: Validate AppStream metadata
-  run: |
-    sudo apt-get install -y appstream
-    appstreamcli validate --pedantic data/com.example.GtkCrossPlatform.metainfo.xml
+-   name: Validate AppStream metadata
+    run: |
+        sudo apt-get install -y appstream
+        appstreamcli validate --pedantic data/com.example.GtkCrossPlatform.metainfo.xml
 ```
 
 **Makefile:** adicione o target `validate-metainfo`:
@@ -55,10 +55,10 @@ validate-metainfo:
 **Job:** `lint` (adicionar passo após Gate 1)
 
 ```yaml
-- name: Validate .desktop file
-  run: |
-    sudo apt-get install -y desktop-file-utils
-    desktop-file-validate data/com.example.GtkCrossPlatform.desktop
+-   name: Validate .desktop file
+    run: |
+        sudo apt-get install -y desktop-file-utils
+        desktop-file-validate data/com.example.GtkCrossPlatform.desktop
 ```
 
 **Makefile:** adicione o target `validate-desktop`:
@@ -72,8 +72,8 @@ validate-desktop:
 passo de instalação no início do job para economizar tempo:
 
 ```yaml
-- name: Install validation tools
-  run: sudo apt-get install -y appstream desktop-file-utils gettext
+-   name: Install validation tools
+    run: sudo apt-get install -y appstream desktop-file-utils gettext
 ```
 
 Se o job já instala `gettext` separadamente, remova o passo duplicado e consolide em um só.
@@ -86,14 +86,14 @@ Se o job já instala `gettext` separadamente, remova o passo duplicado e consoli
 **Job:** `lint` (adicionar passo após Gate 2)
 
 ```yaml
-- name: Check version consistency (Cargo.toml vs metainfo.xml)
-  run: |
-    CARGO_VER=$(grep '^version' Cargo.toml | head -1 | grep -oP '[\d.]+')
-    META_VER=$(grep -oP '(?<=version=")[^"]+' data/com.example.GtkCrossPlatform.metainfo.xml | head -1)
-    echo "Cargo version: $CARGO_VER"
-    echo "Metainfo version: $META_VER"
-    [ "$CARGO_VER" = "$META_VER" ] || \
-      { echo "ERROR: Version mismatch — Cargo.toml=$CARGO_VER metainfo.xml=$META_VER"; exit 1; }
+-   name: Check version consistency (Cargo.toml vs metainfo.xml)
+    run: |
+        CARGO_VER=$(grep '^version' Cargo.toml | head -1 | grep -oP '[\d.]+')
+        META_VER=$(grep -oP '(?<=version=")[^"]+' data/com.example.GtkCrossPlatform.metainfo.xml | head -1)
+        echo "Cargo version: $CARGO_VER"
+        echo "Metainfo version: $META_VER"
+        [ "$CARGO_VER" = "$META_VER" ] || \
+          { echo "ERROR: Version mismatch — Cargo.toml=$CARGO_VER metainfo.xml=$META_VER"; exit 1; }
 ```
 
 **Makefile:** adicione o target `check-version`:
@@ -114,17 +114,17 @@ check-version:
 **Job:** `lint` (adicionar passo junto ao bloco de i18n)
 
 ```yaml
-- name: i18n POTFILES completeness
-  run: |
-    grep -rl 'gettext!(' src/ | sort > /tmp/has_gettext.txt
-    sort po/POTFILES | grep '\.rs$' > /tmp/potfiles_rs.txt
-    MISSING=$(comm -23 /tmp/has_gettext.txt /tmp/potfiles_rs.txt)
-    if [ -n "$MISSING" ]; then
-      echo "ERROR: Files with gettext!() not registered in po/POTFILES:"
-      echo "$MISSING"
-      exit 1
-    fi
-    echo "POTFILES completeness OK"
+-   name: i18n POTFILES completeness
+    run: |
+        grep -rl 'gettext!(' src/ | sort > /tmp/has_gettext.txt
+        sort po/POTFILES | grep '\.rs$' > /tmp/potfiles_rs.txt
+        MISSING=$(comm -23 /tmp/has_gettext.txt /tmp/potfiles_rs.txt)
+        if [ -n "$MISSING" ]; then
+          echo "ERROR: Files with gettext!() not registered in po/POTFILES:"
+          echo "$MISSING"
+          exit 1
+        fi
+        echo "POTFILES completeness OK"
 ```
 
 **Makefile:** adicione o target `check-potfiles`:
@@ -182,15 +182,15 @@ Crie um job independente (não depende de `lint`):
 
 ```yaml
 deny:
-  name: cargo deny
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
+    name: cargo deny
+    runs-on: ubuntu-latest
+    steps:
+        -   uses: actions/checkout@v4
 
-    - uses: EmbarkStudios/cargo-deny-action@v2
-      with:
-        command: check
-        arguments: --all-features
+        -   uses: EmbarkStudios/cargo-deny-action@v2
+            with:
+                command: check
+                arguments: --all-features
 ```
 
 ### 5.3 Makefile
@@ -209,12 +209,12 @@ deny:
 
 ```yaml
 typos:
-  name: Spell check (typos)
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
+    name: Spell check (typos)
+    runs-on: ubuntu-latest
+    steps:
+        -   uses: actions/checkout@v4
 
-    - uses: crate-ci/typos-action@v1
+        -   uses: crate-ci/typos-action@v1
 ```
 
 Se houver falsos positivos legítimos (termos técnicos, nomes de API), crie `.typos.toml` na
@@ -246,11 +246,11 @@ spell-check:
 Adicione `--fail-under-lines 60` ao comando existente:
 
 ```yaml
-- name: Run coverage (summary + threshold)
-  run: |
-    cargo llvm-cov --lib --summary-only --fail-under-lines 60
-    cargo llvm-cov --test container_driver_test --summary-only
-    cargo llvm-cov --test greet_use_case_test --summary-only
+-   name: Run coverage (summary + threshold)
+    run: |
+        cargo llvm-cov --lib --summary-only --fail-under-lines 60
+        cargo llvm-cov --test container_driver_test --summary-only
+        cargo llvm-cov --test greet_use_case_test --summary-only
 ```
 
 O threshold de 60% aplica-se apenas ao `--lib` (domínio + infraestrutura). Os testes de
@@ -275,24 +275,24 @@ O `.config/nextest.toml` já define o perfil `ci` com `fail-fast = true` e
 `status-level = "all"`. O CI ainda usa `cargo test`. Substitua todos os passos de `cargo test`
 no job `lint` por `cargo nextest run --profile ci`:
 
-| Comando atual | Substituir por |
-|---|---|
-| `cargo test --lib` | `cargo nextest run --profile ci --lib` |
+| Comando atual                             | Substituir por                                                |
+|-------------------------------------------|---------------------------------------------------------------|
+| `cargo test --lib`                        | `cargo nextest run --profile ci --lib`                        |
 | `cargo test --test container_driver_test` | `cargo nextest run --profile ci --test container_driver_test` |
-| `cargo test --test greet_use_case_test` | `cargo nextest run --profile ci --test greet_use_case_test` |
-| `cargo test --test i18n_test` | `cargo nextest run --profile ci --test i18n_test` |
+| `cargo test --test greet_use_case_test`   | `cargo nextest run --profile ci --test greet_use_case_test`   |
+| `cargo test --test i18n_test`             | `cargo nextest run --profile ci --test i18n_test`             |
 
 Adicione a instalação do nextest antes dos passos de teste:
 
 ```yaml
-- name: Install cargo-nextest
-  run: cargo install cargo-nextest --locked
+-   name: Install cargo-nextest
+    run: cargo install cargo-nextest --locked
 ```
 
 Ou use a action oficial que é mais rápida:
 
 ```yaml
-- uses: taiki-e/install-action@cargo-nextest
+-   uses: taiki-e/install-action@cargo-nextest
 ```
 
 **Makefile:** o target `test-nextest` já existe — não alterar.
@@ -306,18 +306,18 @@ Ou use a action oficial que é mais rápida:
 
 ```yaml
 unused-deps:
-  name: Unused dependencies
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
+    name: Unused dependencies
+    runs-on: ubuntu-latest
+    steps:
+        -   uses: actions/checkout@v4
 
-    - uses: dtolnay/rust-toolchain@stable
+        -   uses: dtolnay/rust-toolchain@stable
 
-    - name: Install cargo-machete
-      run: cargo install cargo-machete --locked
+        -   name: Install cargo-machete
+            run: cargo install cargo-machete --locked
 
-    - name: Check for unused dependencies
-      run: cargo machete
+        -   name: Check for unused dependencies
+            run: cargo machete
 ```
 
 **Makefile:**
@@ -338,8 +338,8 @@ O passo atual valida apenas `src/ data/ po/ tests/`. Amplie para incluir `Cargo.
 `.github/` e `build.rs`:
 
 ```yaml
-- name: Run editorconfig-checker
-  run: npx editorconfig-checker src/ data/ po/ tests/ Cargo.toml build.rs .github/
+-   name: Run editorconfig-checker
+    run: npx editorconfig-checker src/ data/ po/ tests/ Cargo.toml build.rs .github/
 ```
 
 ---

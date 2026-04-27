@@ -9,303 +9,383 @@ auto-contido — execute-o sem contexto de conversa anterior.
 
 ---
 
-## O que ler antes de auditar
+## Execução imediata
 
-Leia os arquivos abaixo na íntegra antes de emitir qualquer diagnóstico:
+Execute este bloco AGORA, antes de qualquer análise. Cada comando produz evidência usada no
+relatório. Não pule etapas; registre a saída literal de cada um.
 
-- `.github/workflows/ci.yml` — quality gates + nightly Flatpak
-- `.github/workflows/release.yml` — pipeline de release por tag `v*.*.*`
-- `com.example.GtkCrossPlatform.json` — manifesto Flatpak
-- `Cargo.toml` — versões de dependências e features habilitadas
-- `build.rs` — variáveis de build injetadas (`APP_ID`, `PROFILE`, `PKGDATADIR`, `LOCALEDIR`)
-- `Makefile` — targets locais de build e Flatpak
-- `CLAUDE.md` — regras de arquitetura e convenções do projeto
+```bash
+# 1. Presença dos arquivos críticos
+for f in \
+  .github/workflows/ci.yml \
+  .github/workflows/release.yml \
+  com.example.GtkCrossPlatform.json \
+  Cargo.toml \
+  data/com.example.GtkCrossPlatform.gschema.xml \
+  data/com.example.GtkCrossPlatform.metainfo.xml \
+  data/com.example.GtkCrossPlatform.desktop \
+  build.rs \
+  Makefile; do
+  [ -f "$f" ] && echo "FOUND  $f" || echo "MISSING $f"
+done
+
+# 2. Versão declarada em Cargo.toml
+grep '^version' Cargo.toml | head -1
+
+# 3. Versão declarada em metainfo.xml
+grep '<release ' data/com.example.GtkCrossPlatform.metainfo.xml | head -3
+
+# 4. Triggers do ci.yml (deve incluir push: branches: [main])
+grep -A5 '^on:' .github/workflows/ci.yml
+
+# 5. Triggers do release.yml (deve ser apenas push: tags:)
+grep -A5 '^on:' .github/workflows/release.yml
+
+# 6. Permissões declaradas em cada job do release.yml
+grep -n 'permissions' .github/workflows/release.yml
+
+# 7. Versões de actions em release.yml
+grep -E 'uses: (actions|flatpak|msys2|dtolnay)' .github/workflows/release.yml
+
+# 8. Versões de actions em ci.yml
+grep -E 'uses: (actions|taiki-e|EmbarkStudios|crate-ci)' .github/workflows/ci.yml
+
+# 9. GSettings schema no manifesto Flatpak (deve conter glib-compile-schemas)
+grep -n 'glib-compile-schemas\|gschema' com.example.GtkCrossPlatform.json
+
+# 10. flatpak-cargo-generator.py: URL e pin (master = UNPINNED)
+grep -n 'flatpak-cargo-generator' .github/workflows/release.yml
+
+# 11. finish-args do Flatpak
+grep -A10 'finish-args' com.example.GtkCrossPlatform.json
+
+# 12. runtime-version do manifesto
+grep 'runtime-version' com.example.GtkCrossPlatform.json
+
+# 13. build-options.env no manifesto (APP_ID, PROFILE, PKGDATADIR, LOCALEDIR)
+grep -A15 'build-options' com.example.GtkCrossPlatform.json
+
+# 14. Nightly Flatpak no ci.yml (deve ter job de build Flatpak)
+grep -n 'flatpak\|nightly' .github/workflows/ci.yml
+
+# 15. Job publish no release.yml: needs todos os artefatos
+grep -A5 'needs:' .github/workflows/release.yml
+
+# 16. actionlint (se disponível)
+command -v actionlint >/dev/null 2>&1 \
+  && actionlint .github/workflows/ci.yml .github/workflows/release.yml \
+  || echo "[aviso] actionlint não encontrado — instale com: brew install actionlint"
+
+# 17. Runner macOS (deve ser macos-14, não macos-latest)
+grep 'runs-on' .github/workflows/release.yml
+
+# 18. Homebrew deps no macOS job
+grep -A5 'brew install' .github/workflows/release.yml
+
+# 19. DLL filter no Windows job (mingw64 sem barra inicial)
+grep -n 'grep.*mingw64\|ldd' .github/workflows/release.yml
+
+# 20. Windows runtime data obrigatório
+grep -n 'gschemas.compiled\|gdk-pixbuf\|index.theme' .github/workflows/release.yml
+
+# 21. gh release create: artefatos referenciados
+grep -A15 'gh release create' .github/workflows/release.yml
+
+# 22. Cache Cargo: presença de hashFiles(Cargo.lock) em todos os jobs Rust
+grep -n 'hashFiles' .github/workflows/release.yml
+
+# 23. Paralelismo: flatpak-x86_64, flatpak-aarch64, macos, windows sem needs entre si
+grep -B2 'needs:' .github/workflows/release.yml
+```
+
+---
+
+## Dimensão 0 — Consistência de versão e identidade
+
+Verifique usando os outputs do bloco de execução imediata:
+
+1. **Cargo.toml == metainfo.xml**
+   - `version` em `Cargo.toml` deve ser idêntico ao atributo `version` na última `<release>`
+     em `metainfo.xml`
+   - Divergência = `[BLOQUEANTE]`: o release tag `v<X>` não corresponde ao binário compilado
+
+2. **App ID consistente em todos os arquivos**
+   - `com.example.GtkCrossPlatform` deve aparecer idêntico em:
+     - `com.example.GtkCrossPlatform.json` → campo `app-id`
+     - `Cargo.toml` → build env `APP_ID`
+     - `release.yml` → nomes de artefatos e `gh release create`
+     - `ci.yml` → upload-artifact names (se houver Flatpak nightly)
+   - Qualquer variante (case, separador, sufixo extra) = `[BLOQUEANTE]`
+
+3. **Trigger de release só em tags semver**
+   - `release.yml` deve disparar **somente** em `push: tags: ['v[0-9]*.[0-9]*.[0-9]*']`
+   - Ausência do padrão exato = risco de release acidental em tags de formato errado
+
+4. **ci.yml deve disparar em `push: branches: [main]`**
+   - Sem este trigger, pushes diretos em `main` (e.g., merge squash) não executam CI
+   - Output do comando 4 deve mostrar `push:` com `branches: [main]` além de `pull_request:`
+   - Ausência = `[BLOQUEANTE]`: regressões chegam a `main` sem verificação
 
 ---
 
 ## Dimensão 1 — Sintaxe e validade dos workflows
 
-Verifique cada item abaixo lendo o YAML dos workflows:
+Com base nos outputs dos comandos 6–8 e 16:
 
-1. **actionlint** — execute `actionlint .github/workflows/ci.yml .github/workflows/release.yml`
-   se a ferramenta estiver disponível. Reporte cada linha de erro. Se não estiver instalada,
-   registre como `[aviso] actionlint não encontrado — instale com brew install actionlint`.
+1. **actionlint** — reporte cada linha de erro do comando 16. Se não instalado, indique
+   `[aviso] actionlint não encontrado` e prossiga com análise estática.
 
-2. **Triggers corretos**
-   - `ci.yml` deve disparar em `pull_request` e `push: branches: [main]`
-   - `release.yml` deve disparar **somente** em `push: tags:` com padrão `v[0-9]*.[0-9]*.[0-9]*`
-   - Nenhum workflow de release deve disparar em PRs ou push direto de branch
+2. **Permissões mínimas por job** (comando 6)
+   - `flatpak-x86_64`, `flatpak-aarch64`: `permissions: contents: read` ✅
+   - `macos`, `windows`: devem ter `permissions:` declarado explicitamente; herança implícita
+     do nível de repositório é um risco de segurança = `[AVISO]`
+   - `publish`: `permissions: contents: write` obrigatório = `[BLOQUEANTE]` se ausente
 
-3. **Permissões mínimas**
-   - Jobs que não publicam artefatos devem declarar `permissions: contents: read` ou omitir
-     (herda o mínimo)
-   - Jobs que criam GitHub Releases devem declarar `permissions: contents: write`
-   - Nenhum job deve ter permissões mais amplas que o necessário
+3. **Versões de actions pinadas** (comandos 7–8)
+   - `actions/checkout`, `upload-artifact`, `download-artifact`, `cache` → `@v4` ou superior
+   - `flatpak/flatpak-github-actions/flatpak-builder` → `@v6` ou superior
+   - `msys2/setup-msys2` → `@v2` ou superior
+   - `dtolnay/rust-toolchain` → `@stable` é aceito (semver implícito)
+   - Qualquer `@v1`, `@v2`, `@v3` em actions que têm `@v4` disponível = `[AVISO]`
+   - Qualquer action sem pin de versão (`@main`, sem @) = `[BLOQUEANTE]`
 
-4. **Versões de actions pinadas**
-   - `actions/checkout`, `actions/upload-artifact`, `actions/download-artifact`,
-     `actions/cache` devem usar `@v4` ou superior
-   - `flatpak/flatpak-github-actions/flatpak-builder` deve usar `@v6` ou superior
-   - `msys2/setup-msys2` deve usar `@v2` ou superior
-   - Reportar qualquer action em versão desatualizada ou sem pin de versão
-
-5. **Job `publish` depende de todos os jobs de artefato**
-   - `needs: [flatpak-x86_64, flatpak-aarch64, macos, windows]` deve estar presente
-   - Se qualquer job de artefato falhar, o release não deve ser publicado parcialmente
+4. **Paralelismo correto** (comando 23)
+   - `flatpak-x86_64`, `flatpak-aarch64`, `macos`, `windows` NÃO devem ter `needs:` entre si
+   - Apenas `publish` deve ter `needs: [flatpak-x86_64, flatpak-aarch64, macos, windows]`
+   - Qualquer `needs:` extra entre jobs de build = `[MELHORIA]` (serializa desnecessariamente)
 
 ---
 
 ## Dimensão 2 — Build Flatpak
 
-Para cada job Flatpak (`flatpak-x86_64`, `flatpak-aarch64`):
+Com base nos outputs dos comandos 9–13:
 
 1. **Imagem do container**
    - Deve usar `ghcr.io/flathub-infra/flatpak-github-actions:gnome-48`
-   - Versão do SDK no manifesto JSON (`runtime-version`) deve ser `"48"` — verifique coerência
+   - `runtime-version` no manifesto (comando 12) deve ser `"48"` — inconsistência = `[BLOQUEANTE]`
 
-2. **Geração de `cargo-sources.json`**
-   - O passo de geração deve usar `flatpak-cargo-generator.py` com `Cargo.lock` como entrada
-   - O arquivo `cargo-sources.json` deve ser gerado **antes** do step `flatpak-builder`
-   - Verifique se o `curl` usa `-sSfL` (falha em erros HTTP) e não silencia falhas
+2. **flatpak-cargo-generator.py — pin de versão** (comando 10)
+   - URL deve apontar para um commit SHA fixo, **não** `master`
+   - Download de `master` = quebra silenciosa quando o script muda API
+   - Se `master` aparecer na saída: `[AVISO]`
+   - Correção: substituir `master` por um SHA recente verificado:
+     ```
+     https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/<SHA>/cargo/flatpak-cargo-generator.py
+     ```
 
-3. **Arquitetura aarch64**
-   - O job `flatpak-aarch64` deve passar `arch: aarch64` para `flatpak-github-actions/flatpak-builder`
-   - O bundle deve ter sufixo `-aarch64.flatpak` para diferenciar do x86_64
-   - Builds aarch64 usam QEMU — esperado ser mais lento; não é um bug
+3. **GSettings schema no manifesto** (comando 9)
+   - O manifesto DEVE ter `glib-compile-schemas` em `build-commands` se
+     `data/com.example.GtkCrossPlatform.gschema.xml` existe no repositório
+   - Ausência de `glib-compile-schemas` = `[BLOQUEANTE]`: GSettings não funciona no sandbox
+   - Correção a adicionar em `build-commands` após install do binário:
+     ```
+     "install -Dm644 data/com.example.GtkCrossPlatform.gschema.xml /app/share/glib-2.0/schemas/com.example.GtkCrossPlatform.gschema.xml",
+     "glib-compile-schemas /app/share/glib-2.0/schemas/"
+     ```
 
-4. **Manifesto Flatpak**
-   - `finish-args` deve incluir `--socket=wayland` e `--socket=fallback-x11`
-   - `--device=dri` só deve estar presente se GPU for necessária
-   - O comando `cargo --offline build --release` deve usar `--offline` (fontes pré-geradas)
-   - `APP_ID`, `PROFILE`, `PKGDATADIR`, `LOCALEDIR` devem estar em `build-options.env`
+4. **Manifesto Flatpak — finish-args** (comando 11)
+   - Obrigatórios: `--socket=wayland`, `--socket=fallback-x11`, `--share=ipc`
+   - `--device=dri` só se GPU for necessária — reportar presença como `[AVISO]`
+   - Ausência de `--socket=wayland` = `[BLOQUEANTE]` (app não abre no GNOME)
 
-5. **Nomes de artefatos**
-   - `ci.yml` (nightly): `com.example.GtkCrossPlatform.flatpak` (sem sufixo de arquitetura, para
-     compatibilidade com o release `nightly`)
+5. **build-options.env** (comando 13)
+   - `APP_ID`, `PROFILE`, `PKGDATADIR`, `LOCALEDIR` devem estar presentes
+   - `PKGDATADIR=/app/share/gtk-cross-platform` (path Flatpak)
+   - `LOCALEDIR=/app/share/locale`
+   - Ausência de qualquer variável = `[BLOQUEANTE]`: binário compilado com paths errados
+
+6. **Nomes de artefatos Flatpak**
    - `release.yml`: `com.example.GtkCrossPlatform-x86_64.flatpak` e
-     `com.example.GtkCrossPlatform-aarch64.flatpak` — verificar que os nomes no
-     `upload-artifact` e no step `publish` são consistentes
+     `com.example.GtkCrossPlatform-aarch64.flatpak`
+   - Nome no `bundle:`, `upload-artifact path:` e path no `publish` devem ser idênticos
+   - Qualquer divergência = `[BLOQUEANTE]`: `download-artifact` não encontra o arquivo
+
+7. **Arquitetura aarch64**
+   - Job `flatpak-aarch64` deve passar `arch: aarch64` para a action
+   - Ausência = build x86_64 enviado com nome `aarch64` = `[BLOQUEANTE]`
 
 ---
 
 ## Dimensão 3 — Build macOS
 
-1. **Runner correto**
-   - Deve usar `macos-14` (Apple Silicon, arm64) — não `macos-latest` que pode mudar entre
-     execuções, e não `macos-13` (Intel) que não corresponde ao artefato rotulado `arm64`
+Com base nos outputs dos comandos 17–18 e validação local abaixo:
 
-2. **Dependências Homebrew**
-   - Deve instalar: `gtk4`, `libadwaita`, `dylibbundler`, `create-dmg`
-   - Nenhuma dessas deve ser assumida como pré-instalada no runner
+1. **Runner** (comando 17)
+   - Deve ser `macos-14` — não `macos-latest` (muda entre execuções), não `macos-13` (Intel)
+   - `macos-latest` = `[AVISO]`: artefato pode ser x86_64 em vez de arm64
 
-3. **Variáveis de build (`build.rs`)**
-   - `cargo build --release` deve ser executado com:
-     ```
-     APP_ID=com.example.GtkCrossPlatform
-     PROFILE=default
-     PKGDATADIR=../Resources/share/gtk-cross-platform
-     LOCALEDIR=../Resources/share/locale
-     ```
-   - Verifique se essas variáveis estão declaradas como `env:` no step de build
+2. **Dependências Homebrew** (comando 18)
+   - Obrigatórias: `gtk4`, `libadwaita`, `dylibbundler`, `create-dmg`
+   - Ausência de qualquer uma = `[BLOQUEANTE]`
 
-4. **Estrutura do `.app` bundle**
-   - `Contents/MacOS/gtk-cross-platform` — binário principal
-   - `Contents/Frameworks/` — dylibs re-linkadas por `dylibbundler`
-   - `Contents/Resources/share/glib-2.0/schemas/gschemas.compiled` — **obrigatório** para
-     GTK4/Adwaita funcionar em runtime
-   - `Contents/Info.plist` — deve conter `CFBundleIdentifier`, `CFBundleExecutable`,
-     `NSHighResolutionCapable: true`, `LSMinimumSystemVersion`
+3. **Variáveis de build**
+   - `APP_ID=com.example.GtkCrossPlatform`
+   - `PROFILE=default`
+   - `PKGDATADIR=../Resources/share/gtk-cross-platform`
+   - `LOCALEDIR=../Resources/share/locale`
+   - Ausência de `env:` no step de build = `[BLOQUEANTE]`: `config.rs` compila com paths errados
 
-5. **Caminho correto do `gschemas.compiled`**
-   - O arquivo NÃO está em `$(brew --prefix glib)/share/glib-2.0/schemas/`
-   - Está em `$(brew --prefix)/share/glib-2.0/schemas/gschemas.compiled` (prefix global do
-     Homebrew, que agrega schemas de todos os formulários instalados)
-   - Este é um bug silencioso: o workflow falharia em CI sem esta distinção
+4. **Info.plist — campos obrigatórios**
+   - `CFBundleIdentifier`: deve ser `com.example.GtkCrossPlatform`
+   - `CFBundleExecutable`: deve ser `gtk-cross-platform`
+   - `NSHighResolutionCapable`: `true`
+   - `LSMinimumSystemVersion`: deve existir (e.g., `12.0`)
+   - Ausência de qualquer campo = `[BLOQUEANTE]` (Gatekeeper rejeita o bundle)
 
-6. **`dylibbundler`**
-   - Deve ser invocado com `-od -b -x <binary> -d <Frameworks/> -p @executable_path/../Frameworks/`
-   - Após execução, `otool -L` no binário NÃO deve conter nenhum path `/opt/homebrew/` ou
-     `/usr/local/`; todos os links devem ser `@executable_path/..` ou `/usr/lib`/`/System`
-   - Execute `otool -L Contents/MacOS/gtk-cross-platform | grep -v "@executable_path\|/usr/lib\|/System"`
-     e verifique que a saída está vazia
-   - **Contagem mínima de dylibs:** `ls Contents/Frameworks/ | wc -l` deve retornar ≥ 20 para
-     GTK4+Adwaita; valor abaixo indica que o bundling falhou silenciosamente
-   - **Falso positivo esperado:** dylibbundler executa `codesign --sign -` (assinatura ad-hoc)
-     e imprime `replacing existing signature` — isso é comportamento correto, não um erro.
-     Gatekeeper ainda bloqueará o app no primeiro launch (sem Apple Developer certificate).
+5. **Caminho do `gschemas.compiled`**
+   - Deve usar `$(brew --prefix)/share/glib-2.0/schemas/gschemas.compiled`
+   - NÃO `$(brew --prefix glib)/share/...` (path errado — GTK4/Adwaita não abre)
+   - Este é um bug silencioso; CI só detecta em runtime = `[BLOQUEANTE]`
 
-7. **DMG**
-   - `create-dmg` deve incluir `--app-drop-link` para o atalho de instalação
-   - Nome do arquivo deve incluir a versão: `GtkCrossPlatform-<tag>-macos-arm64.dmg`
-   - Verificar que o nome no `upload-artifact` e no step `publish` são idênticos
-   - **Falso positivo esperado:** create-dmg imprime `hdiutil does not support internet-enable`
-     em macOS ≥ 10.15 — a flag foi removida do sistema e não afeta o DMG gerado. Ignorar.
-   - **Tamanho esperado:** `.app` bundle ~25–50 MB (GTK4+Adwaita+dependências), DMG comprimido
-     ~8–15 MB. Valores muito abaixo indicam que dylibs não foram coletadas.
+6. **`dylibbundler` — flags obrigatórias**
+   - Deve ter `-od -b -x <binary> -d <Frameworks/> -p @executable_path/../Frameworks/`
+   - Ausência de `-p @executable_path/...` = links absolutos Homebrew no binário = `[BLOQUEANTE]`
 
-8. **Cache do Homebrew**
-   - O workflow atual não cacheia pacotes Homebrew — `brew install gtk4 libadwaita dylibbundler
-     create-dmg` leva ~5–10 min a frio no runner macOS-14.
-   - Gap de performance: considere adicionar `actions/cache` para `$(brew --prefix)/Cellar` ou
-     usar `HOMEBREW_NO_AUTO_UPDATE=1` + `HOMEBREW_NO_INSTALL_CLEANUP=1` como `env:` para
-     acelerar mesmo sem cache completo.
+7. **Cache do Homebrew**
+   - Ausência de `actions/cache` para Homebrew = `[MELHORIA]`: +5–10 min por build
+   - Mitigação mínima aceitável: `HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1` como `env:`
 
 ---
 
 ## Dimensão 4 — Build Windows
 
+Com base nos outputs dos comandos 19–20:
+
 1. **Runner e shell**
    - Deve usar `windows-latest` com `defaults: run: shell: msys2 {0}`
-   - Steps que usam PowerShell (`Compress-Archive`) devem declarar `shell: pwsh` explicitamente
-     para sobrescrever o default
+   - Steps com `Compress-Archive` devem declarar `shell: pwsh` explicitamente
 
 2. **Pacotes MSYS2 MINGW64**
-   - Mínimo obrigatório: `gtk4`, `libadwaita`, `rust`, `pkg-config`, `gettext`, `gettext-tools`,
+   - Obrigatórios: `gtk4`, `libadwaita`, `rust`, `pkg-config`, `gettext`, `gettext-tools`,
      `adwaita-icon-theme`
-   - Sem `adwaita-icon-theme`, ícones de UI ficam ausentes em runtime
+   - Sem `adwaita-icon-theme` = ícones ausentes em runtime = `[AVISO]`
 
-3. **Variáveis de build (`build.rs`)**
-   - `cargo build --release` deve ser executado com:
-     ```
-     APP_ID=com.example.GtkCrossPlatform
-     PROFILE=default
-     PKGDATADIR=./share/gtk-cross-platform
-     LOCALEDIR=./share/locale
-     ```
+3. **DLL bundling — filtro correto** (comando 19)
+   - Filtro deve ser `grep -i 'mingw64'` (sem `/` inicial)
+   - `grep -i '/mingw64/'` pode omitir DLLs em algumas versões do `ldd` = `[AVISO]`
+   - Verificar coluna do `awk`: `$3` é o path completo quando `ldd` usa formato
+     `name => /path (0x...)` — confirmar pela saída observada
 
-4. **DLL bundling**
-   - `ldd` deve filtrar por `mingw64` (sem `/` inicial) para capturar paths como
-     `/mingw64/bin/libgtk-4-1.dll`
-   - Filtro `grep -i '/mingw64/'` com `/` no início pode silenciosamente omitir DLLs em algumas
-     versões do `ldd` — prefira `grep -i 'mingw64'`
-   - Execute mentalmente o pipe:
-     `ldd gtk-cross-platform.exe | grep -i 'mingw64' | awk '{print $3}'`
-     e verifique que a coluna 3 corresponde ao path completo da DLL
+4. **Runtime data obrigatório no ZIP** (comando 20)
+   - `dist/share/glib-2.0/schemas/gschemas.compiled` — ausente = GTK4 não abre = `[BLOQUEANTE]`
+   - `dist/share/icons/hicolor/index.theme` — ausente = ícones sem fallback = `[AVISO]`
+   - `dist/lib/gdk-pixbuf-2.0/` — ausente = PNG/SVG não renderizam = `[AVISO]`
 
-5. **Runtime data obrigatório no ZIP**
-   - `dist/share/glib-2.0/schemas/gschemas.compiled` — sem este arquivo GTK4 não abre
-   - `dist/share/icons/hicolor/index.theme` — fallback de ícones
-   - `dist/lib/gdk-pixbuf-2.0/` — loaders para PNG/SVG
-   - Fonte: `/mingw64/share/glib-2.0/schemas/gschemas.compiled`,
-     `/mingw64/share/icons/hicolor/index.theme`,
-     `/mingw64/lib/gdk-pixbuf-2.0/`
+5. **CARGO_HOME e cache no Windows/MSYS2**
+   - `actions/cache` executa em PowerShell (não MSYS2); `~` resolve para `C:\Users\runneradmin`
+   - Se MSYS2 definir `CARGO_HOME` como path Unix, cache nunca bate = `[AVISO]`
+   - Verificação: o `key:` usa `hashFiles('**/Cargo.lock')` — confirmar presença no output
+     do comando 22
 
 6. **Nome do ZIP**
-   - Deve incluir a versão: `GtkCrossPlatform-<tag>-windows-x86_64.zip`
-   - Verificar coerência entre o nome gerado no step de compressão, `upload-artifact` e `publish`
-
-7. **CARGO_HOME e cache no Windows/MSYS2**
-   - O job usa `defaults: run: shell: msys2 {0}`, mas o step `actions/cache` é um `uses:` (não
-     um `run:`) — ele executa no shell padrão do runner, que é **PowerShell**, não MSYS2.
-   - O `~` em PowerShell resolve para `C:\Users\runneradmin` (Windows home).
-   - O `~` em MSYS2 resolve para o home MSYS2, que pode ser diferente.
-   - Se MSYS2's rust definir `CARGO_HOME` como `/home/runneradmin/.cargo` (MSYS2 path) em vez
-     de `C:\Users\runneradmin\.cargo` (Windows path), o cache do `actions/cache` nunca vai bater.
-   - Verificação: o step de cache deve usar o caminho absoluto do Windows ou validar que
-     `$CARGO_HOME` (dentro do shell MSYS2) mapeia para o mesmo local que `~/.cargo` no PowerShell.
+   - Deve incluir a versão: `GtkCrossPlatform-${{ github.ref_name }}-windows-x86_64.zip`
+   - Nome no step de compressão, `upload-artifact` e `publish` devem ser idênticos = `[BLOQUEANTE]`
 
 ---
 
 ## Dimensão 5 — Publicação de release
 
-1. **Job `publish`**
-   - Deve usar `actions/download-artifact@v4` sem especificar `name` (baixa todos os artefatos
-     em subdiretórios separados)
-   - `gh release create` deve referenciar todos os 4 artefatos com caminhos exatos:
-     - `artifacts/flatpak-x86_64/com.example.GtkCrossPlatform-x86_64.flatpak`
-     - `artifacts/flatpak-aarch64/com.example.GtkCrossPlatform-aarch64.flatpak`
-     - `artifacts/macos-dmg/GtkCrossPlatform-<tag>-macos-arm64.dmg`
-     - `artifacts/windows-zip/GtkCrossPlatform-<tag>-windows-x86_64.zip`
-   - `<tag>` deve ser `${{ github.ref_name }}` — verificar interpolação correta
+Com base no output do comando 21:
 
-2. **Release nightly vs. versionada**
-   - `ci.yml` publica release `nightly` (prerelease) a cada push em `main` — correto
-   - `release.yml` publica release versionada (`v*.*.*`) sem `--prerelease` — correto
-   - Os dois workflows não devem criar releases com o mesmo nome/tag
+1. **`download-artifact` sem `name:`**
+   - Deve baixar todos os artefatos em subdiretórios separados (`path: artifacts`)
+   - Especificar `name:` força download de um único artefato = `[BLOQUEANTE]`
 
-3. **`--generate-notes`**
-   - O step `gh release create` deve usar `--generate-notes` para auto-gerar changelog
-   - Alternativa aceitável: `--notes-file CHANGELOG.md` — mas deve existir e estar atualizado
+2. **Paths exatos no `gh release create`**
+   - `artifacts/flatpak-x86_64/com.example.GtkCrossPlatform-x86_64.flatpak`
+   - `artifacts/flatpak-aarch64/com.example.GtkCrossPlatform-aarch64.flatpak`
+   - `artifacts/macos-dmg/GtkCrossPlatform-<tag>-macos-arm64.dmg`
+   - `artifacts/windows-zip/GtkCrossPlatform-<tag>-windows-x86_64.zip`
+   - `<tag>` deve ser `${{ github.ref_name }}` — verificar interpolação
+   - Path errado = `[BLOQUEANTE]`: artefato ausente no release
 
-4. **`GH_TOKEN`**
-   - `secrets.GITHUB_TOKEN` é suficiente para criar releases no próprio repositório
-   - Não deve usar PATs pessoais (`secrets.GH_PAT`) — desnecessário e aumenta superfície de ataque
+3. **`GH_TOKEN`**
+   - Deve usar `secrets.GITHUB_TOKEN` — não PATs pessoais
+   - PAT pessoal = superfície de ataque desnecessária = `[AVISO]`
+
+4. **`--generate-notes`**
+   - Deve estar presente no `gh release create` ou substituído por `--notes-file CHANGELOG.md`
+   - Ausência = release sem changelog = `[AVISO]`
+
+5. **Nightly vs. versionado**
+   - `ci.yml` deve ter job de Flatpak nightly (`nightly` release, `--prerelease`) em `push: branches: [main]`
+   - `release.yml` deve criar release versionada sem `--prerelease`
+   - Se `ci.yml` não tiver o trigger `push: branches: [main]` nem o job Flatpak nightly:
+     reportar como `[AVISO]`: builds intermediários não são publicados
 
 ---
 
 ## Dimensão 6 — Cache e performance de CI
 
-1. **Cache Cargo**
-   - Todos os jobs Rust devem cachear: `~/.cargo/registry/index/`, `~/.cargo/registry/cache/`,
-     `~/.cargo/git/db/`, `target/`
-   - A chave deve incluir `${{ hashFiles('**/Cargo.lock') }}` para invalidar quando deps mudam
-   - `restore-keys` deve ter fallback sem hash para aproveitar caches parciais
+Com base nos outputs dos comandos 22–23:
 
-2. **Cache Flatpak**
-   - `cache-key` deve ser único por job: `flatpak-release-x86_64-<tag>` e
-     `flatpak-release-aarch64-<tag>`
-   - Não compartilhar cache entre x86_64 e aarch64 — arquiteturas diferentes, artefatos
-     incompatíveis
+1. **Cache Cargo em todos os jobs Rust**
+   - Todos os jobs com `cargo build` devem cachear:
+     `~/.cargo/registry/index/`, `~/.cargo/registry/cache/`, `~/.cargo/git/db/`, `target/`
+   - Chave deve incluir `${{ hashFiles('**/Cargo.lock') }}`
+   - `restore-keys` deve ter fallback sem hash
+   - Job sem cache = `[AVISO]`: +2–5 min por build
+
+2. **Cache Flatpak — keys únicas por job**
+   - `flatpak-release-x86_64-<tag>` e `flatpak-release-aarch64-<tag>` não devem compartilhar prefix
+   - Compartilhamento = artefato de arquitetura errada restaurado = `[BLOQUEANTE]`
 
 3. **Jobs paralelos**
-   - `flatpak-x86_64`, `flatpak-aarch64`, `macos`, `windows` devem rodar em paralelo (sem
-     `needs` entre eles)
-   - Apenas `publish` deve ter `needs` em todos os quatro
+   - `flatpak-x86_64`, `flatpak-aarch64`, `macos`, `windows` sem `needs:` entre si
+   - Qualquer serialização = `[MELHORIA]`: aumenta tempo total de release
 
 ---
 
-## Como executar esta auditoria
+## Validação local (macOS)
 
-### Passo 1 — Leitura estática (sempre)
-Leia todos os arquivos listados em "O que ler antes de auditar" e execute as verificações das
-Dimensões 1–6 com base no conteúdo observado.
-
-### Passo 2 — Validação local (se em macOS)
-Se o ambiente for macOS, execute as seguintes verificações ativas:
+Se o ambiente atual for macOS, execute este bloco **imediatamente**:
 
 ```bash
-# 1. Sintaxe dos workflows
-actionlint .github/workflows/ci.yml .github/workflows/release.yml
-
-# 2. Build de release com env vars de produção
+# Build de release com env vars de produção
 APP_ID=com.example.GtkCrossPlatform \
 PROFILE=default \
 PKGDATADIR=../Resources/share/gtk-cross-platform \
 LOCALEDIR=../Resources/share/locale \
-cargo build --release 2>&1 | tail -3
+cargo build --release 2>&1 | tail -5
 
-# 3. Verificar caminho do gschemas.compiled
-ls "$(brew --prefix)/share/glib-2.0/schemas/gschemas.compiled" && echo "OK" || echo "AUSENTE"
+# Verificar caminho correto do gschemas.compiled
+SCHEMA_PATH="$(brew --prefix)/share/glib-2.0/schemas/gschemas.compiled"
+[ -f "$SCHEMA_PATH" ] && echo "PASS gschemas: $SCHEMA_PATH" || echo "FAIL gschemas: não encontrado"
 
-# 4. Criar bundle de teste e validar re-linkagem
+# Bundle de teste
 APP="AuditTest.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Frameworks"
 cp target/release/gtk-cross-platform "$APP/Contents/MacOS/"
 
-# dylibbundler imprimirá "replacing existing signature" — isso é esperado (codesign ad-hoc)
-dylibbundler -od -b -x "$APP/Contents/MacOS/gtk-cross-platform" \
-  -d "$APP/Contents/Frameworks/" -p "@executable_path/../Frameworks/" 2>&1 | tail -3
+# dylibbundler — "replacing existing signature" é esperado (codesign ad-hoc)
+dylibbundler -od -b \
+  -x "$APP/Contents/MacOS/gtk-cross-platform" \
+  -d "$APP/Contents/Frameworks/" \
+  -p "@executable_path/../Frameworks/" 2>&1 | grep -v 'replacing existing signature'
 
-# Verificar zero paths absolutos Homebrew
-otool -L "$APP/Contents/MacOS/gtk-cross-platform" \
-  | grep -v "@executable_path\|/usr/lib\|/System" \
-  | grep -v "gtk-cross-platform:" \
-  | tee /dev/stderr | wc -l | xargs -I{} sh -c \
-  '[ {} -eq 0 ] && echo "PASS: zero absolute Homebrew paths" || echo "FAIL: {} paths restantes"'
+# FAIL se houver paths absolutos Homebrew residuais
+ABSOLUTE=$(otool -L "$APP/Contents/MacOS/gtk-cross-platform" \
+  | grep -v "@executable_path\|/usr/lib\|/System\|gtk-cross-platform:" \
+  | wc -l | tr -d ' ')
+[ "$ABSOLUTE" -eq 0 ] \
+  && echo "PASS dylibs: zero paths absolutos Homebrew" \
+  || echo "FAIL dylibs: $ABSOLUTE paths absolutos residuais"
 
-# Verificar contagem mínima de dylibs (≥ 20 para GTK4+Adwaita)
-DYLIB_COUNT=$(ls "$APP/Contents/Frameworks/" | wc -l | tr -d ' ')
-[ "$DYLIB_COUNT" -ge 20 ] \
-  && echo "PASS: $DYLIB_COUNT dylibs bundled" \
-  || echo "WARN: apenas $DYLIB_COUNT dylibs — bundling pode ter falhado silenciosamente"
+# Contagem mínima de dylibs bundled (≥ 20 para GTK4+Adwaita)
+COUNT=$(ls "$APP/Contents/Frameworks/" | wc -l | tr -d ' ')
+[ "$COUNT" -ge 20 ] \
+  && echo "PASS bundle: $COUNT dylibs" \
+  || echo "WARN bundle: $COUNT dylibs — menos que o esperado (≥ 20)"
 
-# Verificar tamanho do bundle (esperado: 25–50 MB)
+# Tamanho do bundle (esperado: 25–50 MB)
 du -sh "$APP/" | awk '{print "Bundle size: "$1" (esperado: 25–50 MB)"}'
 
 rm -rf "$APP"
 ```
 
-### Passo 3 — Relatório
+Warnings esperados que **não** devem ser reportados como falha:
+- `replacing existing signature` — codesign ad-hoc; normal
+- `hdiutil does not support internet-enable` — removido no macOS 10.15; ignorar
 
 ---
 
@@ -316,14 +396,15 @@ rm -rf "$APP"
 
 ## Scorecard
 
-| Dimensão                   | Status | Problemas |
-|----------------------------|--------|-----------|
-| 1. Sintaxe de workflows    | ✅/⚠️/❌ | n         |
-| 2. Build Flatpak           | ✅/⚠️/❌ | n         |
-| 3. Build macOS             | ✅/⚠️/❌ | n         |
-| 4. Build Windows           | ✅/⚠️/❌ | n         |
-| 5. Publicação de release   | ✅/⚠️/❌ | n         |
-| 6. Cache e performance     | ✅/⚠️/❌ | n         |
+| Dimensão                        | Status   | Bloqueantes | Avisos |
+|---------------------------------|----------|-------------|--------|
+| 0. Consistência de versão       | ✅/⚠️/❌ | n           | n      |
+| 1. Sintaxe de workflows         | ✅/⚠️/❌ | n           | n      |
+| 2. Build Flatpak                | ✅/⚠️/❌ | n           | n      |
+| 3. Build macOS                  | ✅/⚠️/❌ | n           | n      |
+| 4. Build Windows                | ✅/⚠️/❌ | n           | n      |
+| 5. Publicação de release        | ✅/⚠️/❌ | n           | n      |
+| 6. Cache e performance          | ✅/⚠️/❌ | n           | n      |
 
 ✅ = sem problemas · ⚠️ = avisos não-bloqueantes · ❌ = falha bloqueante em CI
 
@@ -331,52 +412,46 @@ rm -rf "$APP"
 
 ## Problemas encontrados
 
-Para cada problema, reporte:
+Para cada problema:
 
-**[SEVERIDADE] Dimensão → Item → Arquivo:linha**
-> Descrição do problema.
-> Impacto: o que quebra em CI/runtime se não for corrigido.
-> Correção: diff ou instrução exata.
+**[SEVERIDADE] Dimensão N → Item → arquivo:linha**
+> Evidência: output literal do comando que detectou o problema.
+> Impacto: o que quebra em CI ou no dispositivo do usuário.
+> Correção exata: diff ou comando completo.
 
 Severidades:
-- `[BLOQUEANTE]` — o pipeline falha ou o artefato não funciona no dispositivo do usuário
-- `[AVISO]` — degradação silenciosa (cache miss, ícone ausente, i18n em inglês)
-- `[MELHORIA]` — não quebra, mas reduz qualidade ou tempo de CI
+- `[BLOQUEANTE]` — pipeline falha ou artefato não roda no dispositivo do usuário
+- `[AVISO]` — degradação silenciosa (cache miss, ícone ausente, i18n em inglês, risco de segurança)
+- `[MELHORIA]` — não quebra, mas reduz qualidade ou aumenta tempo de CI
 
 ---
 
 ## Validações locais (se executadas)
 
-Reporte o resultado de cada comando do Passo 2:
-- `actionlint`: PASS / FAIL (com output completo em caso de FAIL)
-- `cargo build --release`: PASS / FAIL (últimas 3 linhas; tempo de compilação observado)
-- `gschemas.compiled`: FOUND / ABSENT (reportar o path completo encontrado)
-- `dylibbundler` + `otool`: PASS / FAIL (número de paths absolutos restantes)
-- Contagem de dylibs: N dylibs (PASS se ≥ 20, WARN se < 20)
-- Tamanho do bundle: N MB (PASS se 25–50 MB, WARN fora da faixa)
-
-Warnings esperados que NÃO devem ser reportados como falha:
-- `replacing existing signature` — dylibbundler assina ad-hoc; normal
-- `hdiutil does not support internet-enable` — removido no macOS 10.15; ignorar
+- `cargo build --release`: PASS / FAIL (últimas 5 linhas)
+- `gschemas.compiled`: PASS path / FAIL
+- `dylibbundler` + paths absolutos: PASS / FAIL (N paths residuais)
+- Contagem de dylibs: N (PASS ≥ 20 / WARN < 20)
+- Tamanho do bundle: N MB (PASS 25–50 MB / WARN fora da faixa)
 
 ---
 
-## Plano de correção
+## Plano de correção (somente BLOQUEANTES e AVISOS)
 
-Liste apenas os itens BLOQUEANTES e AVISOS, em ordem de prioridade:
+Ordene por impacto no usuário final: artefato que não roda > artefato incompleto > CI lento.
 
-| # | Arquivo | Linha | Correção | Esforço |
-|---|---------|-------|----------|---------|
-| 1 | ...     | ...   | ...      | 5 min   |
+| # | Arquivo | Linha | Correção resumida | Esforço |
+|---|---------|-------|-------------------|---------|
+| 1 | …       | …     | …                 | 5 min   |
 ```
 
 ---
 
 ## Restrições
 
-- Baseie todos os diagnósticos no conteúdo observável dos arquivos; não assuma comportamentos
-  não documentados
-- Quando um item não puder ser verificado localmente (Windows, aarch64), indique explicitamente
-  `[análise estática apenas]`
+- Baseie todos os diagnósticos no output literal dos comandos executados; nunca assuma
+  comportamentos não observados
+- Quando um item não puder ser verificado localmente (Windows, aarch64), indique
+  `[análise estática apenas]` e detalhe o raciocínio
 - Não repita gaps cobertos por `/project:compliance-audit` (i18n, A11Y, arquitetura hexagonal)
-- Priorize por impacto no usuário final: artefato que não roda > artefato incompleto > CI lento
+- Para cada `[BLOQUEANTE]`, forneça o diff ou comando exato de correção — não apenas descrição

@@ -17,10 +17,13 @@ disturbed. Do **not** change any Rust source files — this command is documenta
 `.github/workflows/release.yml`. Replace the stale filename.
 
 Change:
+
 ```
 `.github/workflows/flatpak.yml`
 ```
+
 To:
+
 ```
 `.github/workflows/release.yml`
 ```
@@ -33,6 +36,7 @@ The following files contain `https://github.com/example/gtk-cross-platform` whic
 Replace every occurrence with `https://github.com/BrunoMartinsCorrea/gtk-cross-platform`.
 
 Files to update:
+
 - `CHANGELOG.md` (two link-reference lines at the bottom)
 - `SECURITY.md` (GitHub Security Advisory URL in §Reporting a vulnerability)
 - `CODE_OF_CONDUCT.md` (GitHub Security Advisory URL in §Reporting)
@@ -47,10 +51,13 @@ Files to update:
 path setup at runtime). Add it to the constants list.
 
 Find the config bullet in the Key types section:
+
 ```
 - `config` (`src/config.rs`) — compile-time constants from `build.rs` env vars: `APP_ID`, `VERSION`, `PROFILE`, `LOCALEDIR`, `PKGDATADIR`, `GETTEXT_PACKAGE`.
 ```
+
 Replace with:
+
 ```
 - `config` (`src/config.rs`) — compile-time constants from `build.rs` env vars: `APP_ID`, `VERSION`, `PROFILE`, `LOCALEDIR`, `PKGDATADIR`, `SOURCE_DATADIR`, `GETTEXT_PACKAGE`.
 ```
@@ -66,22 +73,22 @@ Replace with:
 
 Find the breakpoints table and add the missing row. The table currently has:
 
-| Breakpoint | Condition | Margin |
-|------------------|------------------|--------|
-| Desktop normal | > 768 sp | 48 sp |
-| Desktop compact | ≤ 768 sp | 32 sp |
-| Tablet | ≤ 600 sp | 24 sp |
-| GNOME Mobile | ≤ 360 sp | 16 sp |
+| Breakpoint      | Condition | Margin |
+|-----------------|-----------|--------|
+| Desktop normal  | > 768 sp  | 48 sp  |
+| Desktop compact | ≤ 768 sp  | 32 sp  |
+| Tablet          | ≤ 600 sp  | 24 sp  |
+| GNOME Mobile    | ≤ 360 sp  | 16 sp  |
 
 Replace with:
 
-| Breakpoint | Condition | Effect |
-|----------------------|------------|----------------------------------------------|
-| Desktop normal | > 768 sp | Margins 48 sp |
-| Desktop compact | ≤ 768 sp | Margins 32 sp |
-| Split-view collapse | ≤ 720 sp | `AdwNavigationSplitView` collapses; `AdwViewSwitcherBar` revealed; `AdwViewSwitcher` (top) hidden |
-| Tablet | ≤ 600 sp | Margins 24 sp |
-| GNOME Mobile | ≤ 360 sp | Margins 16 sp |
+| Breakpoint          | Condition | Effect                                                                                            |
+|---------------------|-----------|---------------------------------------------------------------------------------------------------|
+| Desktop normal      | > 768 sp  | Margins 48 sp                                                                                     |
+| Desktop compact     | ≤ 768 sp  | Margins 32 sp                                                                                     |
+| Split-view collapse | ≤ 720 sp  | `AdwNavigationSplitView` collapses; `AdwViewSwitcherBar` revealed; `AdwViewSwitcher` (top) hidden |
+| Tablet              | ≤ 600 sp  | Margins 24 sp                                                                                     |
+| GNOME Mobile        | ≤ 360 sp  | Margins 16 sp                                                                                     |
 
 ---
 
@@ -93,10 +100,13 @@ The project uses Cargo/build.rs for GResource compilation, not Meson. `po/meson.
 exist. The `.po` → `.mo` compilation pipeline is not yet wired.
 
 Find the bullet:
+
 ```
 - `po/meson.build` — runs `i18n.gettext()` to compile `.po` → `.mo`
 ```
+
 Replace with:
+
 ```
 - `po/POTFILES` — lists `.rs` and `.ui` files containing translatable strings
 - `po/LINGUAS` — lists active locale codes (20+ community translations; see po/LINGUAS)
@@ -131,10 +141,13 @@ accurate. `src/window/main_window.rs` calls `ContainerDriverFactory::detect_spec
 runtime-switcher feature.
 
 Find:
+
 ```
 `activate()` is the only place where concrete types are wired to ports.
 ```
+
 Replace with:
+
 ```
 `activate()` is the primary place where concrete types are wired to ports. `MainWindow` may also
 re-wire the runtime adapter when the user switches runtimes at runtime via the runtime switcher.
@@ -152,11 +165,14 @@ Apply the same correction in the Architecture layer table comment for `src/app.r
 views and MainWindow as callers.
 
 Find:
+
 ```
 - Views (`src/window/views/`) are the primary layer that calls `spawn_driver_task`. `MainWindow` may also call it for
   window-scoped actions (e.g., system prune) that do not belong to any single resource view.
 ```
+
 Replace with:
+
 ```
 - Views (`src/window/views/`) are the primary layer that calls `spawn_driver_task`. `MainWindow` may also call it for
   window-scoped actions (e.g., system prune) that do not belong to any single resource view.
@@ -173,11 +189,14 @@ Many files and directories added after the initial implementation are absent fro
 the `src/` block to reflect the actual file tree.
 
 In the `core/use_cases/` subtree, replace:
+
 ```
       mod.rs
       greet_use_case.rs                  # GreetUseCase — pure domain logic, no GTK
 ```
+
 With:
+
 ```
       mod.rs
       container_use_case.rs              # ContainerUseCase — list/inspect/lifecycle operations
@@ -188,6 +207,7 @@ With:
 ```
 
 In the `ports/` subtree, after `i_greeting_service.rs` add:
+
 ```
     use_cases/
       mod.rs
@@ -198,22 +218,29 @@ In the `ports/` subtree, after `i_greeting_service.rs` add:
 ```
 
 In the `infrastructure/containers/` subtree, after `mock_driver.rs` add:
+
 ```
       dynamic_driver.rs                  # DynamicDriver — wraps Arc<dyn IContainerDriver> for runtime switching
 ```
 
 In the `window/` subtree:
+
 - After `mod.rs` add:
+
 ```
     actions.rs                           # CommonActions — window-scoped GAction constants
 ```
+
 - In `components/` subtree, after `confirm_dialog.rs` add:
+
 ```
       empty_state.rs                     # EmptyState — adw::StatusPage wrapper for empty list states
       list_factory.rs                    # GtkSignalListItemFactory helpers for ColumnView/ListView
       toast_util.rs                      # ToastUtil — fire-and-forget adw::Toast helpers
 ```
+
 - After the `components/` block, add a new `objects/` block:
+
 ```
     objects/
       mod.rs
@@ -222,23 +249,30 @@ In the `window/` subtree:
       network_object.rs                  # NetworkObject — GObject wrapper for Network domain model
       volume_object.rs                   # VolumeObject — GObject wrapper for Volume domain model
 ```
+
 - In the `views/` subtree, after the existing views add:
+
 ```
       dashboard_view.rs                  # DashboardView — system overview: running containers, disk usage
 ```
 
 In the `data/` subtree:
+
 - After `style.css` add:
+
 ```
     style-dark.css                       # Dark-mode overrides (loaded via AdwStyleManager)
   com.example.GtkCrossPlatform.gschema.xml  # GSettings schema (sidebar-width, last-runtime)
 ```
 
 In the `po/` subtree, replace:
+
 ```
   pt_BR.po                               # Brazilian Portuguese translation (example)
 ```
+
 With:
+
 ```
   pt_BR.po                               # Brazilian Portuguese
   *.po                                   # 20+ community translations (see po/LINGUAS for full list)
@@ -254,13 +288,14 @@ Three files in `.claude/commands/` have no table entry. Add them.
 
 Add these rows to the slash commands table:
 
-| Command | When to use |
-|---|---|
-| `/project:implement-v02-mvp` | Implement the v0.2 MVP feature set from Doca.zip design specs (search, pull, wizard, stats, inspect, terminal, compose, dashboard, runtime switcher) |
-| `/project:redesign-claude-setup` | Survey the current command set and generate an improved set covering the full FLOSS development lifecycle |
-| `/project:testing-audit` | Audit and plan the full test strategy for the project |
+| Command                          | When to use                                                                                                                                          |
+|----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `/project:implement-v02-mvp`     | Implement the v0.2 MVP feature set from Doca.zip design specs (search, pull, wizard, stats, inspect, terminal, compose, dashboard, runtime switcher) |
+| `/project:redesign-claude-setup` | Survey the current command set and generate an improved set covering the full FLOSS development lifecycle                                            |
+| `/project:testing-audit`         | Audit and plan the full test strategy for the project                                                                                                |
 
 Also add the entry for `.claude/commands/` in the Project Structure `.claude/` block:
+
 ```
     commands/
       ...
@@ -296,6 +331,7 @@ make check-unused-deps  # cargo machete (detect unused dependencies)
 ```sh
 make dmg               # Build macOS .app bundle + .dmg (requires dylibbundler, create-dmg)
 ```
+
 ```
 
 ---
@@ -312,7 +348,9 @@ Find:
 sudo apt install libgtk-4-dev libadwaita-1-dev gettext rustup
 rustup toolchain install stable
 ```
+
 Replace with:
+
 ```sh
 sudo apt install libgtk-4-dev libadwaita-1-dev gettext
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -337,6 +375,7 @@ Replace the current 4-step numbered list with a checklist that matches the PR te
    ```sh
    make lint && make lint-i18n && make fmt && make test
    ```
+
 4. For UI changes: cite the [GNOME HIG](https://developer.gnome.org/hig/) section in the PR description
 
 **PR checklist (matches `.github/PULL_REQUEST_TEMPLATE.md`):**
@@ -351,6 +390,7 @@ Replace the current 4-step numbered list with a checklist that matches the PR te
 - [ ] Touch targets on new interactive elements are ≥ 44×44 sp
 - [ ] `src/core/` and `src/ports/` do not import `gtk4`, `adw`, or any IO library
 - [ ] Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
+
 ```
 
 ---
@@ -361,11 +401,15 @@ Replace the current 4-step numbered list with a checklist that matches the PR te
 
 Find:
 ```
-make setup-macos         # prints Homebrew install instructions
+
+make setup-macos # prints Homebrew install instructions
+
 ```
 Replace with:
 ```
-make setup-macos         # installs GTK4 stack via Homebrew + Rust via rustup
+
+make setup-macos # installs GTK4 stack via Homebrew + Rust via rustup
+
 ```
 
 ---
@@ -379,7 +423,9 @@ table as a build-time dependency:
 
 Find the Requirements table and add one row:
 ```
+
 | glib-compile-schemas | part of `libglib2.0-dev` / `glib2-devel` / `glib` (Homebrew) |
+
 ```
 
 ---
@@ -392,6 +438,7 @@ After applying all fixes:
    ```sh
    grep -r "flatpak\.yml" . --include="*.md" --include="*.json"
    ```
+
 2. Confirm no `github.com/example` URLs remain:
    ```sh
    grep -r "github.com/example" . --include="*.md"

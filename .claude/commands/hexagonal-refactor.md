@@ -12,19 +12,19 @@ maps every concept to the GTK4 + GLib event-loop context of this project.
 
 ## Concept Mapping: Backend → GTK Desktop
 
-| Backend (Axum/Kafka/Postgres)         | GTK Desktop (this project)                                   |
-|---------------------------------------|--------------------------------------------------------------|
-| Cargo workspace with separate crates  | Single crate; strict module layering enforced by `CLAUDE.md` |
-| Driver port (inbound) — HTTP handler calls use case  | `src/ports/use_cases/` — trait that a View calls via `spawn_driver_task` |
-| Driven port (outbound) — use case calls DB/Kafka  | `src/ports/i_container_driver.rs` — already exists           |
-| `@Singleton class FooUseCase`         | `struct FooUseCase { driver: Arc<dyn IContainerDriver> }` + `Arc::new(...)` |
-| `Arc<dyn Trait>` for shared adapters  | Already used: `Arc<dyn IContainerDriver>`                    |
-| `@Controller` Axum handler            | `ContainersView` / `ImagesView` / … in `src/window/views/`  |
-| `axum::State<T>` dependency injection  | `OnceCell<Arc<dyn ContainerUseCase>>` field in each view     |
-| `tokio::spawn` + async I/O            | `spawn_driver_task` + `async-channel` + `glib::spawn_local`  |
-| `IntoResponse for AppError`           | `log_container_error()` + `adw::Toast` in views             |
-| `impl From<DbRow> for DomainModel`    | `impl From<ContainerJson> for Container` inside each driver  |
-| Manual wiring in `main.rs`            | `activate()` in `src/app.rs` — already the composition root  |
+| Backend (Axum/Kafka/Postgres)                       | GTK Desktop (this project)                                                  |
+|-----------------------------------------------------|-----------------------------------------------------------------------------|
+| Cargo workspace with separate crates                | Single crate; strict module layering enforced by `CLAUDE.md`                |
+| Driver port (inbound) — HTTP handler calls use case | `src/ports/use_cases/` — trait that a View calls via `spawn_driver_task`    |
+| Driven port (outbound) — use case calls DB/Kafka    | `src/ports/i_container_driver.rs` — already exists                          |
+| `@Singleton class FooUseCase`                       | `struct FooUseCase { driver: Arc<dyn IContainerDriver> }` + `Arc::new(...)` |
+| `Arc<dyn Trait>` for shared adapters                | Already used: `Arc<dyn IContainerDriver>`                                   |
+| `@Controller` Axum handler                          | `ContainersView` / `ImagesView` / … in `src/window/views/`                  |
+| `axum::State<T>` dependency injection               | `OnceCell<Arc<dyn ContainerUseCase>>` field in each view                    |
+| `tokio::spawn` + async I/O                          | `spawn_driver_task` + `async-channel` + `glib::spawn_local`                 |
+| `IntoResponse for AppError`                         | `log_container_error()` + `adw::Toast` in views                             |
+| `impl From<DbRow> for DomainModel`                  | `impl From<ContainerJson> for Container` inside each driver                 |
+| Manual wiring in `main.rs`                          | `activate()` in `src/app.rs` — already the composition root                 |
 
 ---
 
@@ -200,10 +200,10 @@ each view. Calls to `spawn_driver_task` switch from driver methods to use case m
 
 ```rust
 // src/window/views/containers_view.rs — before
-spawn_driver_task(self.driver.clone(), |d| d.list_containers(true), |result| { … });
+spawn_driver_task( self .driver.clone(), | d| d.list_containers(true), | result| { … });
 
 // after
-spawn_driver_task(self.use_case.clone(), |uc| uc.list(true), |result| { … });
+spawn_driver_task( self .use_case.clone(), | uc| uc.list(true), | result| { … });
 ```
 
 `spawn_driver_task` accepts `Arc<dyn IContainerUseCase>` without change because the
@@ -218,7 +218,9 @@ Where drivers currently map API JSON inline, extract:
 
 ```rust
 // src/infrastructure/containers/docker_driver.rs
-struct ContainerDto { /* serde fields */ }
+struct ContainerDto {
+    /* serde fields */
+}
 
 impl From<ContainerDto> for Container {
     fn from(dto: ContainerDto) -> Self {
@@ -239,14 +241,14 @@ the API wire format from the domain model.
 
 ## Layer Rules (enforced throughout)
 
-| Layer              | May import                              | Must never import          |
-|--------------------|-----------------------------------------|----------------------------|
-| `src/core/domain/` | `std`, `uuid`, `chrono`                 | `gtk4`, `adw`, `glib`, `gio`, `ports::*`, `infrastructure::*` |
-| `src/core/use_cases/` | `core::domain::*`, `ports::*`        | `gtk4`, `adw`, `glib`, `infrastructure::*` |
-| `src/ports/`       | `core::domain::*`, `infrastructure::containers::error::ContainerError` | `gtk4`, `adw`, `glib` |
-| `src/infrastructure/` | `ports::*`, `core::domain::*`, `glib` | `gtk4`, `adw`           |
-| `src/window/`      | `ports::use_cases::*`, `core::domain::*`, `glib`, `gtk4`, `adw` | `infrastructure::*` directly |
-| `src/app.rs`       | All layers (composition root only)      | —                          |
+| Layer                 | May import                                                             | Must never import                                             |
+|-----------------------|------------------------------------------------------------------------|---------------------------------------------------------------|
+| `src/core/domain/`    | `std`, `uuid`, `chrono`                                                | `gtk4`, `adw`, `glib`, `gio`, `ports::*`, `infrastructure::*` |
+| `src/core/use_cases/` | `core::domain::*`, `ports::*`                                          | `gtk4`, `adw`, `glib`, `infrastructure::*`                    |
+| `src/ports/`          | `core::domain::*`, `infrastructure::containers::error::ContainerError` | `gtk4`, `adw`, `glib`                                         |
+| `src/infrastructure/` | `ports::*`, `core::domain::*`, `glib`                                  | `gtk4`, `adw`                                                 |
+| `src/window/`         | `ports::use_cases::*`, `core::domain::*`, `glib`, `gtk4`, `adw`        | `infrastructure::*` directly                                  |
+| `src/app.rs`          | All layers (composition root only)                                     | —                                                             |
 
 ---
 

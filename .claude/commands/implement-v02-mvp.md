@@ -15,16 +15,16 @@ unzip -o Doca.zip -d /tmp/doca
 
 Read these files before writing a single line of code:
 
-| File | What it contains |
-|------|-----------------|
-| `Feature Gap Analysis.html` | Priority matrix: P1 · P2 · P3 · Done; v0.2/v0.3/v0.4/v1.0 roadmap |
-| `Container Manager v2.html` | Full interactive visual mockup of the v0.2 UI (desktop + mobile) |
-| `Container Manager.html` | v0.1 baseline prototype |
-| `cm-core.jsx` | Mock data shapes, domain constants, all shared components (StatusBadge, PR, Toast, Spinner, IconBtn, PillBtn) |
-| `cm-app.jsx` | Dashboard, Sidebar (search + compose grouping + Add context button), runtime switcher, dialog orchestration |
-| `cm-features.jsx` | Terminal, Stats (sparklines), Inspect (JSON), Image Layers, detail panes per resource type |
-| `cm-dialogs.jsx` | Pull image (3-phase), Create container wizard (4-step), Create volume, Create network, About dialog, MenuPopover |
-| `tweaks-panel.jsx` | Floating design-tweak control panel (TweaksPanel, TweakSection, TweakSlider, TweakToggle, TweakRadio, TweakSelect) |
+| File                        | What it contains                                                                                                   |
+|-----------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `Feature Gap Analysis.html` | Priority matrix: P1 · P2 · P3 · Done; v0.2/v0.3/v0.4/v1.0 roadmap                                                  |
+| `Container Manager v2.html` | Full interactive visual mockup of the v0.2 UI (desktop + mobile)                                                   |
+| `Container Manager.html`    | v0.1 baseline prototype                                                                                            |
+| `cm-core.jsx`               | Mock data shapes, domain constants, all shared components (StatusBadge, PR, Toast, Spinner, IconBtn, PillBtn)      |
+| `cm-app.jsx`                | Dashboard, Sidebar (search + compose grouping + Add context button), runtime switcher, dialog orchestration        |
+| `cm-features.jsx`           | Terminal, Stats (sparklines), Inspect (JSON), Image Layers, detail panes per resource type                         |
+| `cm-dialogs.jsx`            | Pull image (3-phase), Create container wizard (4-step), Create volume, Create network, About dialog, MenuPopover   |
+| `tweaks-panel.jsx`          | Floating design-tweak control panel (TweaksPanel, TweakSection, TweakSlider, TweakToggle, TweakRadio, TweakSelect) |
 
 ---
 
@@ -46,37 +46,38 @@ Mobile: single-pane (list ↔ detail), bottom tab bar (Home/Containers/Images/Vo
 
 ### Detail-pane tabs per resource
 
-| Resource | Tabs |
-|----------|------|
+| Resource  | Tabs                                     |
+|-----------|------------------------------------------|
 | Container | Info · Logs · Stats · Terminal · Inspect |
-| Image | Info · Layers |
-| Volume | (single view — no tabs) |
-| Network | (single view — no tabs) |
-| Home | Dashboard (full-width) |
+| Image     | Info · Layers                            |
+| Volume    | (single view — no tabs)                  |
+| Network   | (single view — no tabs)                  |
+| Home      | Dashboard (full-width)                   |
 
 ### Color tokens (design reference only — map to GNOME Adwaita in Rust)
 
-| Design token | Light | Dark | GNOME mapping |
-|---|---|---|---|
-| `--accent` | `#3584e4` | `#78aeed` | `@accent_color` |
-| `--ok` | `#26a269` | `#57e389` | `@success_color` |
-| `--warn` | `#905b00` | `#f8e45c` | `@warning_color` |
-| `--err` | `#c01c28` | `#ff7b7b` | `@error_color` |
-| `--txt2` | `rgba(0,0,0,.55)` | `rgba(255,255,255,.55)` | `@dim_label_color` |
+| Design token | Light             | Dark                    | GNOME mapping      |
+|--------------|-------------------|-------------------------|--------------------|
+| `--accent`   | `#3584e4`         | `#78aeed`               | `@accent_color`    |
+| `--ok`       | `#26a269`         | `#57e389`               | `@success_color`   |
+| `--warn`     | `#905b00`         | `#f8e45c`               | `@warning_color`   |
+| `--err`      | `#c01c28`         | `#ff7b7b`               | `@error_color`     |
+| `--txt2`     | `rgba(0,0,0,.55)` | `rgba(255,255,255,.55)` | `@dim_label_color` |
 
 ### StatusBadge colors (design → Adwaita CSS class)
 
-| Status | Design color | Adwaita approach |
-|--------|-------------|-----------------|
-| running | green (#26a269) | `success` accent |
-| paused | orange (#905b00) | `warning` accent |
-| stopped / exited | gray | `dim-label` class |
-| dead / error | red (#c01c28) | `error` accent |
-| created / restarting | blue (accent) | `accent` class |
+| Status               | Design color     | Adwaita approach  |
+|----------------------|------------------|-------------------|
+| running              | green (#26a269)  | `success` accent  |
+| paused               | orange (#905b00) | `warning` accent  |
+| stopped / exited     | gray             | `dim-label` class |
+| dead / error         | red (#c01c28)    | `error` accent    |
+| created / restarting | blue (accent)    | `accent` class    |
 
 ### Domain data shapes (from `cm-core.jsx`)
 
 #### Container
+
 ```
 id, name, image, status (running|paused|stopped|exited|dead|error|created|restarting),
 ports (string), command (string), compose (project name or null),
@@ -84,29 +85,36 @@ created (ISO timestamp), restart (always|no|unless-stopped|on-failure), env []
 ```
 
 #### Image
+
 ```
 id (sha256:…), short_id, name, tag, size (bytes → MB), created (unix),
 digest (optional), in_use (bool — has running container using this image),
 labels {}
 ```
+
 > ⚠️ `in_use` is in the design but missing from the Rust `Image` domain struct.
 
 #### Volume
+
 ```
 name, driver (local|nfs|tmpfs), mountpoint, created, labels {}, scope,
 size (bytes — human display "2.3 GB"), in_use (bool)
 ```
+
 > ⚠️ `size` and `in_use` are in the design but missing from the Rust `Volume` domain struct.
 
 #### Network
+
 ```
 id, name, driver (bridge|host|null|overlay|macvlan|ipvlan),
 scope, internal (bool), created, subnet (optional), gateway (optional),
 containers_count (u64 — number of connected containers)
 ```
+
 > ⚠️ `containers_count` is in the design but missing from the Rust `Network` domain struct.
 
 #### Dashboard stats
+
 ```
 system: { cpu_percent, mem_percent, disk_percent }
 containers: { running, paused, stopped, errored }
@@ -114,12 +122,15 @@ recent_events: [{ ts, type, action, actor, id }]
 ```
 
 #### Image layer
+
 ```
 id (sha256 prefix), cmd (Dockerfile command), size (bytes)
 ```
+
 > New domain type required for image layers feature.
 
 #### ContainerEvent
+
 ```
 timestamp (HH:MM:SS or ISO), event_type (container|image|volume|network),
 action (start|stop|pull|create|…), actor (container/image name), actor_id (truncated id)
@@ -140,27 +151,27 @@ Run `make test` before adding anything. All 148 non-widget tests must be green.
 
 ### Completed features
 
-| Feature | Location | Tests |
-|---------|----------|-------|
-| Global search/filter (Ctrl+F) | `containers_view.rs` | `search_filter_test.rs` (10) |
-| Pull image dialog — basic | `images_view.rs` | `pull_image_test.rs` (6) |
-| Pull image — layer streaming | `images_view.rs` | `pull_image_streaming_test.rs` (4) |
-| Create container wizard (4-step) | `containers_view.rs` | `create_container_test.rs` (7) |
-| Container stats tab (sparklines, 60s) | `containers_view.rs` | `container_stats_test.rs` (6) |
-| Container inspect tab (JSON + copy) | `containers_view.rs` | `inspect_test.rs` (7) |
-| Container env vars + secret masking | `containers_view.rs` | `env_masking_test.rs` (11) |
-| Compose stack grouping (collapsible) | `containers_view.rs` | `compose_grouping_test.rs` (9) |
-| Logs backend (port + mock) | `infrastructure/containers/` | `container_logs_test.rs` (4) |
-| Logs tab UI (timestamps, copy, refresh) | `containers_view.rs` (`build_logs_tab`) | (backend tests) |
-| Terminal backend (port + mock) | `infrastructure/containers/` | `terminal_test.rs` (4) |
-| Terminal tab UI (shell selector, entry, history) | `containers_view.rs` (`build_terminal_tab`) | (backend tests) |
-| `IContainerUseCase::exec()` | `i_container_use_case.rs` + `container_use_case.rs` | `terminal_test.rs` |
-| Create volume dialog | `volumes_view.rs` (`show_create_dialog`) | — |
-| Create network dialog | `networks_view.rs` (`show_create_dialog`) | — |
-| Dashboard backend (system_df, prune) | `infrastructure/containers/` | `dashboard_test.rs` (3) |
-| Dashboard UI (Home tab) | `dashboard_view.rs` | (backend tests) |
-| Runtime switcher backend (`detect_specific`) | `factory.rs` | `runtime_switcher_test.rs` (3) |
-| Runtime switcher widget (`adw::HeaderBar`) | `main_window.rs` | (backend tests) |
+| Feature                                          | Location                                            | Tests                              |
+|--------------------------------------------------|-----------------------------------------------------|------------------------------------|
+| Global search/filter (Ctrl+F)                    | `containers_view.rs`                                | `search_filter_test.rs` (10)       |
+| Pull image dialog — basic                        | `images_view.rs`                                    | `pull_image_test.rs` (6)           |
+| Pull image — layer streaming                     | `images_view.rs`                                    | `pull_image_streaming_test.rs` (4) |
+| Create container wizard (4-step)                 | `containers_view.rs`                                | `create_container_test.rs` (7)     |
+| Container stats tab (sparklines, 60s)            | `containers_view.rs`                                | `container_stats_test.rs` (6)      |
+| Container inspect tab (JSON + copy)              | `containers_view.rs`                                | `inspect_test.rs` (7)              |
+| Container env vars + secret masking              | `containers_view.rs`                                | `env_masking_test.rs` (11)         |
+| Compose stack grouping (collapsible)             | `containers_view.rs`                                | `compose_grouping_test.rs` (9)     |
+| Logs backend (port + mock)                       | `infrastructure/containers/`                        | `container_logs_test.rs` (4)       |
+| Logs tab UI (timestamps, copy, refresh)          | `containers_view.rs` (`build_logs_tab`)             | (backend tests)                    |
+| Terminal backend (port + mock)                   | `infrastructure/containers/`                        | `terminal_test.rs` (4)             |
+| Terminal tab UI (shell selector, entry, history) | `containers_view.rs` (`build_terminal_tab`)         | (backend tests)                    |
+| `IContainerUseCase::exec()`                      | `i_container_use_case.rs` + `container_use_case.rs` | `terminal_test.rs`                 |
+| Create volume dialog                             | `volumes_view.rs` (`show_create_dialog`)            | —                                  |
+| Create network dialog                            | `networks_view.rs` (`show_create_dialog`)           | —                                  |
+| Dashboard backend (system_df, prune)             | `infrastructure/containers/`                        | `dashboard_test.rs` (3)            |
+| Dashboard UI (Home tab)                          | `dashboard_view.rs`                                 | (backend tests)                    |
+| Runtime switcher backend (`detect_specific`)     | `factory.rs`                                        | `runtime_switcher_test.rs` (3)     |
+| Runtime switcher widget (`adw::HeaderBar`)       | `main_window.rs`                                    | (backend tests)                    |
 
 ---
 
@@ -246,18 +257,21 @@ Design specifies visual cues in list rows that are not yet rendered.
 #### B1 — Image row: "dangling" badge
 
 When `img.in_use == false` and `img.tags.is_empty()` (or tag is `<none>:<none>`):
+
 - Append a small label or CSS class `dim-label` with text `gettext("dangling")` to the subtitle.
 - Example subtitle: `"abc12345 · 7.8 MB · dangling"`.
 
 #### B2 — Volume row: size + "unused" badge
 
 Current subtitle only shows driver. Extend to:
+
 - `"{driver} · {size_human}" + if !in_use { " · unused" }"`
 - Helper: `fn fmt_bytes(b: u64) -> String` — format as "142 MB" or "2.3 GB".
 
 #### B3 — Network row: containers count
 
 Current subtitle shows driver and subnet. Extend to:
+
 - `"{driver} · {subnet} · {containers_count} container(s)"`.
 
 #### B4 — Compose group header: running badge
@@ -266,6 +280,7 @@ Design (`cm-features.jsx` Sidebar) shows a badge on each compose group header
 of the form **"N/M running"** (e.g., "3/4 running").
 
 Implementation:
+
 - In `containers_view.rs`, when building the compose group `adw::ActionRow` header, count
   containers in the group with `status == ContainerStatus::Running`.
 - Build subtitle string: `format!("{}/{} running", running, total)`.
@@ -276,23 +291,29 @@ Implementation:
 The design defines two distinct empty-state components for the sidebar:
 
 **EmptyList** — shown when the resource list is empty (no Docker objects exist):
+
 - Each tab has its own message:
-  - Containers: icon `system-run-symbolic`, title `gettext("No Containers")`, body `gettext("No containers found. Run a container to get started.")`
-  - Images: icon `drive-optical-symbolic`, title `gettext("No Images")`, body `gettext("No images found. Pull an image to get started.")`
-  - Volumes: icon `drive-harddisk-symbolic`, title `gettext("No Volumes")`, body `gettext("No volumes found.")`
-  - Networks: icon `network-wired-symbolic`, title `gettext("No Networks")`, body `gettext("No networks found.")`
+    - Containers: icon `system-run-symbolic`, title `gettext("No Containers")`, body
+      `gettext("No containers found. Run a container to get started.")`
+    - Images: icon `drive-optical-symbolic`, title `gettext("No Images")`, body
+      `gettext("No images found. Pull an image to get started.")`
+    - Volumes: icon `drive-harddisk-symbolic`, title `gettext("No Volumes")`, body `gettext("No volumes found.")`
+    - Networks: icon `network-wired-symbolic`, title `gettext("No Networks")`, body `gettext("No networks found.")`
 - Use `adw::StatusPage` with icon, title, and description.
 
 **No-results state** — shown when search returns no matches (list is non-empty but filter yields nothing):
+
 - Icon: `edit-find-symbolic`
 - Title: `gettext("No Results")`
 - Body: `format!("{} "{}"", gettext("No matches for"), search_query)`
 - Use `adw::StatusPage`.
 
 **EmptySelection** — shown in the detail pane when no item is selected:
+
 - Each tab has its own message matching the sidebar's EmptyList prompt.
 - Use `adw::StatusPage`.
-- Containers: icon `system-run-symbolic`, title `gettext("No Container Selected")`, body `gettext("Select a container from the list.")`
+- Containers: icon `system-run-symbolic`, title `gettext("No Container Selected")`, body
+  `gettext("Select a container from the list.")`
 - Images, Volumes, Networks: analogous.
 
 ---
@@ -304,9 +325,11 @@ The design defines two distinct empty-state components for the sidebar:
 `show_detail()` in `images_view.rs` currently shows: Tag, ID, Size, Created, Digest.
 
 Add the following rows:
+
 - **In Use**: `gettext("Yes")` / `gettext("No")`.
 
 Add action buttons above the property group (same pattern as containers):
+
 - **[Run]** button: opens the 4-step Create Container Wizard with `image` pre-filled.
 - **[Push…]** button: stub — show `adw::Toast` with `gettext("Push not yet implemented")`.
 - **[Remove]** button: already present in the row; mirror it here in the detail pane.
@@ -321,8 +344,8 @@ Add a 2nd tab **"Layers"** to `show_detail()` in `images_view.rs`:
 
 - Tab layout: vertical list in `gtk4::ScrolledWindow`.
 - Each layer row: `adw::ActionRow`
-  - Title: first 60 chars of `layer.cmd` (truncated with "…").
-  - Subtitle: `layer.id` (monospace) + `" · " + fmt_bytes(layer.size)`.
+    - Title: first 60 chars of `layer.cmd` (truncated with "…").
+    - Subtitle: `layer.id` (monospace) + `" · " + fmt_bytes(layer.size)`.
 - Below the list: cumulative size footer label.
 - Load via `spawn_driver_task` → `IImageUseCase::layers()`.
 - Show `adw::Spinner` while loading; error via toast.
@@ -335,6 +358,7 @@ Design ref: `cm-features.jsx` → `LayersView` component.
 `show_detail()` in `volumes_view.rs` currently shows: Name, Driver, Mountpoint.
 
 Add:
+
 - **Size**: `fmt_bytes(vol.size_bytes.unwrap_or(0))` or `"—"` when None.
 - **In Use**: `gettext("Yes")` / `gettext("No")`.
 
@@ -343,6 +367,7 @@ Add:
 `show_detail()` in `networks_view.rs` currently shows: Name, Driver, Scope, Subnet.
 
 Add:
+
 - **Gateway**: `net.gateway.as_deref().unwrap_or("—")`.
 - **Internal**: `gettext("Yes")` / `gettext("No")`.
 - **Containers**: `format!("{}", net.containers_count)`.
@@ -366,7 +391,9 @@ fn stop_all(&self, ids: &[&str], timeout_secs: Option<u32>) -> Result<Vec<Result
 Implement in `ContainerUseCase` (loop over IDs, collect results).
 
 **UI** — in the compose group header row (inside `containers_view.rs`):
-- Add **[Stop All]** / **[Start All]** icon-only buttons (context-dependent: show Stop when all running, Start when none running, both when mixed).
+
+- Add **[Stop All]** / **[Start All]** icon-only buttons (context-dependent: show Stop when all running, Start when none
+  running, both when mixed).
 - Buttons call `spawn_driver_task` with the appropriate batch use-case method.
 - After completion, reload the container list and show a toast with count: `"3 containers stopped"`.
 - A11Y: `set_tooltip_text` + `update_property(Property::Label(...))` on both buttons.
@@ -382,6 +409,7 @@ Design ref: `Feature Gap Analysis.html` → "Rename container" (P2).
 **Port** — already present: `IContainerUseCase::rename(id, new_name)`.
 
 **UI** — in the container Info tab, make the container name a clickable/editable title:
+
 - Replace the static `PR { k: "Name", v: name }` row with an `adw::EntryRow` (inline editable).
 - On Enter or focus-out: if text changed, call `spawn_driver_task` → `IContainerUseCase::rename()`.
 - On success: update the row title in the sidebar + show toast `"Container renamed"`.
@@ -413,7 +441,8 @@ Add to `INetworkUseCase` (or create `ISystemUseCase`):
 fn events(&self, since: Option<i64>, limit: Option<usize>) -> Result<Vec<ContainerEvent>, ContainerError>;
 ```
 
-**Dashboard integration**: replace mock "Recent Events" in `dashboard_view.rs` with real data loaded via `spawn_driver_task`.
+**Dashboard integration**: replace mock "Recent Events" in `dashboard_view.rs` with real data loaded via
+`spawn_driver_task`.
 
 **Event log panel** (optional — P2 stretch goal): a collapsible bottom panel in the main window with live event rows.
 
@@ -432,27 +461,32 @@ Gap Analysis but is absent from the Rust codebase. It must be triggered from the
 
 ```rust
 adw::AboutWindow::builder()
-    .application_name(gettext("Container Manager"))
-    .application_icon("com.example.GtkCrossPlatform")
-    .version(config::VERSION)
-    .comments(gettext("A native GNOME application for managing Docker, Podman, and containerd containers."))
-    .developer_name("Container Manager Contributors")
-    .website("https://github.com/your-org/gtk-cross-platform")
-    .issue_url("https://github.com/your-org/gtk-cross-platform/issues")
-    .license_type(gtk::License::Gpl30)
-    .copyright("© 2026 Container Manager Contributors")
-    .build()
+.application_name(gettext("Container Manager"))
+.application_icon("com.example.GtkCrossPlatform")
+.version(config::VERSION)
+.comments(gettext("A native GNOME application for managing Docker, Podman, and containerd containers."))
+.developer_name("Container Manager Contributors")
+.website("https://github.com/your-org/gtk-cross-platform")
+.issue_url("https://github.com/your-org/gtk-cross-platform/issues")
+.license_type(gtk::License::Gpl30)
+.copyright("© 2026 Container Manager Contributors")
+.build()
 ```
 
 **Runtime info section** (`add_other_credits`):
-- Section "Runtime": runtime name + version from `driver.version()` (load via `spawn_driver_task` before showing the dialog — fall back to `gettext("Unknown")` on error).
-- Section "Toolkit": `format!("GTK {}", gtk4::major_version())` (compile-time constants available via `gtk4::major_version()` / `gtk4::minor_version()`).
+
+- Section "Runtime": runtime name + version from `driver.version()` (load via `spawn_driver_task` before showing the
+  dialog — fall back to `gettext("Unknown")` on error).
+- Section "Toolkit": `format!("GTK {}", gtk4::major_version())` (compile-time constants available via
+  `gtk4::major_version()` / `gtk4::minor_version()`).
 
 **Links** (use `add_link`):
+
 - `gettext("Source Code on GitHub")` → website URL.
 - `gettext("Report an Issue")` → issue URL.
 
 **Behavior:**
+
 - Present via `window.present()` — `adw::AboutWindow` is transient for `main_window`.
 - No need for custom close button; `adw::AboutWindow` provides its own.
 
@@ -466,15 +500,16 @@ Design ref: `cm-dialogs.jsx` → `MenuPopover`.
 
 The hamburger menu (≡ button in `adw::HeaderBar`) exposes three items:
 
-| Item | Icon | Action |
-|------|------|--------|
-| Prune System… | `user-trash-symbolic` | Open `adw::MessageDialog` to confirm, then `spawn_driver_task` → `INetworkUseCase::prune()` |
-| Preferences | `preferences-system-symbolic` | Show `adw::Toast` with `gettext("Preferences not yet implemented")` |
-| About Container Manager | `help-about-symbolic` | Open `adw::AboutWindow` (Group G) |
+| Item                    | Icon                          | Action                                                                                      |
+|-------------------------|-------------------------------|---------------------------------------------------------------------------------------------|
+| Prune System…           | `user-trash-symbolic`         | Open `adw::MessageDialog` to confirm, then `spawn_driver_task` → `INetworkUseCase::prune()` |
+| Preferences             | `preferences-system-symbolic` | Show `adw::Toast` with `gettext("Preferences not yet implemented")`                         |
+| About Container Manager | `help-about-symbolic`         | Open `adw::AboutWindow` (Group G)                                                           |
 
 **Current state:** Prune System is wired. "Preferences" and "About" items are missing.
 
 **Implementation in `main_window.rs`:**
+
 - Add `gtk::PopoverMenu` (or `adw::OverlaySplitView` toggle) to the `adw::HeaderBar` start widget.
 - Use `gio::Menu` + `gio::SimpleAction` for each item (follows GNOME HIG for header menus).
 - Wire `app.about` action to show `adw::AboutWindow`.
@@ -494,7 +529,8 @@ The design specifies two behaviors currently absent from `build_logs_tab`:
 #### I1 — Follow toggle
 
 - Add a `gtk::ToggleButton` labeled `gettext("Follow")` with icon `go-bottom-symbolic`.
-- When toggled on: after each refresh or new data load, programmatically scroll the `ScrolledWindow` to the bottom (`scrolled.vadjustment().set_value(scrolled.vadjustment().upper())`).
+- When toggled on: after each refresh or new data load, programmatically scroll the `ScrolledWindow` to the bottom (
+  `scrolled.vadjustment().set_value(scrolled.vadjustment().upper())`).
 - When toggled off: no auto-scroll (user can freely scroll back through history).
 - Default: on when container is running, off when stopped.
 - A11Y: `set_tooltip_text(gettext("Auto-scroll to newest log line"))` + `update_property(Property::Label(...))`.
@@ -520,17 +556,19 @@ terminal. The Rust implementation's "shell selector, entry, history" item confir
 intended but may not include keyboard navigation.
 
 **Implementation in `build_terminal_tab`:**
+
 - Maintain a `Vec<String>` history (max 50 entries) and a cursor index in a `Rc<RefCell<...>>`.
 - Connect `gtk::EventControllerKey` to the `gtk::Entry`:
-  - `ArrowUp`: move cursor back; set entry text to `history[cursor]`.
-  - `ArrowDown`: move cursor forward; set entry text to `history[cursor]` or clear when past end.
+    - `ArrowUp`: move cursor back; set entry text to `history[cursor]`.
+    - `ArrowDown`: move cursor forward; set entry text to `history[cursor]` or clear when past end.
 - On command submit: push to history, reset cursor to `history.len()`.
 
 **"Exit" command handling:**
+
 - When user types `exit` in the terminal entry:
-  - Append `gettext("Session closed.")` to the output `TextView`.
-  - Set `entry.set_sensitive(false)` and `run_btn.set_sensitive(false)`.
-  - Show a dim label: `gettext("Reconnect by selecting the container again.")`.
+    - Append `gettext("Session closed.")` to the output `TextView`.
+    - Set `entry.set_sensitive(false)` and `run_btn.set_sensitive(false)`.
+    - Show a dim label: `gettext("Reconnect by selecting the container again.")`.
 
 ---
 
@@ -541,10 +579,12 @@ Design ref: `cm-features.jsx` → `NetworkRow`, `NetworkDetail`.
 Default Docker/Podman networks (`bridge`, `host`, `none`) must not be removable.
 
 **Sidebar row** (`networks_view.rs`):
+
 - Hide (or `set_sensitive(false)`) the Remove button for rows where `net.name` is in
   `["bridge", "host", "none"]`.
 
 **Detail pane** (`networks_view.rs`):
+
 - Hide the Remove action button for the same networks.
 - Show `adw::StatusPage` hint instead: `gettext("System network — cannot be removed.")`.
 
@@ -558,6 +598,7 @@ The design (`cm-dialogs.jsx` → `CreateVolumeDialog`) shows a **Driver** select
 (options: `local`, `nfs`, `tmpfs`; default: `local`).
 
 The Rust port signature is:
+
 ```rust
 fn create_volume(&self, name: &str, labels: HashMap<String, String>) -> Result<Volume, ContainerError>;
 ```
@@ -576,6 +617,7 @@ pub struct CreateVolumeOptions {
 Update `IContainerDriver::create_volume`, all five drivers, `IVolumeUseCase`, and `VolumeUseCase`.
 
 **UI addition in `volumes_view.rs` `show_create_dialog()`:**
+
 - Add an `adw::ComboRow` (or `gtk::DropDown`) with options `["local", "nfs", "tmpfs"]`.
 - Default selection: `local`.
 - Pass selected driver to `CreateVolumeOptions::driver`.
@@ -583,10 +625,12 @@ Update `IContainerDriver::create_volume`, all five drivers, `IVolumeUseCase`, an
 #### L2 — `CreateNetworkDialog`: driver + subnet parameters
 
 The design (`cm-dialogs.jsx` → `CreateNetworkDialog`) shows:
+
 - **Driver** select: `bridge`, `overlay`, `macvlan`, `ipvlan` (default: `bridge`).
 - **Subnet** text input: optional, placeholder `"172.20.0.0/16"`.
 
 The Rust port signature is:
+
 ```rust
 fn create_network(&self, name: &str) -> Result<Network, ContainerError>;
 ```
@@ -606,6 +650,7 @@ fn create_network(&self, opts: &CreateNetworkOptions) -> Result<Network, Contain
 Update `IContainerDriver::create_network`, all five drivers, `INetworkUseCase`, and `NetworkUseCase`.
 
 **UI addition in `networks_view.rs` `show_create_dialog()`:**
+
 - Add `adw::ComboRow` for driver (options: `bridge`, `overlay`, `macvlan`, `ipvlan`; default: `bridge`).
 - Add `adw::EntryRow` for optional subnet (validate CIDR on submit; show inline error via `adw::Toast` if invalid).
 - Pass both to `CreateNetworkOptions`.
@@ -738,10 +783,13 @@ pub trait INetworkUseCase: Send + Sync {
 
 ### `DynamicDriver` (`src/infrastructure/containers/dynamic_driver.rs`)
 
-Hot-swappable wrapper — delegates everything to inner. When adding new `IContainerDriver` methods, add corresponding delegation here.
+Hot-swappable wrapper — delegates everything to inner. When adding new `IContainerDriver` methods, add corresponding
+delegation here.
 
 ```rust
-pub struct DynamicDriver { inner: RwLock<Arc<dyn IContainerDriver>> }
+pub struct DynamicDriver {
+    inner: RwLock<Arc<dyn IContainerDriver>>
+}
 impl DynamicDriver {
     pub fn new(driver: Arc<dyn IContainerDriver>) -> Self;
     pub fn swap(&self, new_driver: Arc<dyn IContainerDriver>);
@@ -776,15 +824,16 @@ fn save_runtime_pref(name: &str);              // ~/.config/com.example.GtkCross
 
 All five drivers must implement every method of `IContainerDriver`:
 
-| Driver | File |
-|--------|------|
-| Docker | `src/infrastructure/containers/docker_driver.rs` |
-| Podman | `src/infrastructure/containers/podman_driver.rs` |
-| containerd | `src/infrastructure/containers/containerd_driver.rs` |
-| Mock | `src/infrastructure/containers/mock_driver.rs` (all tests) |
-| Dynamic | `src/infrastructure/containers/dynamic_driver.rs` (hot-swap) |
+| Driver     | File                                                         |
+|------------|--------------------------------------------------------------|
+| Docker     | `src/infrastructure/containers/docker_driver.rs`             |
+| Podman     | `src/infrastructure/containers/podman_driver.rs`             |
+| containerd | `src/infrastructure/containers/containerd_driver.rs`         |
+| Mock       | `src/infrastructure/containers/mock_driver.rs` (all tests)   |
+| Dynamic    | `src/infrastructure/containers/dynamic_driver.rs` (hot-swap) |
 
 When adding new port methods:
+
 1. Add to `IContainerDriver` trait.
 2. Implement in all five drivers (Docker, Podman, containerd, Mock, Dynamic).
 3. Add to `IImageUseCase` / `IContainerUseCase` / etc. as appropriate.
@@ -797,11 +846,18 @@ When adding new port methods:
 
 ### Container tabs (5 total, `containers_view.rs`)
 
-1. **Info** (`build_info_tab`) — actions (Start/Stop, Pause/Unpause, Restart, Remove) + property grid (Name, ID, Image, Command, Status, Ports, Restart, Compose) + environment section with secret masking (keys matching `/pass|secret|key|token/i` → "••••••••").
-2. **Stats** (`build_stats_tab`) — 4 sparklines (CPU, Mem, Net In/Out), 60-point rolling window, current values table; "Not running" state.
-3. **Inspect** (`build_inspect_tab`) — syntax-highlighted JSON, Copy button; loads via `IContainerUseCase::inspect_json()`.
-4. **Logs** (`build_logs_tab`, `:1162`) — toolbar (Timestamps toggle, Copy, Refresh, Follow toggle [Group I1], Clear [Group I2]), `gtk4::Stack` spinner→content, loads via `IContainerUseCase::logs(id, Some(200), timestamps)`.
-5. **Terminal** (`build_terminal_tab`, `:1292`) — shell DropDown (`["sh","bash"]`), Entry + Run button + command history navigation (Arrow Up/Down, max 50 [Group J]); disabled when not running; appends output (never clears); loads via `IContainerUseCase::exec()`.
+1. **Info** (`build_info_tab`) — actions (Start/Stop, Pause/Unpause, Restart, Remove) + property grid (Name, ID, Image,
+   Command, Status, Ports, Restart, Compose) + environment section with secret masking (keys matching
+   `/pass|secret|key|token/i` → "••••••••").
+2. **Stats** (`build_stats_tab`) — 4 sparklines (CPU, Mem, Net In/Out), 60-point rolling window, current values table; "
+   Not running" state.
+3. **Inspect** (`build_inspect_tab`) — syntax-highlighted JSON, Copy button; loads via
+   `IContainerUseCase::inspect_json()`.
+4. **Logs** (`build_logs_tab`, `:1162`) — toolbar (Timestamps toggle, Copy, Refresh, Follow toggle [Group I1],
+   Clear [Group I2]), `gtk4::Stack` spinner→content, loads via `IContainerUseCase::logs(id, Some(200), timestamps)`.
+5. **Terminal** (`build_terminal_tab`, `:1292`) — shell DropDown (`["sh","bash"]`), Entry + Run button + command history
+   navigation (Arrow Up/Down, max 50 [Group J]); disabled when not running; appends output (never clears); loads via
+   `IContainerUseCase::exec()`.
 
 ### Image detail — current
 
@@ -821,7 +877,8 @@ Single property pane: Name, Driver, Scope, Subnet. No Gateway, Internal, or Cont
 ## Logs tab — `build_logs_tab` (`containers_view.rs:1162`)
 
 - 4th notebook tab: `"Logs"`.
-- Toolbar: Timestamps `ToggleButton`, Follow `ToggleButton` (Group I1), Copy icon button, Clear icon button (Group I2), Refresh icon button — all with `set_tooltip_text` + `update_property(Property::Label(...))`.
+- Toolbar: Timestamps `ToggleButton`, Follow `ToggleButton` (Group I1), Copy icon button, Clear icon button (Group I2),
+  Refresh icon button — all with `set_tooltip_text` + `update_property(Property::Label(...))`.
 - `gtk4::Stack`: "loading" (`gtk4::Spinner`) / "content" (`ScrolledWindow` + `TextView` monospace non-editable).
 - Errors via `adw::ToastOverlay`; never inline label.
 - Works for stopped containers — tab is never disabled.
@@ -841,12 +898,12 @@ Single property pane: Name, Driver, Scope, Subnet. No Gateway, Internal, or Cont
 
 ## Roadmap (for reference — not in scope for this command)
 
-| Version | Theme | Key features |
-|---------|-------|-------------|
-| v0.2 | MVP (done) | Search, pull, wizard, stats, inspect, env, terminal, compose, dashboard, switcher |
-| v0.3 | Core | Image layers, Run/Push buttons, dangling badge, volume size+in_use, network containers_count, compose lifecycle, rename, event stream, About dialog, empty states, follow mode, command history, conditional remove, create dialog completeness, compose badge |
-| v0.4 | Differentiator | Volume file browser, CVE scanning (Trivy), Push image, Build image, Registry auth, Pods (Podman), Compose editor |
-| v1.0 | Platform | Kubernetes basic, extensions API, system notifications, Flathub release |
+| Version | Theme          | Key features                                                                                                                                                                                                                                                   |
+|---------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| v0.2    | MVP (done)     | Search, pull, wizard, stats, inspect, env, terminal, compose, dashboard, switcher                                                                                                                                                                              |
+| v0.3    | Core           | Image layers, Run/Push buttons, dangling badge, volume size+in_use, network containers_count, compose lifecycle, rename, event stream, About dialog, empty states, follow mode, command history, conditional remove, create dialog completeness, compose badge |
+| v0.4    | Differentiator | Volume file browser, CVE scanning (Trivy), Push image, Build image, Registry auth, Pods (Podman), Compose editor                                                                                                                                               |
+| v1.0    | Platform       | Kubernetes basic, extensions API, system notifications, Flathub release                                                                                                                                                                                        |
 
 ---
 
@@ -859,11 +916,13 @@ make fmt           # cargo fmt --check, no diffs
 ```
 
 Widget tests (5 tests, `#[ignore]`):
+
 ```sh
 xvfb-run cargo test --test widget_test -- --test-threads=1 --ignored
 ```
 
 **Mock driver rules:**
+
 - Deterministic — no `thread::sleep`, no random data.
 - Use `AtomicBool`/`AtomicUsize` for state, not timers.
 - Must implement every `IContainerDriver` method — no regressions.
@@ -899,6 +958,7 @@ xvfb-run cargo test --test widget_test -- --test-threads=1 --ignored
 ## Exit criteria — v0.2 complete / v0.3 pending
 
 ### v0.2 — done
+
 - [x] `make test` 148 non-widget tests, zero failures
 - [x] `make lint` zero warnings
 - [x] `make fmt` no diffs
@@ -914,6 +974,7 @@ xvfb-run cargo test --test widget_test -- --test-threads=1 --ignored
 - [x] Every icon-only button has `set_tooltip_text` + `update_property(Property::Label(...))`
 
 ### v0.3 — pending
+
 - [ ] `Image.in_use` field (Group A1)
 - [ ] `Volume.size_bytes` + `Volume.in_use` fields (Group A2)
 - [ ] `Network.containers_count` field (Group A3)

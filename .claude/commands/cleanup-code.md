@@ -44,9 +44,13 @@ If a callsite exists, implement the missing handler instead of deleting.
 Remove the `update()` function — badges are constructed fresh in `connect_bind`; no view
 calls this helper. Grep for `status_badge.*update\|update.*status_badge` to verify.
 
-### A3 — `ToastUtil::show_destructive` and `show_with_action` (`src/window/components/toast_util.rs:26,37`)
+### A3 — `ToastUtil::show_with_action` (`src/window/components/toast_util.rs:37`)
 
-Remove both methods. Grep `show_destructive\|show_with_action` to confirm no callsites.
+Remove only `show_with_action`. Grep `show_with_action` to confirm no callsites.
+
+> **Note:** `show_destructive` is **not** dead code — it is called from
+> `src/window/main_window.rs` (prune-system confirmation). Remove its
+> `#[allow(dead_code)]` attribute and keep the method.
 
 ### A4 — `resource_row::new` (`src/window/components/resource_row.rs:7`)
 
@@ -64,24 +68,14 @@ Grep `list_factory\|make_factory` to verify no callsite.
 Remove both methods. Views call `EmptyState::new()` directly and set properties inline.
 Grep `no_results\|no_selection` to verify no callsite.
 
-### A7 — `_use_filter_containers_in_tests_only` (`src/window/views/containers_view.rs:2153`)
+### A7 — `_use_filter_containers_in_tests_only` (`src/window/views/containers_view.rs`)
 
-Remove the wrapper function entirely. Move `filter_containers` inside a `#[cfg(test)]` block:
+`filter_containers` lives in `src/core/domain/container.rs` and is already tested there
+and in `tests/search_filter_test.rs`. The view uses `CustomFilter` inline and never calls
+`filter_containers` directly. The wrapper only prevents a dead-import warning.
 
-```rust
-// Before (in containers_view.rs):
-#[allow(dead_code)]
-fn _use_filter_containers_in_tests_only() {
-    let _: Vec<&Container> = filter_containers(&[], "");
-}
-
-// After: annotate filter_containers itself
-#[cfg(test)]
-pub(crate) fn filter_containers(containers: &[Container], query: &str) -> Vec<&Container> { ... }
-```
-
-If `filter_containers` is already `pub` and used in domain tests under `src/core/`, move it
-there instead and import it in the view. Run `make test` to confirm tests still pass.
+Remove both the wrapper **and** the `filter_containers` import from the `use` block at the
+top of `containers_view.rs`. Run `make test` to confirm no regression.
 
 ---
 
@@ -141,6 +135,7 @@ where
 ### B4 — Expose `clear_box` from `src/window/components/mod.rs`
 
 Remove the four identical private `fn clear_box` functions from:
+
 - `src/window/views/containers_view.rs:2146`
 - `src/window/views/images_view.rs:844`
 - `src/window/views/volumes_view.rs:595`
@@ -174,6 +169,7 @@ For each of the four views (`containers_view.rs`, `images_view.rs`, `volumes_vie
 3. The call sites are already using `fmt_bytes(...)` — no further changes needed.
 
 For `dashboard_view.rs`:
+
 1. Delete `fn format_size`.
 2. Add import: `use crate::window::utils::format::fmt_bytes;`
 3. Replace every `format_size(...)` call with `fmt_bytes(...)`.
@@ -226,13 +222,13 @@ let badge = gtk4::Label::builder()...
 // Before:
 // Store widget refs for connect_bind access
 unsafe {
-    item.set_data("badge", badge);
+item.set_data("badge", badge);
 
 // After: explain the non-obvious constraint (why unsafe set_data is needed):
 // GObject carries no typed fields; set_data is the GTK4/Rust idiom for
 // passing widget refs from connect_setup into connect_bind closures.
 unsafe {
-    item.set_data("badge", badge);
+item.set_data("badge", badge);
 ```
 
 ### D3 — `networks_view.rs` suffix-walk block

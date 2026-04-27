@@ -66,12 +66,12 @@ fn reload_visible_page(&self) {
     let imp = self.imp();
     let page = imp.view_stack.visible_child_name().unwrap_or_default();
     match page.as_str() {
-        "dashboard"  => imp.dashboard_view.get().map(|v| v.reload()),
+        "dashboard" => imp.dashboard_view.get().map(|v| v.reload()),
         "containers" => imp.containers_view.get().map(|v| v.reload()),
-        "images"     => imp.images_view.get().map(|v| v.reload()),
-        "volumes"    => imp.volumes_view.get().map(|v| v.reload()),
-        "networks"   => imp.networks_view.get().map(|v| v.reload()),
-        _            => None,
+        "images" => imp.images_view.get().map(|v| v.reload()),
+        "volumes" => imp.volumes_view.get().map(|v| v.reload()),
+        "networks" => imp.networks_view.get().map(|v| v.reload()),
+        _ => None,
     };
 }
 ```
@@ -107,16 +107,16 @@ heaviest and blocks all four results.
 ### Task A — Fast path (fires immediately)
 
 ```rust
-spawn_driver_task(use_case.clone(), |uc| {
-    let containers = uc.container.list(true)?;
-    let networks   = uc.network.list()?;
-    let events     = uc.network.events(None, Some(10))?;
-    Ok((containers, networks, events))
-}, |result| {
-    // Populate container count, network count, recent events immediately
-    self.update_fast_widgets(result);
-    // Then trigger the slow path
-    self.load_usage_stats();
+spawn_driver_task(use_case.clone(), | uc| {
+let containers = uc.container.list(true) ?;
+let networks = uc.network.list() ?;
+let events = uc.network.events(None, Some(10)) ?;
+Ok((containers, networks, events))
+}, | result| {
+// Populate container count, network count, recent events immediately
+self.update_fast_widgets(result);
+// Then trigger the slow path
+self.load_usage_stats();
 });
 ```
 
@@ -184,25 +184,25 @@ Cancel the previous timer if a new keystroke arrives before it fires.
 
 ```rust
 // In the view's imp struct
-search_debounce: RefCell<Option<glib::SourceId>>,
+search_debounce: RefCell<Option<glib::SourceId> >,
 ```
 
 ```rust
 // In the search entry `changed` signal handler
-let imp = self.imp();
+let imp = self .imp();
 // Cancel previous pending debounce
 if let Some(id) = imp.search_debounce.borrow_mut().take() {
-    id.remove();
+id.remove();
 }
 // Schedule new debounce
-let self_weak = self.downgrade();
-*imp.search_debounce.borrow_mut() = Some(glib::timeout_add_local_once(
-    std::time::Duration::from_millis(150),
-    move || {
-        if let Some(s) = self_weak.upgrade() {
-            s.repopulate();
-        }
-    },
+let self_weak = self .downgrade();
+* imp.search_debounce.borrow_mut() = Some(glib::timeout_add_local_once(
+std::time::Duration::from_millis(150),
+move | | {
+if let Some(s) = self_weak.upgrade() {
+s.repopulate();
+}
+},
 ));
 ```
 
@@ -226,16 +226,18 @@ loading: Cell<bool>,
 ```
 
 At the start of `reload()`:
+
 ```rust
-if self.imp().loading.get() { return; }
-self.imp().loading.set(true);
-self.begin_loading();
+if self .imp().loading.get() { return; }
+self .imp().loading.set(true);
+self .begin_loading();
 ```
 
 In the `spawn_driver_task` callback (both success and error branches):
+
 ```rust
-self.imp().loading.set(false);
-self.end_loading();
+self .imp().loading.set(false);
+self .end_loading();
 ```
 
 The Refresh button in `main_window.rs` is already disabled while `loading_count > 0`, so
@@ -272,11 +274,11 @@ Run `make test` after each step — do not proceed if tests fail:
    add spinner placeholder for the usage card
 5. Add search debounce to every view with a search entry
 6. Run `make test` + `make lint` + `make run`; verify manually:
-   - Startup: only dashboard API call fires (check with `G_MESSAGES_DEBUG=all make run`)
-   - Tab switch: view loads on first visit, not before
-   - Refresh: all previously-visited tabs refresh; unvisited tabs do not
-   - Dashboard: container/network counts appear quickly; disk usage card shows spinner, then updates
-   - Search: typing quickly in a container list fires `repopulate()` once, not once per character
+    - Startup: only dashboard API call fires (check with `G_MESSAGES_DEBUG=all make run`)
+    - Tab switch: view loads on first visit, not before
+    - Refresh: all previously-visited tabs refresh; unvisited tabs do not
+    - Dashboard: container/network counts appear quickly; disk usage card shows spinner, then updates
+    - Search: typing quickly in a container list fires `repopulate()` once, not once per character
 
 ---
 
@@ -286,7 +288,7 @@ Run `make test` after each step — do not proceed if tests fail:
 - [ ] `make lint` reports zero warnings (`cargo clippy -- -D warnings`)
 - [ ] `make fmt` shows no diff (`cargo fmt --check`)
 - [ ] On startup with `G_MESSAGES_DEBUG=all make run`, only **one** `spawn_driver_task` is
-      logged (dashboard fast path) — not five
+  logged (dashboard fast path) — not five
 - [ ] Switching to a tab for the first time triggers exactly one `spawn_driver_task` for that view
 - [ ] Switching to a tab that was already visited does **not** trigger a new fetch
 - [ ] The Refresh button causes exactly one fetch per previously-visited view
@@ -294,6 +296,6 @@ Run `make test` after each step — do not proceed if tests fail:
 - [ ] Disk usage card shows a spinner while `system_df()` is in flight
 - [ ] Typing rapidly in any search field triggers `repopulate()` once (150 ms after the last keystroke)
 - [ ] `loading: Cell<bool>` guard prevents concurrent duplicate fetches (verified by clicking
-      Refresh twice in quick succession and checking logs for a single request)
+  Refresh twice in quick succession and checking logs for a single request)
 - [ ] No new crate added to `Cargo.toml`
 - [ ] No `tokio`, `std::sync::mpsc`, or raw thread usage introduced

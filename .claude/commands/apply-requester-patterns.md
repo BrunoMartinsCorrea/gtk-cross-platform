@@ -18,12 +18,12 @@ This project targets **Linux**, **macOS**, **Windows (MSYS2/MINGW64)**, and **GN
 (Phosh/postmarketOS). Every change in this command must work correctly on all four. Groups with
 platform-specific behaviour are marked with the affected platform in bold.
 
-| Platform | GTK backend | GSettings backend | Dark mode source |
-|----------|-------------|-------------------|-----------------|
-| Linux (Flatpak / native) | Wayland / X11 | dconf | GNOME Shell `color-scheme` portal |
-| macOS | Quartz (GTK4 macOS backend) | keyfile (`~/.config/`) | macOS Dark Mode (system appearance) |
-| Windows (MSYS2/MINGW64) | Win32 | keyfile (`%APPDATA%/glib-2.0/...`) | Windows 10/11 dark mode setting |
-| GNOME Mobile (Phosh) | Wayland | dconf | GNOME Shell `color-scheme` portal |
+| Platform                 | GTK backend                 | GSettings backend                  | Dark mode source                    |
+|--------------------------|-----------------------------|------------------------------------|-------------------------------------|
+| Linux (Flatpak / native) | Wayland / X11               | dconf                              | GNOME Shell `color-scheme` portal   |
+| macOS                    | Quartz (GTK4 macOS backend) | keyfile (`~/.config/`)             | macOS Dark Mode (system appearance) |
+| Windows (MSYS2/MINGW64)  | Win32                       | keyfile (`%APPDATA%/glib-2.0/...`) | Windows 10/11 dark mode setting     |
+| GNOME Mobile (Phosh)     | Wayland                     | dconf                              | GNOME Shell `color-scheme` portal   |
 
 `adw::StyleManager::get_default()` abstracts over these sources — `is_dark()` and
 `connect_dark_notify()` return the correct value on every platform without extra code.
@@ -60,11 +60,15 @@ Files: `container.rs`, `image.rs`, `volume.rs`, `network.rs`.
 ```rust
 // Before
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Container { ... }
+pub struct Container {
+    ...
+}
 
 // After
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
-pub struct Container { ... }
+pub struct Container {
+    ...
+}
 ```
 
 **Why `Default`:** allows `Container::default()` as a placeholder in `ListStore` rows before
@@ -100,42 +104,42 @@ impl ContainerStatus {
     /// Returns the Adwaita CSS accent class for StatusBadge.
     pub fn css_class(&self) -> &'static str {
         match self {
-            Self::Running                    => "success",
-            Self::Paused                     => "warning",
-            Self::Stopped | Self::Exited     => "dim-label",
-            Self::Dead | Self::Error         => "error",
+            Self::Running => "success",
+            Self::Paused => "warning",
+            Self::Stopped | Self::Exited => "dim-label",
+            Self::Dead | Self::Error => "error",
             Self::Created | Self::Restarting => "accent",
-            Self::Unknown                    => "dim-label",
+            Self::Unknown => "dim-label",
         }
     }
 
     /// Returns the symbolic icon name for sidebar rows.
     pub fn icon_name(&self) -> &'static str {
         match self {
-            Self::Running    => "media-playback-start-symbolic",
-            Self::Paused     => "media-playback-pause-symbolic",
+            Self::Running => "media-playback-start-symbolic",
+            Self::Paused => "media-playback-pause-symbolic",
             Self::Stopped
-            | Self::Exited   => "media-playback-stop-symbolic",
+            | Self::Exited => "media-playback-stop-symbolic",
             Self::Dead
-            | Self::Error    => "dialog-error-symbolic",
+            | Self::Error => "dialog-error-symbolic",
             Self::Restarting => "view-refresh-symbolic",
             Self::Created
-            | Self::Unknown  => "emblem-default-symbolic",
+            | Self::Unknown => "emblem-default-symbolic",
         }
     }
 
     /// Returns the short display label shown alongside the color badge.
     pub fn display_label(&self) -> &'static str {
         match self {
-            Self::Running    => "Running",
-            Self::Paused     => "Paused",
-            Self::Stopped    => "Stopped",
-            Self::Exited     => "Exited",
-            Self::Dead       => "Dead",
-            Self::Error      => "Error",
-            Self::Created    => "Created",
+            Self::Running => "Running",
+            Self::Paused => "Paused",
+            Self::Stopped => "Stopped",
+            Self::Exited => "Exited",
+            Self::Dead => "Dead",
+            Self::Error => "Error",
+            Self::Created => "Created",
             Self::Restarting => "Restarting",
-            Self::Unknown    => "Unknown",
+            Self::Unknown => "Unknown",
         }
     }
 }
@@ -160,17 +164,17 @@ used in the project. This eliminates magic strings and makes typos into compile 
 // src/window/actions.rs
 
 pub mod app {
-    pub const QUIT:        &str = "app.quit";
-    pub const ABOUT:       &str = "app.about";
+    pub const QUIT: &str = "app.quit";
+    pub const ABOUT: &str = "app.about";
     pub const PREFERENCES: &str = "app.preferences";
 }
 
 pub mod win {
-    pub const REFRESH:      &str = "win.refresh";
+    pub const REFRESH: &str = "win.refresh";
     pub const PRUNE_SYSTEM: &str = "win.prune-system";
     pub const FOCUS_SEARCH: &str = "win.focus-search";
     pub const CLEAR_SEARCH: &str = "win.clear-search";
-    pub const CLOSE:        &str = "window.close";
+    pub const CLOSE: &str = "window.close";
 }
 ```
 
@@ -181,11 +185,11 @@ Replace every string literal that matches an action name in `src/app.rs` and
 
 ```rust
 // Before
-app.set_accels_for_action("app.quit", &["<Primary>q"]);
+app.set_accels_for_action("app.quit", & ["<Primary>q"]);
 
 // After
 use crate::window::actions;
-app.set_accels_for_action(actions::app::QUIT, &["<Primary>q"]);
+app.set_accels_for_action(actions::app::QUIT, & ["<Primary>q"]);
 ```
 
 No tests required for this group — the compiler verifies correctness.
@@ -249,7 +253,7 @@ Wrap all `adw::StatusPage` instances used as detail-pane content inside an `adw:
 ```rust
 let clamp = adw::Clamp::new();
 clamp.set_maximum_size(480);
-clamp.set_child(Some(&empty_state));
+clamp.set_child(Some( & empty_state));
 ```
 
 ---
@@ -343,9 +347,9 @@ Identify every location in the four resource views where a `ListBox`, `DropDown`
 
 ```rust
 // Pattern to apply wherever programmatic updates trigger handlers
-glib::signal::signal_handler_block(&widget, &handler_id);
+glib::signal::signal_handler_block( & widget, & handler_id);
 widget.set_selected(new_index);   // or set_selected_rows, etc.
-glib::signal::signal_handler_unblock(&widget, &handler_id);
+glib::signal::signal_handler_unblock( & widget, & handler_id);
 ```
 
 The `handler_id: glib::SignalHandlerId` must be stored alongside the widget reference
@@ -375,9 +379,9 @@ let style_manager = adw::StyleManager::get_default();
 
 // Keep a GSettings instance for the "color-scheme" key.
 // Schema registration is in Group G; for now, fall back to direct StyleManager binding.
-style_manager.connect_color_scheme_notify(|sm| {
-    // Future: persist selection to GSettings here (Group G).
-    let _ = sm.color_scheme();
+style_manager.connect_color_scheme_notify( | sm| {
+// Future: persist selection to GSettings here (Group G).
+let _ = sm.color_scheme();
 });
 ```
 
@@ -396,13 +400,13 @@ itself works on all platforms but the backend and tooling differ.**
 
 ### Backend behaviour per platform
 
-| Platform | GSettings backend | Config location |
-|----------|------------------|-----------------|
-| Linux (Flatpak) | dconf | GNOME dconf database |
-| Linux (native) | dconf (falls back to keyfile if dconf unavailable) | `~/.config/` |
-| macOS | keyfile (dconf is Linux-only) | `~/.config/glib-2.0/settings/` |
-| Windows (MSYS2) | keyfile | `%APPDATA%/glib-2.0/settings/` |
-| GNOME Mobile | dconf | GNOME dconf database |
+| Platform        | GSettings backend                                  | Config location                |
+|-----------------|----------------------------------------------------|--------------------------------|
+| Linux (Flatpak) | dconf                                              | GNOME dconf database           |
+| Linux (native)  | dconf (falls back to keyfile if dconf unavailable) | `~/.config/`                   |
+| macOS           | keyfile (dconf is Linux-only)                      | `~/.config/glib-2.0/settings/` |
+| Windows (MSYS2) | keyfile                                            | `%APPDATA%/glib-2.0/settings/` |
+| GNOME Mobile    | dconf                                              | GNOME dconf database           |
 
 All four platforms read and write settings via the same `gio::Settings` API — only the
 storage location differs. No platform-conditional code is needed in Rust.
@@ -414,47 +418,47 @@ Create `data/com.example.GtkCrossPlatform.gschema.xml`:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <schema id="com.example.GtkCrossPlatform" path="/com/example/GtkCrossPlatform/">
+    <schema id="com.example.GtkCrossPlatform" path="/com/example/GtkCrossPlatform/">
 
-    <!-- Window geometry -->
-    <key name="window-width" type="i">
-      <default>1200</default>
-      <summary>Window width</summary>
-    </key>
-    <key name="window-height" type="i">
-      <default>700</default>
-      <summary>Window height</summary>
-    </key>
-    <key name="window-maximized" type="b">
-      <default>false</default>
-      <summary>Whether the window is maximized</summary>
-    </key>
+        <!-- Window geometry -->
+        <key name="window-width" type="i">
+            <default>1200</default>
+            <summary>Window width</summary>
+        </key>
+        <key name="window-height" type="i">
+            <default>700</default>
+            <summary>Window height</summary>
+        </key>
+        <key name="window-maximized" type="b">
+            <default>false</default>
+            <summary>Whether the window is maximized</summary>
+        </key>
 
-    <!-- Appearance -->
-    <key name="color-scheme" type="s">
-      <choices>
-        <choice value="default"/>
-        <choice value="force-light"/>
-        <choice value="force-dark"/>
-      </choices>
-      <default>'default'</default>
-      <summary>Application color scheme</summary>
-    </key>
+        <!-- Appearance -->
+        <key name="color-scheme" type="s">
+            <choices>
+                <choice value="default"/>
+                <choice value="force-light"/>
+                <choice value="force-dark"/>
+            </choices>
+            <default>'default'</default>
+            <summary>Application color scheme</summary>
+        </key>
 
-    <!-- Runtime preference -->
-    <key name="preferred-runtime" type="s">
-      <default>''</default>
-      <summary>Last selected container runtime ('docker', 'podman', 'containerd', or '')</summary>
-    </key>
+        <!-- Runtime preference -->
+        <key name="preferred-runtime" type="s">
+            <default>''</default>
+            <summary>Last selected container runtime ('docker', 'podman', 'containerd', or '')</summary>
+        </key>
 
-    <!-- Layout — fraction of the window width occupied by the sidebar (0.0–1.0) -->
-    <key name="sidebar-width-fraction" type="d">
-      <range min="0.15" max="0.5"/>
-      <default>0.25</default>
-      <summary>Sidebar width as a fraction of the window width</summary>
-    </key>
+        <!-- Layout — fraction of the window width occupied by the sidebar (0.0–1.0) -->
+        <key name="sidebar-width-fraction" type="d">
+            <range min="0.15" max="0.5"/>
+            <default>0.25</default>
+            <summary>Sidebar width as a fraction of the window width</summary>
+        </key>
 
-  </schema>
+    </schema>
 </schemalist>
 ```
 
@@ -543,15 +547,15 @@ let maximized     = settings.boolean("window-maximized");
 win.set_default_size(window_width, window_height);
 if maximized { win.maximize(); }
 
-settings.bind("window-width",     &win, "default-width")
-    .flags(gio::SettingsBindFlags::DEFAULT)
-    .build();
-settings.bind("window-height",    &win, "default-height")
-    .flags(gio::SettingsBindFlags::DEFAULT)
-    .build();
-settings.bind("window-maximized", &win, "maximized")
-    .flags(gio::SettingsBindFlags::DEFAULT)
-    .build();
+settings.bind("window-width", & win, "default-width")
+.flags(gio::SettingsBindFlags::DEFAULT)
+.build();
+settings.bind("window-height", & win, "default-height")
+.flags(gio::SettingsBindFlags::DEFAULT)
+.build();
+settings.bind("window-maximized", & win, "maximized")
+.flags(gio::SettingsBindFlags::DEFAULT)
+.build();
 ```
 
 ### Wire color-scheme binding after Group F placeholder
@@ -560,22 +564,22 @@ settings.bind("window-maximized", &win, "maximized")
 // Map GSettings string → adw::ColorScheme
 let style_manager = adw::StyleManager::get_default();
 let sm = style_manager.clone();
-settings.connect_changed(Some("color-scheme"), move |s, _| {
-    let scheme = match s.string("color-scheme").as_str() {
-        "force-dark"  => adw::ColorScheme::ForceDark,
-        "force-light" => adw::ColorScheme::ForceLight,
-        _             => adw::ColorScheme::Default,
-    };
-    sm.set_color_scheme(scheme);
+settings.connect_changed(Some("color-scheme"), move | s, _ | {
+let scheme = match s.string("color-scheme").as_str() {
+"force-dark" => adw::ColorScheme::ForceDark,
+"force-light" => adw::ColorScheme::ForceLight,
+_ => adw::ColorScheme::Default,
+};
+sm.set_color_scheme(scheme);
 });
 // Apply on startup
 {
-    let scheme = match settings.string("color-scheme").as_str() {
-        "force-dark"  => adw::ColorScheme::ForceDark,
-        "force-light" => adw::ColorScheme::ForceLight,
-        _             => adw::ColorScheme::Default,
-    };
-    style_manager.set_color_scheme(scheme);
+let scheme = match settings.string("color-scheme").as_str() {
+"force-dark" => adw::ColorScheme::ForceDark,
+"force-light" => adw::ColorScheme::ForceLight,
+_ => adw::ColorScheme::Default,
+};
+style_manager.set_color_scheme(scheme);
 }
 ```
 
@@ -593,7 +597,7 @@ The current implementation persists the runtime preference as a plain file in
 ```rust
 // Read
 let runtime_name = settings.string("preferred-runtime");
-if !runtime_name.is_empty() { /* use it */ }
+if ! runtime_name.is_empty() { /* use it */ }
 
 // Write (on runtime switch)
 settings.set_string("preferred-runtime", selected_name).ok();
@@ -611,9 +615,9 @@ Bind the `sidebar-width-fraction` GSettings key to the split view's
 // src/window/main_window.rs — after the split_view is available
 let settings = gio::Settings::new("com.example.GtkCrossPlatform");
 settings
-    .bind("sidebar-width-fraction", &split_view, "sidebar-width-fraction")
-    .flags(gio::SettingsBindFlags::DEFAULT)
-    .build();
+.bind("sidebar-width-fraction", & split_view, "sidebar-width-fraction")
+.flags(gio::SettingsBindFlags::DEFAULT)
+.build();
 ```
 
 Keep `max-sidebar-width="320"` in `window.ui` as a hard ceiling and keep
@@ -638,33 +642,33 @@ The about window must include:
 ```rust
 // src/app.rs — about_action handler
 let about = adw::AboutWindow::builder()
-    .application_name(&gettext("Container Manager"))
-    .application_icon("com.example.GtkCrossPlatform")
-    .version(config::VERSION)
-    .comments(&gettext(
-        "A native GNOME application for managing Docker, Podman, and containerd containers.",
-    ))
-    .developer_name("Container Manager Contributors")
-    .website("https://github.com/your-org/gtk-cross-platform")
-    .issue_url("https://github.com/your-org/gtk-cross-platform/issues")
-    .license_type(gtk4::License::Gpl30)
-    .copyright("© 2026 Container Manager Contributors")
-    .translator_credits(&gettext("translator-credits"))
-    .transient_for(active_window.as_ref().unwrap())
-    .build();
+.application_name( & gettext("Container Manager"))
+.application_icon("com.example.GtkCrossPlatform")
+.version(config::VERSION)
+.comments( & gettext(
+"A native GNOME application for managing Docker, Podman, and containerd containers.",
+))
+.developer_name("Container Manager Contributors")
+.website("https://github.com/your-org/gtk-cross-platform")
+.issue_url("https://github.com/your-org/gtk-cross-platform/issues")
+.license_type(gtk4::License::Gpl30)
+.copyright("© 2026 Container Manager Contributors")
+.translator_credits( & gettext("translator-credits"))
+.transient_for(active_window.as_ref().unwrap())
+.build();
 
 // Toolkit section (compile-time constants — no async needed)
 about.add_credit_section(
-    Some(&gettext("Toolkit")),
-    &[&format!(
-        "GTK {}.{} / Libadwaita {}.{}",
-        gtk4::major_version(), gtk4::minor_version(),
-        adw::major_version(), adw::minor_version(),
-    )],
+Some( & gettext("Toolkit")),
+& [ & format!(
+    "GTK {}.{} / Libadwaita {}.{}",
+    gtk4::major_version(), gtk4::minor_version(),
+    adw::major_version(), adw::minor_version(),
+)],
 );
 
-about.add_link(&gettext("Source Code"), "https://github.com/your-org/gtk-cross-platform");
-about.add_link(&gettext("Report an Issue"), "https://github.com/your-org/gtk-cross-platform/issues");
+about.add_link( & gettext("Source Code"), "https://github.com/your-org/gtk-cross-platform");
+about.add_link( & gettext("Report an Issue"), "https://github.com/your-org/gtk-cross-platform/issues");
 ```
 
 For the runtime version credit, load it asynchronously via `spawn_driver_task`. If the
@@ -673,17 +677,17 @@ driver call fails, show `"Unknown"`:
 ```rust
 let about_weak = about.downgrade();
 spawn_driver_task(
-    driver.clone(),
-    |d| d.version(),
-    move |result| {
-        let version = result.unwrap_or_else(|_| gettext("Unknown"));
-        if let Some(about_ref) = about_weak.upgrade() {
-            about_ref.add_credit_section(
-                Some(&gettext("Container Runtime")),
-                &[&version],
-            );
-        }
-    },
+driver.clone(),
+| d| d.version(),
+move | result| {
+let version = result.unwrap_or_else( | _ | gettext("Unknown"));
+if let Some(about_ref) = about_weak.upgrade() {
+about_ref.add_credit_section(
+Some( & gettext("Container Runtime")),
+& [ & version],
+);
+}
+},
 );
 
 about.present();
@@ -694,10 +698,14 @@ about.present();
 ## Group I — CSS split: `style.css` and `style-dark.css`
 
 **Platform impact:**
-- **macOS:** `adw::StyleManager::is_dark()` follows macOS Dark Mode via the GTK4 Quartz backend. `connect_dark_notify` fires correctly when the user toggles Appearance in System Settings.
-- **Windows:** follows Windows 10/11 dark mode setting via the Win32 backend. Same behaviour as macOS — no extra code needed.
+
+- **macOS:** `adw::StyleManager::is_dark()` follows macOS Dark Mode via the GTK4 Quartz backend. `connect_dark_notify`
+  fires correctly when the user toggles Appearance in System Settings.
+- **Windows:** follows Windows 10/11 dark mode setting via the Win32 backend. Same behaviour as macOS — no extra code
+  needed.
 - **Linux / Mobile:** follows the GNOME Shell `color-scheme` portal. Already the primary target.
-- The `gtk::style_context_add_provider_for_display` / `style_context_remove_provider_for_display` APIs are GDK-backend-agnostic and work identically on all platforms.
+- The `gtk::style_context_add_provider_for_display` / `style_context_remove_provider_for_display` APIs are
+  GDK-backend-agnostic and work identically on all platforms.
 
 The single `data/resources/style.css` mixes layout rules and color overrides.
 Split it:
@@ -710,19 +718,20 @@ Split it:
 Add `style-dark.css` to `data/resources/resources.gresource.xml`:
 
 ```xml
+
 <file>style-dark.css</file>
 ```
 
 Load it conditionally in `src/app.rs` (or wherever `style.css` is loaded):
 
 ```rust
-let display = gtk4::gdk::Display::default().expect("no display");
+let display = gtk4::gdk::Display::default ().expect("no display");
 let provider = gtk4::CssProvider::new();
 provider.load_from_resource("/com/example/GtkCrossPlatform/style.css");
 gtk4::style_context_add_provider_for_display(
-    &display,
-    &provider,
-    gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
+& display,
+& provider,
+gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
 );
 
 // Dark override — load and unload as theme changes
@@ -730,27 +739,27 @@ let dark_provider = gtk4::CssProvider::new();
 dark_provider.load_from_resource("/com/example/GtkCrossPlatform/style-dark.css");
 
 let dp = dark_provider.clone();
-adw::StyleManager::get_default().connect_dark_notify(move |sm| {
-    if sm.is_dark() {
-        gtk4::style_context_add_provider_for_display(
-            &gtk4::gdk::Display::default().unwrap(),
-            &dp,
-            gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION + 1,
-        );
-    } else {
-        gtk4::style_context_remove_provider_for_display(
-            &gtk4::gdk::Display::default().unwrap(),
-            &dp,
-        );
-    }
+adw::StyleManager::get_default().connect_dark_notify( move | sm| {
+if sm.is_dark() {
+gtk4::style_context_add_provider_for_display(
+& gtk4::gdk::Display::default().unwrap(),
+&dp,
+gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION + 1,
+);
+} else {
+gtk4::style_context_remove_provider_for_display(
+& gtk4::gdk::Display::default().unwrap(),
+&dp,
+);
+}
 });
 // Apply on startup
 if adw::StyleManager::get_default().is_dark() {
-    gtk4::style_context_add_provider_for_display(
-        &display,
-        &dark_provider,
-        gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION + 1,
-    );
+gtk4::style_context_add_provider_for_display(
+& display,
+& dark_provider,
+gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION + 1,
+);
 }
 ```
 
@@ -774,12 +783,12 @@ used as detail content) in an `adw::Clamp`:
 let clamp = adw::Clamp::new();
 clamp.set_maximum_size(720);
 clamp.set_tightening_threshold(600);
-clamp.set_child(Some(&prefs_group));  // or &status_page
+clamp.set_child(Some( & prefs_group));  // or &status_page
 
 let scrolled = gtk4::ScrolledWindow::new();
 scrolled.set_vexpand(true);
 scrolled.set_hexpand(true);
-scrolled.set_child(Some(&clamp));
+scrolled.set_child(Some( & clamp));
 ```
 
 Apply to `containers_view.rs`, `images_view.rs`, `volumes_view.rs`, `networks_view.rs`.
@@ -806,9 +815,10 @@ a detail pane, which keep their existing notebook transitions).
 In `window.ui`, update the `AdwNavigationSplitView` sidebar page:
 
 ```xml
+
 <object class="GtkStack" id="sidebar_stack">
-  <property name="transition-type">slide-left-right</property>
-  <property name="transition-duration">200</property>
+    <property name="transition-type">slide-left-right</property>
+    <property name="transition-duration">200</property>
 </object>
 ```
 
@@ -828,14 +838,14 @@ related secondary action ("Push…" stub). Replace the standalone `gtk::Button` 
 
 ```rust
 let run_split = adw::SplitButton::new();
-run_split.set_label(&gettext("Run"));
+run_split.set_label( & gettext("Run"));
 run_split.set_icon_name("media-playback-start-symbolic");
-run_split.set_tooltip_text(Some(&gettext("Run a container from this image")));
+run_split.set_tooltip_text(Some( & gettext("Run a container from this image")));
 
 let push_action = gio::SimpleAction::new("push-stub", None);
 let push_menu = gio::Menu::new();
-push_menu.append(Some(&gettext("Push to registry…")), Some("win.push-stub"));
-run_split.set_menu_model(Some(&push_menu));
+push_menu.append(Some( & gettext("Push to registry…")), Some("win.push-stub"));
+run_split.set_menu_model(Some( & push_menu));
 
 run_split.connect_clicked(clone!(@weak self as view => move |_| {
     view.show_create_container_dialog_with_image(&image_id);
@@ -845,8 +855,8 @@ run_split.connect_clicked(clone!(@weak self as view => move |_| {
 A11Y: `set_tooltip_text` is not sufficient for icon-only buttons. Also call:
 
 ```rust
-run_split.update_property(&[gtk4::accessible::Property::Label(
-    &gettext("Run container from image"),
+run_split.update_property( & [gtk4::accessible::Property::Label(
+& gettext("Run container from image"),
 )]);
 ```
 
@@ -884,21 +894,21 @@ section in `containers_view.rs` (currently uses a manual `gtk::ListBox`). Replac
 ```rust
 // Setup: create the empty widget once per visible row slot
 let name_factory = make_factory(
-    |_, item| {
-        let entry = gtk4::Entry::new();
-        entry.add_css_class("transparent");
-        item.set_child(Some(&entry));
-    },
-    |_, item| {
-        let entry = item.child().and_downcast::<gtk4::Entry>().unwrap();
-        if let Some(env_var) = item.item().and_downcast::<glib::BoxedAnyObject>() {
-            entry.set_text(&env_var.borrow::<EnvVar>().name);
-        }
-    },
+| _, item| {
+let entry = gtk4::Entry::new();
+entry.add_css_class("transparent");
+item.set_child(Some( & entry));
+},
+| _, item| {
+let entry = item.child().and_downcast::< gtk4::Entry > ().unwrap();
+if let Some(env_var) = item.item().and_downcast::< glib::BoxedAnyObject > () {
+entry.set_text( & env_var.borrow::<EnvVar > ().name);
+}
+},
 );
 
-let name_col = gtk4::ColumnViewColumn::new(Some(&gettext("Name")), Some(name_factory));
-column_view.append_column(&name_col);
+let name_col = gtk4::ColumnViewColumn::new(Some( & gettext("Name")), Some(name_factory));
+column_view.append_column( & name_col);
 ```
 
 **Model:** Use `gio::ListStore` backed by a `glib::BoxedAnyObject` wrapping the domain type
@@ -939,12 +949,12 @@ fn class_init(klass: &mut Self::Class) {
 
 Accessible roles to use per widget type:
 
-| Widget | Role |
-|--------|------|
-| `StatusBadge` | `gtk4::AccessibleRole::Status` |
-| `ResourceRow` (action row) | `gtk4::AccessibleRole::ListItem` |
-| Icon-only toolbar buttons | `gtk4::AccessibleRole::Button` (already default, but add label) |
-| Search entry | `gtk4::AccessibleRole::SearchBox` |
+| Widget                     | Role                                                            |
+|----------------------------|-----------------------------------------------------------------|
+| `StatusBadge`              | `gtk4::AccessibleRole::Status`                                  |
+| `ResourceRow` (action row) | `gtk4::AccessibleRole::ListItem`                                |
+| Icon-only toolbar buttons  | `gtk4::AccessibleRole::Button` (already default, but add label) |
+| Search entry               | `gtk4::AccessibleRole::SearchBox`                               |
 
 ### N2 — Accessibility labels in `.ui` files
 
@@ -954,10 +964,10 @@ Every button, toggle, or interactive element that lacks visible text must have a
 ```xml
 <!-- data/resources/window.ui or component .ui files -->
 <object class="GtkButton" id="refresh_btn">
-  <property name="icon-name">view-refresh-symbolic</property>
-  <accessibility>
-    <property name="label" translatable="yes">Refresh</property>
-  </accessibility>
+    <property name="icon-name">view-refresh-symbolic</property>
+    <accessibility>
+        <property name="label" translatable="yes">Refresh</property>
+    </accessibility>
 </object>
 ```
 
@@ -971,9 +981,9 @@ insufficient. Add `update_property` alongside every `set_tooltip_text`:
 
 ```rust
 // Pattern to apply to every icon-only button in the four resource views
-btn.set_tooltip_text(Some(&gettext("Remove container")));
-btn.update_property(&[gtk4::accessible::Property::Label(
-    &gettext("Remove container"),
+btn.set_tooltip_text(Some( & gettext("Remove container")));
+btn.update_property( & [gtk4::accessible::Property::Label(
+& gettext("Remove container"),
 )]);
 ```
 
@@ -1007,7 +1017,7 @@ use gio::Cancellable;
 
 pub struct ContainersViewImp {
     // ... existing fields
-    pub list_cancellable:   Cell<Option<Cancellable>>,
+    pub list_cancellable: Cell<Option<Cancellable>>,
     pub detail_cancellable: Cell<Option<Cancellable>>,
 }
 ```
@@ -1043,9 +1053,9 @@ Connect a `destroy` signal handler to cancel all in-flight operations:
 
 ```rust
 // In the view's constructed() or setup_signals()
-self.connect_destroy(|view| {
-    if let Some(c) = view.imp().list_cancellable.take()   { c.cancel(); }
-    if let Some(c) = view.imp().detail_cancellable.take() { c.cancel(); }
+self .connect_destroy( | view| {
+if let Some(c) = view.imp().list_cancellable.take()   { c.cancel(); }
+if let Some(c) = view.imp().detail_cancellable.take() { c.cancel(); }
 });
 ```
 
@@ -1056,12 +1066,12 @@ updating the UI:
 
 ```rust
 // In the callback closure
-move |result| {
-    // If the view was destroyed or navigated away, cancellable was taken → None
-    if view.imp().list_cancellable.borrow().is_none() {
-        return; // stale result, discard
-    }
-    // ... safe to update UI
+move | result| {
+// If the view was destroyed or navigated away, cancellable was taken → None
+if view.imp().list_cancellable.borrow().is_none() {
+return; // stale result, discard
+}
+// ... safe to update UI
 }
 ```
 
@@ -1073,6 +1083,7 @@ Write one integration test in `tests/cancellable_test.rs` verifying that cancell
 ## Group P — `GtkShortcutController` in XML for component-local shortcuts
 
 **Platform impact:**
+
 - **macOS:** The `<Primary>` modifier maps to the **Cmd** key on macOS and **Ctrl** on
   Linux/Windows/Mobile. Always use `<Primary>`, **never `<Control>`**, in shortcut trigger
   strings. Using `<Control>f` instead of `<Primary>f` would make the focus-search shortcut
@@ -1091,25 +1102,27 @@ Add the following to `data/resources/window.ui` for the main window's search sho
 ```xml
 <!-- Inside the AdwNavigationSplitView sidebar page or the containing widget -->
 <child>
-  <object class="GtkShortcutController">
-    <property name="scope">local</property>
-    <child>
-      <object class="GtkShortcut">
-        <property name="trigger">&lt;Primary&gt;f</property>
-        <property name="action">action(win.focus-search)</property>
-      </object>
-    </child>
-  </object>
+    <object class="GtkShortcutController">
+        <property name="scope">local</property>
+        <child>
+            <object class="GtkShortcut">
+                <property name="trigger">&lt;Primary&gt;f</property>
+                <property name="action">action(win.focus-search)</property>
+            </object>
+        </child>
+    </object>
 </child>
 ```
 
 **Scope values:**
+
 - `local` — only active when the containing widget has keyboard focus (use for
   component-specific shortcuts)
 - `global` — active whenever the window has focus (use sparingly; prefer
   `set_accels_for_action` for global app shortcuts to keep them discoverable)
 
 **Apply to:**
+
 - Sidebar search focus: `<Primary>f` → `win.focus-search` (scope: `local`)
 - Search bar dismiss: `Escape` → `win.clear-search` (scope: `local`)
 - Detail refresh: `<Primary>r` is already a global accel → do not duplicate in XML
@@ -1143,10 +1156,12 @@ glib-compile-schemas --strict --dry-run data/
 
 - [ ] `Container`, `Image`, `Volume`, `Network` all derive `Default` and `PartialEq`
 - [ ] `ContainerStatus` has `css_class()`, `icon_name()`, `display_label()` methods
-- [ ] `src/window/actions.rs` exists with all action name constants (including `FOCUS_SEARCH`, `CLEAR_SEARCH`); no magic string literals in `app.rs`/`main_window.rs`
+- [ ] `src/window/actions.rs` exists with all action name constants (including `FOCUS_SEARCH`, `CLEAR_SEARCH`); no magic
+  string literals in `app.rs`/`main_window.rs`
 - [ ] `EmptyState` component exists in `src/window/components/empty_state.rs`; all four views use it
 - [ ] `ToastUtil` exists in `src/window/components/toast_util.rs`; four views use it
-- [ ] `data/com.example.GtkCrossPlatform.gschema.xml` exists with keys: `window-width`, `window-height`, `window-maximized`, `color-scheme`, `preferred-runtime`, `sidebar-width-fraction` (type `"d"`)
+- [ ] `data/com.example.GtkCrossPlatform.gschema.xml` exists with keys: `window-width`, `window-height`,
+  `window-maximized`, `color-scheme`, `preferred-runtime`, `sidebar-width-fraction` (type `"d"`)
 - [ ] Schema validates: `glib-compile-schemas --strict --dry-run data/` exits 0
 - [ ] `make schema` compiles `data/gschemas.compiled`; `data/gschemas.compiled` is in `.gitignore`
 - [ ] `make run` and `make run-mobile` set `GSETTINGS_SCHEMA_DIR=$(SCHEMA_DIR)` before launching
@@ -1155,25 +1170,33 @@ glib-compile-schemas --strict --dry-run data/
 - [ ] `Makefile` `setup-windows` includes `mingw-w64-x86_64-glib2` for `glib-compile-schemas`
 - [ ] Window geometry is persisted via GSettings (width, height, maximized)
 - [ ] Preferred runtime is read/written via GSettings (replaces file-based `save_runtime_pref` / `load_runtime_pref`)
-- [ ] Color-scheme preference is persisted and applied via GSettings; `adw::StyleManager` updated on startup and on key change
-- [ ] `settings.bind("sidebar-width-fraction", &split_view, "sidebar-width-fraction")` — type `f64` on both sides, no mapping closure
-- [ ] `adw::AboutWindow` has `issue_url`, `website`, `translator_credits`, runtime credit section, and two `add_link` entries — no duplicate entries if already present
+- [ ] Color-scheme preference is persisted and applied via GSettings; `adw::StyleManager` updated on startup and on key
+  change
+- [ ] `settings.bind("sidebar-width-fraction", &split_view, "sidebar-width-fraction")` — type `f64` on both sides, no
+  mapping closure
+- [ ] `adw::AboutWindow` has `issue_url`, `website`, `translator_credits`, runtime credit section, and two `add_link`
+  entries — no duplicate entries if already present
 - [ ] `style-dark.css` exists in `data/resources/` and is registered in `resources.gresource.xml`
 - [ ] Dark CSS provider is added/removed via `connect_dark_notify` and applied correctly on startup
 - [ ] Detail panes in all four resource views use `adw::Clamp` with `maximum-size = 720`
 - [ ] `EmptyState` status pages are wrapped in `adw::Clamp` with `maximum-size = 480`
 - [ ] `SplitButton` is used for the Run action in `images_view.rs`
-- [ ] `signal_handler_block` / `signal_handler_unblock` guards are applied to programmatic list selections in at least two views; `SignalHandlerId` stored as a view field
-- [ ] `ToastUtil::show_destructive()` is used for container remove and image remove (10 s timeout, HIGH priority, Undo button)
-- [ ] `src/window/components/list_factory.rs` exists with `make_factory()` helper; existing `bind_model()` calls are marked with `// TODO: migrate to ColumnView`
+- [ ] `signal_handler_block` / `signal_handler_unblock` guards are applied to programmatic list selections in at least
+  two views; `SignalHandlerId` stored as a view field
+- [ ] `ToastUtil::show_destructive()` is used for container remove and image remove (10 s timeout, HIGH priority, Undo
+  button)
+- [ ] `src/window/components/list_factory.rs` exists with `make_factory()` helper; existing `bind_model()` calls are
+  marked with `// TODO: migrate to ColumnView`
 - [ ] `StatusBadge` (and any other `gtk::Widget` subclass) calls `set_accessible_role()` in class init
 - [ ] Every icon-only button in `.ui` files has an `<accessibility><property name="label">` block
-- [ ] Every `set_tooltip_text()` in Rust code has a matching `update_property(Property::Label(...))` call immediately after it
+- [ ] Every `set_tooltip_text()` in Rust code has a matching `update_property(Property::Label(...))` call immediately
+  after it
 - [ ] Each resource view's `imp` struct has `list_cancellable` and `detail_cancellable` fields
 - [ ] `spawn_driver_task` calls cancel the previous `Cancellable` before dispatching
 - [ ] Views connect `destroy` signal to cancel all in-flight cancellables
 - [ ] `tests/cancellable_test.rs` exists with at least one test verifying no panic on cancel
-- [ ] `data/resources/window.ui` has a `GtkShortcutController` for `win.focus-search` using `<Primary>f` (not `<Control>f`), scope `local`
+- [ ] `data/resources/window.ui` has a `GtkShortcutController` for `win.focus-search` using `<Primary>f` (not
+  `<Control>f`), scope `local`
 - [ ] `win.focus-search` and `win.clear-search` action names are in `src/window/actions.rs`
 - [ ] `src/core/domain/` has zero imports from `gtk4`, `adw`, `glib`, `ports`, or `infrastructure`
 - [ ] `make fmt` — no diffs

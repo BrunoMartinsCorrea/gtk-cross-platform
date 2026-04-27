@@ -824,7 +824,7 @@ After generating all 6 new command files and updating the 3 existing ones:
 3. Update the Slash Commands table in `CLAUDE.md` to include all commands (existing + new):
 
    | Command | When to use |
-      |---------|-------------|
+         |---------|-------------|
    | `/project:update-readme` | README or CONTRIBUTING.md needs updating |
    | `/project:refactor-components` | Decompose `src/window/` into components |
    | `/project:add-runtime-driver <name>` | Add a new container runtime adapter |

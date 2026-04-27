@@ -37,27 +37,43 @@ description: Create or update a pull request for the current branch — detects 
 
 ## Step 0 — Baseline
 
-Run these commands. Independent queries may run in parallel.
+Run these commands. Independent queries run in parallel as noted.
 
 ```bash
-# 1. Current branch
+# 1. Current branch (must run first — all other steps depend on it)
 git branch --show-current
 
-# 2. Commits ahead of base (run in parallel with 3 and 4)
-git log --oneline origin/main..HEAD 2>/dev/null || git log --oneline main..HEAD
+# 2. Remote default branch (run in parallel with 3, 4, 5)
+gh api repos/:owner/:repo --jq .default_branch 2>/dev/null || echo "main"
 
-# 3. Remote tracking + dirty tree (run in parallel with 2 and 4)
+# 3. Commits ahead of base (run in parallel with 2, 4, 5)
+#    Use the value from step 2 as BASE_BRANCH
+git log --oneline origin/$BASE_BRANCH..HEAD 2>/dev/null \
+  || git log --oneline $BASE_BRANCH..HEAD
+
+# 4. Remote tracking + dirty tree (run in parallel with 2, 3, 5)
 git status --short --branch
 
-# 4. Existing PR for this branch (run in parallel with 2 and 3)
+# 5. Existing PR for this branch (run in parallel with 2, 3, 4)
 gh pr view --json number,title,body,state,url,isDraft,reviewDecision,statusCheckRollup,labels,reviews \
   2>/dev/null || echo "NO_PR_FOUND"
 
-# 5. Merge conflicts with base (run after 1)
-git diff --name-only --diff-filter=U 2>/dev/null | head -20
+# 6. Merge conflicts in working tree (run after step 1)
+git status --short | grep -E '^(UU|AA|DD|AU|UA|DU|UD)' | awk '{print $2}' | head -20
 
-# 6. PR template presence (run independently)
+# 7. PR template presence (run independently)
 [ -f .github/PULL_REQUEST_TEMPLATE.md ] && cat .github/PULL_REQUEST_TEMPLATE.md || echo "NO_TEMPLATE"
+
+# 8. CODEOWNERS presence (run independently, for reviewer suggestions)
+[ -f .github/CODEOWNERS ] && cat .github/CODEOWNERS \
+  || [ -f CODEOWNERS ] && cat CODEOWNERS \
+  || echo "NO_CODEOWNERS"
+
+# 9. Authenticated user (run independently, for self-assign)
+gh api user --jq .login 2>/dev/null || echo "UNKNOWN_USER"
+
+# 10. Branch staleness — days since last push to remote (run after step 1)
+git log -1 --format="%ar" "origin/$(git branch --show-current)" 2>/dev/null || echo "not_pushed"
 ```
 
 Record every output. Proceed to Pre-flight immediately after.
@@ -87,12 +103,14 @@ Execute checks in this exact order. Stop at the first failure.
 
 ```
 1. gh CLI available?        → command -v gh && gh auth status
-2. branch ≠ main/master?    → if yes: E_NOT_A_FEATURE_BRANCH
-3. ≥ 1 commit ahead?        → if no:  E_NO_COMMITS_AHEAD
-4. merge conflicts?         → if yes: E_MERGE_CONFLICTS — list conflicting files
-5. branch on remote?        → if no and tree clean: push with git push -u origin HEAD
+2. origin remote exists?    → git remote get-url origin >/dev/null 2>&1
+                              if no:  E_REMOTE_NOT_FOUND
+3. branch ≠ main/master?    → if yes: E_NOT_A_FEATURE_BRANCH
+4. ≥ 1 commit ahead?        → if no:  E_NO_COMMITS_AHEAD
+5. merge conflicts?         → if yes: E_MERGE_CONFLICTS — list conflicting files
+6. branch on remote?        → if no and tree clean: push with git push -u origin HEAD
                               if no and tree dirty: E_DIRTY_TREE_ABORTED (create path only)
-6. existing PR terminal?    → if state = merged|closed: E_TERMINAL_STATE
+7. existing PR terminal?    → if state = merged|closed: E_TERMINAL_STATE
 ```
 
 For the **update path** (PR already exists): a dirty working tree is a **warning only** — metadata
@@ -110,11 +128,12 @@ When no title is provided:
    - `feat/add-runtime-switcher` → `feat: add runtime switcher`
    - `fix/icon-viewbox` → `fix: icon viewbox`
    - `chore/update-deps` → `chore: update deps`
-2. **First commit subject on this branch** — `git log --format=%s origin/main..HEAD | tail -1`
+2. **Most recent commit subject on this branch** — `git log --format=%s origin/$BASE_BRANCH..HEAD | head -1`
 3. **Branch name as-is** — replace hyphens/underscores with spaces, title-case
 
-Apply title rules: ≤ 72 chars (truncate with `…`); strip trailing period; no confirmation needed
-— report the derived title in OC-1.
+Apply title rules: ≤ 72 chars (truncate with `…`); strip trailing period; strip/escape newlines and
+unbalanced quotes to prevent shell escaping issues; no confirmation needed — report the derived title
+in OC-1.
 
 ### Body derivation
 
@@ -139,7 +158,7 @@ When no body is provided, build the body in this order:
 🤖 Generated with [Claude Code](https://claude.ai/code)
 ```
 
-Auto-detect issue references: `git log --format="%b" origin/main..HEAD | grep -Eo "(Closes|Fixes|Refs) #[0-9]+"`.
+Auto-detect issue references: `git log --format="%b" origin/$BASE_BRANCH..HEAD | grep -Eo "(Closes|Fixes|Refs) #[0-9]+"`.
 
 ---
 
@@ -149,6 +168,7 @@ Auto-detect issue references: `git log --format="%b" origin/main..HEAD | grep -E
 
 | Check | Rule | Action on failure |
 |-------|------|-------------------|
+| `origin` remote exists | Push and PR require a remote | **ABORT** `E_REMOTE_NOT_FOUND` |
 | Current branch ≠ `main`/`master` | PRs must come from feature branches | **ABORT** `E_NOT_A_FEATURE_BRANCH` |
 | Branch has ≥ 1 commit ahead of base | Empty branches produce empty PRs | **ABORT** `E_NO_COMMITS_AHEAD` |
 | No merge conflicts | Conflicted tree cannot produce a clean PR | **ABORT** `E_MERGE_CONFLICTS` — list files |
@@ -161,6 +181,7 @@ Auto-detect issue references: `git log --format="%b" origin/main..HEAD | grep -E
 |-------|------|-------------------|
 | Non-empty | A blank title is rejected by GitHub | **ABORT** `E_EMPTY_TITLE` |
 | ≤ 72 characters | Titles over 72 chars truncate in list views | Truncate automatically with `…` |
+| No newlines or unbalanced quotes | Prevents shell escaping failures | Strip automatically before use |
 | Imperative mood | Conventional Commits convention | Warn only — do not block |
 | No trailing period | GitHub convention | Strip automatically |
 
@@ -179,20 +200,21 @@ Auto-detect issue references: `git log --format="%b" origin/main..HEAD | grep -E
 |-------|------|-------------------|
 | Base branch exists on remote | Prevents dangling PRs | **ABORT** `E_BASE_NOT_FOUND` — list available branches |
 | Base branch ≠ current branch | Cannot target itself | **ABORT** |
-| Default: `main` | Use unless `--base` argument is given | Use `main` silently |
+| Default: remote default branch detected in Step 0.2 | Use unless `--base` argument is given | Use detected value silently; fall back to `main` |
 
 ### IC-5 — Reviewers (optional)
 
 | Check | Rule | Action on failure |
 |-------|------|-------------------|
-| Each handle is a valid GitHub username | `gh api users/<handle>` → 200 | Skip invalid handle with warning |
+| Each handle is a valid GitHub username | `gh api users/<handle>` → 200 | Skip invalid handle; emit warning listing each skipped handle |
 | Not adding reviewers to an already-reviewed PR | GitHub blocks reviewer mutation post-review | Warn and skip; do not fail |
+| CODEOWNERS match | If CODEOWNERS found, suggest owners for changed files | Suggest only — do not auto-add without `--codeowners` flag |
 
 ### IC-6 — Labels (optional)
 
 | Check | Rule | Action on failure |
 |-------|------|-------------------|
-| Each label exists in the repository | `gh label list` | Skip unknown label with warning |
+| Each label exists in the repository | `gh label list` | Skip unknown label; emit warning listing each skipped label |
 
 ---
 
@@ -205,7 +227,8 @@ Run this path when Step 0 returned `NO_PR_FOUND`.
 git push -u origin HEAD
 
 # 2. Build and run gh pr create
-#    --draft if: dirty tree confirmed, or title starts with "WIP:", or --draft flag given
+#    --draft if: dirty tree confirmed, or title starts with "WIP:" or "wip:", or --draft flag given
+#    --assignee @me always (self-assign the creator)
 #    --reviewer only if IC-5 passed
 #    --label only if IC-6 passed
 gh pr create \
@@ -214,7 +237,8 @@ gh pr create \
 <DERIVED_BODY>
 EOF
 )" \
-  --base main \
+  --base $BASE_BRANCH \
+  --assignee @me \
   [--draft] \
   [--reviewer handle1,handle2] \
   [--label label1,label2]
@@ -235,11 +259,14 @@ Before calling `gh pr edit`, diff the current PR fields against derived fields:
 # Fetch current values (already done in Step 0)
 CURRENT_TITLE=$(gh pr view --json title -q .title)
 CURRENT_BODY=$(gh pr view --json body -q .body)
+CURRENT_LABELS=$(gh pr view --json labels -q '[.labels[].name] | sort | join(",")')
+DERIVED_LABELS_SORTED=$(echo "$DERIVED_LABELS" | tr ',' '\n' | sort | tr '\n' ',' | sed 's/,$//')
 
 # Compare and build minimal edit arguments
 CHANGED_FIELDS=""
-[ "$CURRENT_TITLE" != "$DERIVED_TITLE" ] && CHANGED_FIELDS="$CHANGED_FIELDS title"
-[ "$CURRENT_BODY"  != "$DERIVED_BODY"  ] && CHANGED_FIELDS="$CHANGED_FIELDS body"
+[ "$CURRENT_TITLE"  != "$DERIVED_TITLE"  ] && CHANGED_FIELDS="$CHANGED_FIELDS title"
+[ "$CURRENT_BODY"   != "$DERIVED_BODY"   ] && CHANGED_FIELDS="$CHANGED_FIELDS body"
+[ "$CURRENT_LABELS" != "$DERIVED_LABELS_SORTED" ] && CHANGED_FIELDS="$CHANGED_FIELDS labels"
 ```
 
 Only call `gh pr edit` if at least one field changed. Report exactly which fields changed in OC-2.
@@ -253,10 +280,14 @@ gh pr edit \
 EOF
 )"]                              # only if body changed
   [--add-label label1] \
-  [--remove-label old_label]
+  [--remove-label old_label]    # only if labels changed
 
-# Convert draft → ready if IC-2/IC-3 now fully satisfied and --ready flag given
-gh pr ready   # only if --ready was explicitly requested
+# Promote draft → ready only if ALL of the following are true:
+#   - --ready flag was explicitly provided
+#   - IC-2 fully satisfied (title non-empty, ≤ 72 chars, no placeholders)
+#   - IC-3 fully satisfied (body non-empty, contains ## Summary and ## Checklist, no placeholders)
+# If any IC fails, ABORT with E_READY_CRITERIA_UNMET listing each failing check.
+gh pr ready   # only if all conditions above are met
 
 # Re-fetch metadata for output
 gh pr view --json number,title,state,url,isDraft,reviewDecision,statusCheckRollup
@@ -276,10 +307,16 @@ The command is complete only when all of the following are reported.
 ```
 PR #<number>: <title>
 URL: <url>
+ASSIGNEE: <github_login>
 ```
 
 If the title was derived (not provided), append `(derived from: <source>)` to indicate the source
 (branch name, commit subject, or branch prefix).
+
+If CODEOWNERS was found and owners match changed files, append:
+```
+SUGGESTED REVIEWERS: <owner1>, <owner2>  (from CODEOWNERS — add with: gh pr edit --reviewer ...)
+```
 
 ### OC-2 — Action taken
 
@@ -290,9 +327,11 @@ ACTION: created (draft)
 ACTION: created (open)
 ACTION: updated (title)
 ACTION: updated (body)
-ACTION: updated (title + body)
 ACTION: updated (labels)
-ACTION: updated (labels + body)
+ACTION: updated (title + body)
+ACTION: updated (title + labels)
+ACTION: updated (body + labels)
+ACTION: updated (title + body + labels)
 ACTION: no-op (PR unchanged)
 ```
 
@@ -302,7 +341,7 @@ Report the minimum set of changed fields. Never silently skip — always print `
 
 ```
 STATE: open | draft | merged | closed
-REVIEW: none | approved | changes_requested | review_required
+REVIEW: none_requested | approved | changes_requested | review_required
 ```
 
 If state is `merged` or `closed`, print `E_TERMINAL_STATE` and exit non-zero.
@@ -319,23 +358,27 @@ print `CHECKS: not yet started`.
 If any check is **failing**, list each by name:
 
 ```
-  ✗ ci / build (conclusion: failure)
-  ✗ ci / lint  (conclusion: failure)
+  FAIL ci / build (conclusion: failure)
+  FAIL ci / lint  (conclusion: failure)
 ```
 
 ### OC-5 — Next action
 
 Based on the combination of STATE + REVIEW + CHECKS, print exactly one next-action line:
 
-| Condition | Next action |
-|-----------|-------------|
-| `draft`, checks green | `NEXT: mark ready — gh pr ready` |
-| `open`, review `none`, checks green | `NEXT: request review` |
-| `open`, review `changes_requested` | `NEXT: address review comments, then re-push` |
-| `open`, review `approved`, checks green | `NEXT: merge — gh pr merge --squash` |
-| `open`, checks failing | `NEXT: fix failing checks (listed above)` |
-| `open`, checks pending | `NEXT: wait for CI to complete` |
-| `merged` or `closed` | `NEXT: none — PR is in a terminal state` |
+| State  | Review              | Checks   | Next action                                              |
+|--------|---------------------|----------|----------------------------------------------------------|
+| draft  | any                 | failing  | `NEXT: fix failing checks (listed above), then mark ready` |
+| draft  | any                 | pending  | `NEXT: wait for CI, then mark ready`                     |
+| draft  | any                 | green    | `NEXT: mark ready — gh pr ready`                         |
+| open   | none_requested      | green    | `NEXT: request review`                                   |
+| open   | review_required     | green    | `NEXT: wait for required reviewers`                      |
+| open   | changes_requested   | any      | `NEXT: address review comments, then re-push`            |
+| open   | approved            | green    | `NEXT: merge — gh pr merge --squash`                     |
+| open   | any                 | failing  | `NEXT: fix failing checks (listed above)`                |
+| open   | any                 | pending  | `NEXT: wait for CI to complete`                          |
+| merged | —                   | —        | `NEXT: none — PR is in a terminal state`                 |
+| closed | —                   | —        | `NEXT: none — PR is in a terminal state`                 |
 
 ---
 
@@ -344,6 +387,7 @@ Based on the combination of STATE + REVIEW + CHECKS, print exactly one next-acti
 | Code | Meaning | Recovery |
 |------|---------|----------|
 | `E_GH_CLI_MISSING` | `gh` not installed or not authenticated | Run `gh auth login` |
+| `E_REMOTE_NOT_FOUND` | `origin` remote does not exist | Run `git remote add origin <url>` |
 | `E_NOT_A_FEATURE_BRANCH` | Current branch is `main`/`master` | Checkout a feature branch |
 | `E_NO_COMMITS_AHEAD` | Branch has no commits ahead of base | Commit changes first |
 | `E_MERGE_CONFLICTS` | Branch has unresolved merge conflicts | Resolve conflicts, then re-run |
@@ -352,6 +396,7 @@ Based on the combination of STATE + REVIEW + CHECKS, print exactly one next-acti
 | `E_EMPTY_BODY` | Body could not be derived and was not provided | Provide `--body` |
 | `E_BASE_NOT_FOUND` | Base branch does not exist on remote | Check base branch name |
 | `E_TERMINAL_STATE` | PR is merged or closed | No action possible |
+| `E_READY_CRITERIA_UNMET` | `--ready` requested but IC-2/IC-3 not satisfied | Fix listed criteria, then re-run with `--ready` |
 
 ---
 
