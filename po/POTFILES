@@ -6,4 +6,6 @@ src/window/views/images_view.rs
 src/window/views/volumes_view.rs
 src/window/views/networks_view.rs
 src/window/components/confirm_dialog.rs
+src/window/components/empty_state.rs
+src/window/components/toast_util.rs
 data/resources/window.ui
