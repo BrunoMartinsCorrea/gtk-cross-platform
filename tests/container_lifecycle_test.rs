@@ -11,8 +11,8 @@ use gtk_cross_platform::ports::i_container_driver::IContainerDriver;
 use gtk_cross_platform::ports::use_cases::i_container_use_case::IContainerUseCase;
 
 use support::{
-    container_uc, mock_driver, RUNNING_CONTAINER_ID, RUNNING_CONTAINER_SHORT_ID,
-    STOPPED_CONTAINER_ID, UNKNOWN_CONTAINER_ID,
+    RUNNING_CONTAINER_ID, RUNNING_CONTAINER_SHORT_ID, STOPPED_CONTAINER_ID, UNKNOWN_CONTAINER_ID,
+    container_uc, mock_driver,
 };
 
 // ── pause ──────────────────────────────────────────────────────────────────────
@@ -33,7 +33,10 @@ fn pause_unknown_container_returns_not_found() {
     let d = mock_driver();
     let result = d.pause_container(UNKNOWN_CONTAINER_ID);
     assert!(
-        matches!(result, Err(ContainerError::NotRunning(_)) | Err(ContainerError::NotFound(_))),
+        matches!(
+            result,
+            Err(ContainerError::NotRunning(_)) | Err(ContainerError::NotFound(_))
+        ),
         "expected NotRunning or NotFound for unknown container, got: {result:?}"
     );
 }
@@ -79,12 +82,18 @@ fn pause_then_start_makes_container_running_again() {
     uc.stop(RUNNING_CONTAINER_SHORT_ID, None).expect("stop");
     // Verify it's no longer in running list
     let before = uc.list(false).expect("list");
-    assert!(!before.iter().any(|c| c.short_id == RUNNING_CONTAINER_SHORT_ID));
+    assert!(
+        !before
+            .iter()
+            .any(|c| c.short_id == RUNNING_CONTAINER_SHORT_ID)
+    );
     // Start it again
     uc.start(RUNNING_CONTAINER_SHORT_ID).expect("start");
     let after = uc.list(false).expect("list");
     assert!(
-        after.iter().any(|c| c.short_id == RUNNING_CONTAINER_SHORT_ID),
+        after
+            .iter()
+            .any(|c| c.short_id == RUNNING_CONTAINER_SHORT_ID),
         "container must be running after start"
     );
 }

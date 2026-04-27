@@ -12,6 +12,12 @@
       and GNOME Mobile.
     </p>
   </description>
+  <icon type="stock">com.example.GtkCrossPlatform</icon>
+  <categories>
+    <category>GNOME</category>
+    <category>GTK</category>
+    <category>Utility</category>
+  </categories>
   <launchable type="desktop-id">com.example.GtkCrossPlatform.desktop</launchable>
   <url type="homepage">https://example.com</url>
   <releases>

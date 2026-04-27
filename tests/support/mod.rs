@@ -116,18 +116,11 @@ impl ContainerBuilder {
     }
 
     pub fn build(self) -> Container {
-        let short_id = self
-            .short_id
-            .unwrap_or_else(|| "aabbccdd1122".to_string());
-        let id = self
-            .id
-            .unwrap_or_else(|| format!("{short_id}aabbccdd1122"));
+        let short_id = self.short_id.unwrap_or_else(|| "aabbccdd1122".to_string());
+        let id = self.id.unwrap_or_else(|| format!("{short_id}aabbccdd1122"));
         let mut labels = HashMap::new();
         if let Some(ref project) = self.compose_project {
-            labels.insert(
-                "com.docker.compose.project".to_string(),
-                project.clone(),
-            );
+            labels.insert("com.docker.compose.project".to_string(), project.clone());
         }
         let status = self.status.unwrap_or(ContainerStatus::Running);
         Container {

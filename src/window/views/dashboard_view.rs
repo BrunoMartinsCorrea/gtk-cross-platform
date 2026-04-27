@@ -12,6 +12,8 @@ use gtk_cross_platform::infrastructure::containers::background::spawn_driver_tas
 use gtk_cross_platform::ports::use_cases::i_container_use_case::IContainerUseCase;
 use gtk_cross_platform::ports::use_cases::i_network_use_case::INetworkUseCase;
 
+use crate::window::utils::format::fmt_bytes;
+
 /// Both use cases bundled for a single `spawn_driver_task` call so containers
 /// and system_df are fetched in the same worker thread.
 struct DashboardUseCase {
@@ -37,18 +39,6 @@ fn fetch_fast(
         .events(Some(since_24h), Some(10))
         .unwrap_or_default();
     Ok((containers, networks.len(), events))
-}
-
-fn format_size(bytes: u64) -> String {
-    const GIB: u64 = 1_073_741_824;
-    const MIB: u64 = 1_048_576;
-    if bytes >= GIB {
-        format!("{:.1} GB", bytes as f64 / GIB as f64)
-    } else if bytes >= MIB {
-        format!("{:.0} MB", bytes as f64 / MIB as f64)
-    } else {
-        format!("{bytes} B")
-    }
 }
 
 // ───────────────────────────── widget builders ────────────────────────────────
@@ -531,10 +521,10 @@ impl DashboardView {
         inner.volumes_bar.set_fraction(vol_frac);
         inner
             .images_size_lbl
-            .set_text(&format_size(usage.images_size));
+            .set_text(&fmt_bytes(usage.images_size));
         inner
             .volumes_size_lbl
-            .set_text(&format_size(usage.volumes_size));
+            .set_text(&fmt_bytes(usage.volumes_size));
 
         inner.usage_stack.set_visible_child_name("content");
     }

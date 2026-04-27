@@ -3,22 +3,21 @@
 //!
 //! Verifies that the driver returns logs for running and stopped containers,
 //! respects the tail limit, and returns NotFound for unknown IDs.
-use std::sync::Arc;
+mod support;
 
 use gtk_cross_platform::infrastructure::containers::error::ContainerError;
-use gtk_cross_platform::infrastructure::containers::mock_driver::MockContainerDriver;
 use gtk_cross_platform::ports::i_container_driver::IContainerDriver;
 
-fn driver() -> Arc<MockContainerDriver> {
-    Arc::new(MockContainerDriver::new())
-}
+use support::{
+    RUNNING_CONTAINER_ID, STOPPED_CONTAINER_ID, UNKNOWN_CONTAINER_ID, mock_driver as driver,
+};
 
-/// Running container ("aabbccdd1122334455667788") should return non-empty logs.
+/// Running container (RUNNING_CONTAINER_ID) should return non-empty logs.
 #[test]
-fn test_logs_running_container_returns_string() {
+fn logs_running_container_returns_string() {
     let d = driver();
     let logs = d
-        .container_logs("aabbccdd1122334455667788", None, false)
+        .container_logs(RUNNING_CONTAINER_ID, None, false)
         .expect("logs");
     assert!(
         !logs.is_empty(),
@@ -26,12 +25,12 @@ fn test_logs_running_container_returns_string() {
     );
 }
 
-/// Stopped/exited container ("112233445566778899aabbcc") also has logs.
+/// Stopped/exited container (STOPPED_CONTAINER_ID) also has logs.
 #[test]
-fn test_logs_stopped_container_returns_string() {
+fn logs_stopped_container_returns_string() {
     let d = driver();
     let logs = d
-        .container_logs("112233445566778899aabbcc", None, false)
+        .container_logs(STOPPED_CONTAINER_ID, None, false)
         .expect("logs for exited container");
     assert!(
         !logs.is_empty(),
@@ -41,9 +40,9 @@ fn test_logs_stopped_container_returns_string() {
 
 /// Unknown ID should return NotFound.
 #[test]
-fn test_logs_unknown_id_returns_not_found() {
+fn logs_unknown_id_returns_not_found() {
     let d = driver();
-    let result = d.container_logs("nonexistentid0000000000", None, false);
+    let result = d.container_logs(UNKNOWN_CONTAINER_ID, None, false);
     assert!(
         matches!(result, Err(ContainerError::NotFound(_))),
         "expected NotFound for unknown container ID"
@@ -52,10 +51,10 @@ fn test_logs_unknown_id_returns_not_found() {
 
 /// Tail parameter limits the number of log lines returned.
 #[test]
-fn test_logs_tail_limits_lines() {
+fn logs_tail_limits_lines() {
     let d = driver();
     let logs = d
-        .container_logs("aabbccdd1122334455667788", Some(5), false)
+        .container_logs(RUNNING_CONTAINER_ID, Some(5), false)
         .expect("tail logs");
     let line_count = logs.lines().count();
     assert!(

@@ -3,6 +3,7 @@
 name = "gtk-cross-platform"
 version = "0.1.0"
 edition = "2024"
+license = "GPL-3.0-or-later"
 
 [lib]
 name = "gtk_cross_platform"
@@ -18,6 +19,11 @@ adw = { package = "libadwaita", version = "0.7", features = ["v1_4"] }
 glib = "0.20"
 gio = "0.20"
 gettext-rs = { version = "0.7", features = ["gettext-system"] }
+serde_json = "1"
+async-channel = "2"
 
 [build-dependencies]
 glib-build-tools = "0.20"
+
+[package.metadata.cargo-machete]
+ignored = ["gettext-rs"]

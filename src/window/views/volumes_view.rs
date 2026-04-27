@@ -15,9 +15,11 @@ use gtk_cross_platform::infrastructure::logging::app_logger::AppLogger;
 use gtk_cross_platform::ports::use_cases::i_volume_use_case::IVolumeUseCase;
 
 use crate::window::components::{
-    confirm_dialog, detail_pane, empty_state::EmptyState, resource_row,
+    clear_box, confirm_dialog, detail_pane, empty_state::EmptyState, resource_row,
 };
 use crate::window::objects::VolumeObject;
+use crate::window::utils::format::fmt_bytes;
+use crate::window::utils::store::find_store_position;
 
 const LOG_DOMAIN: &str = concat!(env!("APP_ID"), ".view.volumes");
 
@@ -80,24 +82,20 @@ impl VolumesView {
                 || vol.driver().to_ascii_lowercase().contains(&q)
         });
 
-        let filter_model =
-            gtk4::FilterListModel::new(Some(store.clone()), Some(filter.clone()));
+        let filter_model = gtk4::FilterListModel::new(Some(store.clone()), Some(filter.clone()));
 
         let sorter = gtk4::CustomSorter::new(|a, b| {
             let a = a.downcast_ref::<VolumeObject>().unwrap();
             let b = b.downcast_ref::<VolumeObject>().unwrap();
             a.name().cmp(&b.name()).into()
         });
-        let sort_model =
-            gtk4::SortListModel::new(Some(filter_model.clone()), Some(sorter));
+        let sort_model = gtk4::SortListModel::new(Some(filter_model.clone()), Some(sorter));
 
         let selection = gtk4::SingleSelection::new(Some(sort_model.clone()));
         selection.set_autoselect(false);
 
-        let list_view = gtk4::ListView::new(
-            Some(selection.clone()),
-            None::<gtk4::SignalListItemFactory>,
-        );
+        let list_view =
+            gtk4::ListView::new(Some(selection.clone()), None::<gtk4::SignalListItemFactory>);
         list_view.add_css_class("boxed-list");
         list_view.set_hexpand(true);
         list_view.set_show_separators(true);
@@ -212,14 +210,17 @@ impl VolumesView {
                 let item_weak = item.downgrade();
                 let iw2 = iw.clone();
                 remove_btn.connect_clicked(move |btn| {
-                    let Some(item) = item_weak.upgrade() else { return };
+                    let Some(item) = item_weak.upgrade() else {
+                        return;
+                    };
                     let Some(inner) = iw2.upgrade() else { return };
                     let Some(vol_obj) = item.item().and_downcast::<VolumeObject>() else {
                         return;
                     };
 
                     let name = vol_obj.name();
-                    let idx = find_store_position(&inner.store, &name);
+                    let idx =
+                        find_store_position::<VolumeObject, _>(&inner.store, |o| o.name() == name);
                     let body = gettext("Remove volume \"{name}\"? All data will be lost.")
                         .replace("{name}", &name);
                     let inner2 = inner.clone();
@@ -266,10 +267,7 @@ impl VolumesView {
 
             let mut subtitle = vol_obj.driver();
             if vol_obj.size_bytes() >= 0 {
-                subtitle.push_str(&format!(
-                    " · {}",
-                    fmt_bytes(vol_obj.size_bytes() as u64)
-                ));
+                subtitle.push_str(&format!(" · {}", fmt_bytes(vol_obj.size_bytes() as u64)));
             }
             if !vol_obj.in_use() {
                 subtitle.push_str(&format!(" · {}", gettext("unused")));
@@ -282,23 +280,28 @@ impl VolumesView {
 
         // Selection → detail pane
         let iw = inner_weak.clone();
-        let handler_id = self.0.selection.connect_selection_changed(move |sel, _, _| {
-            let Some(inner) = iw.upgrade() else { return };
-            if let Some(obj) = sel.selected_item().and_downcast::<VolumeObject>() {
-                show_detail(&inner, &obj);
-            } else {
-                inner.detail_stack.set_visible_child_name("empty");
-            }
-        });
+        let handler_id = self
+            .0
+            .selection
+            .connect_selection_changed(move |sel, _, _| {
+                let Some(inner) = iw.upgrade() else { return };
+                if let Some(obj) = sel.selected_item().and_downcast::<VolumeObject>() {
+                    show_detail(&inner, &obj);
+                } else {
+                    inner.detail_stack.set_visible_child_name("empty");
+                }
+            });
         *self.0.selection_handler.borrow_mut() = Some(handler_id);
 
         // Empty state watcher
         {
             let iw = inner_weak.clone();
-            self.0.filter_model.connect_items_changed(move |model, _, _, _| {
-                let Some(inner) = iw.upgrade() else { return };
-                update_empty_state(&inner, model.n_items());
-            });
+            self.0
+                .filter_model
+                .connect_items_changed(move |model, _, _, _| {
+                    let Some(inner) = iw.upgrade() else { return };
+                    update_empty_state(&inner, model.n_items());
+                });
         }
 
         // Search filter
@@ -329,9 +332,9 @@ impl VolumesView {
             let key_ctrl = gtk4::EventControllerKey::new();
             key_ctrl.set_propagation_phase(gtk4::PropagationPhase::Capture);
             key_ctrl.connect_key_pressed(move |_, key, _, mods| {
-                if key == gtk4::gdk::Key::f
-                    && mods.contains(gtk4::gdk::ModifierType::CONTROL_MASK)
-                {
+                let primary = mods.contains(gtk4::gdk::ModifierType::CONTROL_MASK)
+                    || mods.contains(gtk4::gdk::ModifierType::META_MASK);
+                if key == gtk4::gdk::Key::f && primary {
                     if let Some(sb) = sb_weak.upgrade() {
                         sb.set_search_mode(true);
                     }
@@ -427,19 +430,13 @@ fn focus_after_store_update(inner: &Rc<Inner>, idx: u32) {
         inner.selection.unblock_signal(id);
     }
     inner.list_view.grab_focus();
-    if let Some(obj) = inner.selection.selected_item().and_downcast::<VolumeObject>() {
+    if let Some(obj) = inner
+        .selection
+        .selected_item()
+        .and_downcast::<VolumeObject>()
+    {
         show_detail(inner, &obj);
     }
-}
-
-fn find_store_position(store: &gio::ListStore, name: &str) -> Option<u32> {
-    (0..store.n_items()).find(|&i| {
-        store
-            .item(i)
-            .and_downcast::<VolumeObject>()
-            .map(|o| o.name() == name)
-            .unwrap_or(false)
-    })
 }
 
 fn update_empty_state(inner: &Rc<Inner>, n_items: u32) {
@@ -465,16 +462,6 @@ fn update_empty_state(inner: &Rc<Inner>, n_items: u32) {
         inner.list_stack.set_visible_child_name("empty");
     } else {
         inner.list_stack.set_visible_child_name("list");
-    }
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-fn fmt_bytes(b: u64) -> String {
-    if b >= 1_073_741_824 {
-        format!("{:.1} GB", b as f64 / 1_073_741_824.0)
-    } else {
-        format!("{:.0} MB", b as f64 / 1_048_576.0)
     }
 }
 
@@ -585,12 +572,4 @@ fn show_create_dialog(trigger: &impl gtk4::prelude::IsA<gtk4::Widget>, inner: Rc
         );
     });
     dialog.present();
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-fn clear_box(b: &gtk4::Box) {
-    while let Some(child) = b.first_child() {
-        b.remove(&child);
-    }
 }

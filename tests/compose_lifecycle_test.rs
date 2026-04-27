@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-use std::sync::Arc;
+//! Tests for compose project lifecycle operations (Feature H — Compose groups).
+//!
+//! Verifies that `start_all` and `stop_all` on groups of containers produce
+//! per-container results and correctly affect the running set.
+mod support;
 
-use gtk_cross_platform::core::use_cases::container_use_case::ContainerUseCase;
-use gtk_cross_platform::infrastructure::containers::mock_driver::MockContainerDriver;
 use gtk_cross_platform::ports::use_cases::i_container_use_case::IContainerUseCase;
 
-fn use_case() -> ContainerUseCase {
-    ContainerUseCase::new(Arc::new(MockContainerDriver::new()))
-}
+use support::container_uc as use_case;
 
 #[test]
 fn start_all_returns_results_for_each_id() {

@@ -4,16 +4,13 @@
 //! Verifies that the `create` use case correctly delegates spec fields to the driver,
 //! validates image existence, and rejects duplicate container names.
 //! All tests use MockContainerDriver — no runtime required.
-use std::sync::Arc;
+mod support;
 
 use gtk_cross_platform::core::domain::container::{CreateContainerOptions, RestartPolicy};
-use gtk_cross_platform::core::use_cases::container_use_case::ContainerUseCase;
-use gtk_cross_platform::infrastructure::containers::mock_driver::MockContainerDriver;
+use gtk_cross_platform::infrastructure::containers::error::ContainerError;
 use gtk_cross_platform::ports::use_cases::i_container_use_case::IContainerUseCase;
 
-fn container_uc() -> ContainerUseCase {
-    ContainerUseCase::new(Arc::new(MockContainerDriver::new()))
-}
+use support::container_uc;
 
 #[test]
 fn create_container_minimal_image_only() {
@@ -68,9 +65,10 @@ fn create_container_unknown_image_returns_not_found() {
         ..Default::default()
     };
     let result = uc.create(&opts);
-    assert!(result.is_err());
-    let msg = format!("{}", result.unwrap_err());
-    assert!(msg.contains("Not found") || msg.contains("not found"));
+    assert!(
+        matches!(result, Err(ContainerError::NotFound(_))),
+        "expected NotFound error, got: {result:?}"
+    );
 }
 
 #[test]
@@ -91,11 +89,9 @@ fn create_container_name_conflict_returns_already_exists() {
         ..Default::default()
     };
     let result = uc.create(&opts2);
-    assert!(result.is_err());
-    let msg = format!("{}", result.unwrap_err());
     assert!(
-        msg.contains("Already exists") || msg.contains("already exists"),
-        "expected AlreadyExists error, got: {msg}"
+        matches!(result, Err(ContainerError::AlreadyExists(_))),
+        "expected AlreadyExists error, got: {result:?}"
     );
 }
 

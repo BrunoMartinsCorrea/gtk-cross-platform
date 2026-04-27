@@ -1,2 +1,9 @@
-src/app.vala
-src/window/main_window.vala
+src/app.rs
+src/window/main_window.rs
+src/window/views/containers_view.rs
+src/window/views/dashboard_view.rs
+src/window/views/images_view.rs
+src/window/views/volumes_view.rs
+src/window/views/networks_view.rs
+src/window/components/confirm_dialog.rs
+data/resources/window.ui

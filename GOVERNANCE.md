@@ -31,7 +31,7 @@ Maintainers who are inactive for 6 months may be moved to emeritus status.
 
 - Versions follow [Semantic Versioning](https://semver.org/).
 - Nightly builds are published automatically to GitHub Releases on every push to `main` (see
-  `.github/workflows/flatpak.yml`).
+  `.github/workflows/release.yml`).
 - Stable releases are tagged `vX.Y.Z` by the lead maintainer after updating `CHANGELOG.md`.
 
 ## Changes to this document

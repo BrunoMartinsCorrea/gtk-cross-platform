@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-use std::sync::Arc;
+//! Tests for system events (Feature G — Events tab).
+//!
+//! Verifies that the `events` use case returns a non-empty list with required fields,
+//! respects the limit parameter, and includes expected event types from the mock.
+mod support;
 
-use gtk_cross_platform::core::use_cases::network_use_case::NetworkUseCase;
-use gtk_cross_platform::infrastructure::containers::mock_driver::MockContainerDriver;
 use gtk_cross_platform::ports::use_cases::i_network_use_case::INetworkUseCase;
 
-fn use_case() -> NetworkUseCase {
-    NetworkUseCase::new(Arc::new(MockContainerDriver::new()))
-}
+use support::network_uc as use_case;
 
 #[test]
-fn events_returns_list() {
+fn events_with_no_filter_returns_all_events() {
     let uc = use_case();
     let events = uc.events(None, None).expect("events");
     assert!(!events.is_empty());

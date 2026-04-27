@@ -20,7 +20,7 @@ Out of scope (report upstream instead):
 ## Reporting a vulnerability
 
 **Do not open a public issue.**
-Use [GitHub Private Security Advisories](https://github.com/example/gtk-cross-platform/security/advisories/new) to
+Use [GitHub Private Security Advisories](https://github.com/BrunoMartinsCorrea/gtk-cross-platform/security/advisories/new) to
 report privately.
 
 Include:

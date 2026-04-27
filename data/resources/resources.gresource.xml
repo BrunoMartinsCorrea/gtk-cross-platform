@@ -2,5 +2,28 @@
 <gresources>
   <gresource prefix="/com/example/GtkCrossPlatform">
     <file compressed="true" preprocess="xml-stripblanks">window.ui</file>
+    <file compressed="true">style.css</file>
+    <file compressed="true">style-dark.css</file>
+    <!-- Bundled symbolic icons — available on all platforms without a system Adwaita install -->
+    <file alias="icons/hicolor/symbolic/actions/edit-clear-all-symbolic.svg">icons/hicolor/symbolic/actions/edit-clear-all-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/actions/edit-copy-symbolic.svg">icons/hicolor/symbolic/actions/edit-copy-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/actions/edit-find-symbolic.svg">icons/hicolor/symbolic/actions/edit-find-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/actions/go-bottom-symbolic.svg">icons/hicolor/symbolic/actions/go-bottom-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/actions/go-home-symbolic.svg">icons/hicolor/symbolic/actions/go-home-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/actions/list-add-symbolic.svg">icons/hicolor/symbolic/actions/list-add-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/actions/open-menu-symbolic.svg">icons/hicolor/symbolic/actions/open-menu-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/actions/system-run-symbolic.svg">icons/hicolor/symbolic/actions/system-run-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/actions/utilities-system-monitor-symbolic.svg">icons/hicolor/symbolic/actions/utilities-system-monitor-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/actions/view-conceal-symbolic.svg">icons/hicolor/symbolic/actions/view-conceal-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/actions/view-list-symbolic.svg">icons/hicolor/symbolic/actions/view-list-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/actions/view-refresh-symbolic.svg">icons/hicolor/symbolic/actions/view-refresh-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/actions/view-reveal-symbolic.svg">icons/hicolor/symbolic/actions/view-reveal-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/devices/drive-harddisk-symbolic.svg">icons/hicolor/symbolic/devices/drive-harddisk-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/devices/network-wired-symbolic.svg">icons/hicolor/symbolic/devices/network-wired-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/mimetypes/application-x-executable-symbolic.svg">icons/hicolor/symbolic/mimetypes/application-x-executable-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/mimetypes/image-x-generic-symbolic.svg">icons/hicolor/symbolic/mimetypes/image-x-generic-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/mimetypes/x-office-spreadsheet-symbolic.svg">icons/hicolor/symbolic/mimetypes/x-office-spreadsheet-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/status/dialog-error-symbolic.svg">icons/hicolor/symbolic/status/dialog-error-symbolic.svg</file>
+    <file alias="icons/hicolor/symbolic/status/dialog-information-symbolic.svg">icons/hicolor/symbolic/status/dialog-information-symbolic.svg</file>
   </gresource>
 </gresources>

@@ -18,7 +18,7 @@ fn layers_returns_deterministic_list() {
 }
 
 #[test]
-fn layers_have_id_cmd_and_size() {
+fn layers_for_known_image_have_populated_fields() {
     let uc = use_case();
     let layers = uc.layers("sha256:aaaa").expect("layers");
     let first = &layers[0];

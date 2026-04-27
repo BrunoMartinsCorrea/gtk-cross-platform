@@ -11,52 +11,39 @@ use gtk_cross_platform::core::use_cases::container_use_case::ContainerUseCase;
 use gtk_cross_platform::infrastructure::containers::mock_driver::MockContainerDriver;
 use gtk_cross_platform::ports::use_cases::i_container_use_case::IContainerUseCase;
 
-// ── is_secret_env_key ──────────────────────────────────────────────────────────
+// ── is_secret_env_key — table-driven ──────────────────────────────────────────
 
 #[test]
-fn mask_password_suffix() {
-    assert!(is_secret_env_key("POSTGRES_PASSWORD"));
-    assert!(is_secret_env_key("DB_PASSWORD"));
-}
-
-#[test]
-fn mask_password_lowercase() {
-    assert!(is_secret_env_key("password"));
-    assert!(is_secret_env_key("db_password"));
-}
-
-#[test]
-fn mask_secret_substring() {
-    assert!(is_secret_env_key("API_SECRET"));
-    assert!(is_secret_env_key("app_secret_value"));
-}
-
-#[test]
-fn mask_token_substring() {
-    assert!(is_secret_env_key("GITHUB_TOKEN"));
-    assert!(is_secret_env_key("access_token"));
-    assert!(is_secret_env_key("OAUTH_REFRESH_TOKEN"));
-}
-
-#[test]
-fn mask_key_substring() {
-    assert!(is_secret_env_key("AWS_ACCESS_KEY_ID"));
-    assert!(is_secret_env_key("PRIVATE_KEY_PATH"));
-    assert!(is_secret_env_key("api_key"));
-}
-
-#[test]
-fn safe_key_not_masked() {
-    assert!(!is_secret_env_key("NGINX_HOST"));
-    assert!(!is_secret_env_key("TZ"));
-    assert!(!is_secret_env_key("PORT"));
-    assert!(!is_secret_env_key("LOG_LEVEL"));
-    assert!(!is_secret_env_key("WORKER_CONCURRENCY"));
-}
-
-#[test]
-fn empty_key_not_masked() {
-    assert!(!is_secret_env_key(""));
+fn secret_key_classification() {
+    let cases: &[(&str, bool)] = &[
+        // secrets
+        ("POSTGRES_PASSWORD", true),
+        ("DB_PASSWORD", true),
+        ("password", true),
+        ("db_password", true),
+        ("API_SECRET", true),
+        ("app_secret_value", true),
+        ("GITHUB_TOKEN", true),
+        ("access_token", true),
+        ("OAUTH_REFRESH_TOKEN", true),
+        ("AWS_ACCESS_KEY_ID", true),
+        ("PRIVATE_KEY_PATH", true),
+        ("api_key", true),
+        // safe keys
+        ("NGINX_HOST", false),
+        ("TZ", false),
+        ("PORT", false),
+        ("LOG_LEVEL", false),
+        ("WORKER_CONCURRENCY", false),
+        ("", false),
+    ];
+    for (key, expected) in cases {
+        assert_eq!(
+            is_secret_env_key(key),
+            *expected,
+            "is_secret_env_key({key:?}) should be {expected}"
+        );
+    }
 }
 
 // ── env var population from mock driver ───────────────────────────────────────

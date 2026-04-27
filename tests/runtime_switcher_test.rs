@@ -13,7 +13,7 @@ use gtk_cross_platform::ports::i_container_driver::IContainerDriver;
 
 /// Requesting an unknown runtime name must return RuntimeNotAvailable.
 #[test]
-fn test_detect_specific_unknown_returns_err() {
+fn detect_specific_unknown_returns_err() {
     let result = ContainerDriverFactory::detect_specific("fakeruntime");
     assert!(
         matches!(result, Err(ContainerError::RuntimeNotAvailable(_))),
@@ -23,7 +23,7 @@ fn test_detect_specific_unknown_returns_err() {
 
 /// A driver constructed with `MockContainerDriver::unavailable()` reports is_available = false.
 #[test]
-fn test_is_available_false_when_socket_missing() {
+fn is_available_false_when_socket_missing() {
     let driver: Arc<dyn IContainerDriver> = Arc::new(MockContainerDriver::unavailable());
     assert!(
         !driver.is_available(),
@@ -33,7 +33,7 @@ fn test_is_available_false_when_socket_missing() {
 
 /// A normal mock driver reports is_available = true.
 #[test]
-fn test_is_available_true_for_normal_mock() {
+fn is_available_true_for_normal_mock() {
     let driver: Arc<dyn IContainerDriver> = Arc::new(MockContainerDriver::new());
     assert!(
         driver.is_available(),

@@ -3,18 +3,15 @@
 //!
 //! Uses MockContainerDriver directly (not through a use case) because streaming is a
 //! driver-level concern that does not go through a use-case port.
-use std::sync::Arc;
+mod support;
 
 use gtk_cross_platform::core::domain::container::PullStatus;
-use gtk_cross_platform::infrastructure::containers::mock_driver::MockContainerDriver;
 use gtk_cross_platform::ports::i_container_driver::IContainerDriver;
 
-fn driver() -> Arc<MockContainerDriver> {
-    Arc::new(MockContainerDriver::new())
-}
+use support::mock_driver as driver;
 
 #[test]
-fn test_streaming_pull_emits_layer_events() {
+fn streaming_pull_emits_layer_events() {
     let d = driver();
     let (tx, rx) = std::sync::mpsc::sync_channel(64);
     d.pull_image_streaming("nginx:latest", tx).expect("pull");
@@ -27,7 +24,7 @@ fn test_streaming_pull_emits_layer_events() {
 }
 
 #[test]
-fn test_streaming_pull_all_layers_reach_done() {
+fn streaming_pull_all_layers_reach_done() {
     let d = driver();
     let (tx, rx) = std::sync::mpsc::sync_channel(64);
     d.pull_image_streaming("nginx:latest", tx).expect("pull");
@@ -52,7 +49,7 @@ fn test_streaming_pull_all_layers_reach_done() {
 }
 
 #[test]
-fn test_streaming_pull_invalid_ref_errors() {
+fn streaming_pull_invalid_ref_errors() {
     let d = driver();
     let (tx, _rx) = std::sync::mpsc::sync_channel(64);
     let result = d.pull_image_streaming(":::", tx);
@@ -60,7 +57,7 @@ fn test_streaming_pull_invalid_ref_errors() {
 }
 
 #[test]
-fn test_streaming_pull_cancel_stops_stream() {
+fn streaming_pull_cancel_stops_stream() {
     let d = driver();
     // Pre-cancel so the streaming loop exits immediately
     d.cancel_pull();

@@ -1,16 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 use adw::prelude::*;
 
-/// Build a base `adw::ActionRow` with title and subtitle.
-///
-/// Text must already be translated before calling this function.
-pub fn new(title: &str, subtitle: &str) -> adw::ActionRow {
-    let row = adw::ActionRow::new();
-    row.set_title(title);
-    row.set_subtitle(subtitle);
-    row
-}
-
 /// Build an icon-only action button for use as a row suffix.
 ///
 /// Both `set_tooltip_text` and `update_property(Property::Label)` are set from `tooltip`,

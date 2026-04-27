@@ -28,7 +28,7 @@ fn network_uc() -> impl INetworkUseCase {
 }
 
 #[test]
-fn list_containers_all_returns_all() {
+fn list_with_all_flag_includes_stopped_containers() {
     let uc = container_uc();
     let containers = uc.list(true).expect("list all");
     assert!(!containers.is_empty());
@@ -43,15 +43,28 @@ fn list_containers_running_only() {
 }
 
 #[test]
-fn start_container_makes_it_running() {
+fn stop_running_container_removes_from_running_list() {
     let uc = container_uc();
     uc.stop("aabbccdd1122", None).expect("stop");
-    let before = uc.list(false).expect("list").len();
-    assert_eq!(before, 0);
+    let running = uc.list(false).expect("list");
+    assert_eq!(
+        running.len(),
+        0,
+        "stopped container must not appear in running list"
+    );
+}
 
+#[test]
+fn start_stopped_container_adds_to_running_list() {
+    let uc = container_uc();
+    uc.stop("aabbccdd1122", None).expect("stop");
     uc.start("aabbccdd1122").expect("start");
-    let after = uc.list(false).expect("list").len();
-    assert_eq!(after, 1);
+    let running = uc.list(false).expect("list");
+    assert_eq!(
+        running.len(),
+        1,
+        "started container must appear in running list"
+    );
 }
 
 #[test]
@@ -100,8 +113,13 @@ fn container_stats_returns_values() {
 fn system_df_returns_usage() {
     let uc = network_uc();
     let usage = uc.system_df().expect("df");
-    assert_eq!(usage.containers_total, 2);
+    assert_eq!(usage.containers_total, 3, "mock has 3 containers");
+    assert_eq!(
+        usage.images_total, 3,
+        "mock has 3 images (including dangling)"
+    );
     assert_eq!(usage.containers_running, 1);
+    assert!(usage.containers_total >= usage.containers_running);
 }
 
 #[test]

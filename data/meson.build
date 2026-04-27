@@ -6,6 +6,15 @@ install_data(
 )
 
 install_data(
+  'com.example.GtkCrossPlatform.gschema.xml',
+  install_dir: get_option('datadir') / 'glib-2.0' / 'schemas',
+)
+
+gnome.compile_schemas(
+  depend_files: 'com.example.GtkCrossPlatform.gschema.xml',
+)
+
+install_data(
   'com.example.GtkCrossPlatform.desktop',
   install_dir: join_paths(get_option('datadir'), 'applications'),
 )

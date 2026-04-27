@@ -189,17 +189,27 @@ impl IContainerDriver for MockContainerDriver {
 
     fn restart_container(
         &self,
-        _id: &str,
+        id: &str,
         _timeout_secs: Option<u32>,
     ) -> Result<(), ContainerError> {
+        self.inspect_container(id)?;
         Ok(())
     }
 
-    fn pause_container(&self, _id: &str) -> Result<(), ContainerError> {
+    fn pause_container(&self, id: &str) -> Result<(), ContainerError> {
+        let short = id.chars().take(12).collect::<String>();
+        if !self.running.lock().unwrap().contains(&short) {
+            return Err(ContainerError::NotRunning(id.to_string()));
+        }
         Ok(())
     }
 
-    fn unpause_container(&self, _id: &str) -> Result<(), ContainerError> {
+    fn unpause_container(&self, id: &str) -> Result<(), ContainerError> {
+        self.inspect_container(id)?;
+        let short = id.chars().take(12).collect::<String>();
+        if !self.running.lock().unwrap().contains(&short) {
+            return Err(ContainerError::NotRunning(id.to_string()));
+        }
         Ok(())
     }
 
@@ -428,7 +438,8 @@ impl IContainerDriver for MockContainerDriver {
         self.pull_cancelled.store(true, Ordering::Relaxed);
     }
 
-    fn remove_image(&self, _id: &str, _force: bool) -> Result<(), ContainerError> {
+    fn remove_image(&self, id: &str, _force: bool) -> Result<(), ContainerError> {
+        self.inspect_image(id)?;
         Ok(())
     }
 
@@ -502,7 +513,13 @@ impl IContainerDriver for MockContainerDriver {
         })
     }
 
-    fn remove_volume(&self, _name: &str, _force: bool) -> Result<(), ContainerError> {
+    fn remove_volume(&self, name: &str, _force: bool) -> Result<(), ContainerError> {
+        let exists = self.list_volumes()?.into_iter().any(|v| v.name == name);
+        if !exists {
+            return Err(ContainerError::NotFound(format!(
+                "volume not found: {name}"
+            )));
+        }
         Ok(())
     }
 
@@ -547,7 +564,14 @@ impl IContainerDriver for MockContainerDriver {
         })
     }
 
-    fn remove_network(&self, _id: &str) -> Result<(), ContainerError> {
+    fn remove_network(&self, id: &str) -> Result<(), ContainerError> {
+        let exists = self
+            .list_networks()?
+            .into_iter()
+            .any(|n| n.id == id || n.name == id);
+        if !exists {
+            return Err(ContainerError::NotFound(format!("network not found: {id}")));
+        }
         Ok(())
     }
 
@@ -566,12 +590,16 @@ impl IContainerDriver for MockContainerDriver {
     }
 
     fn system_df(&self) -> Result<SystemUsage, ContainerError> {
+        let containers = self.list_containers(true)?;
+        let running = containers.iter().filter(|c| c.status.is_running()).count() as u64;
+        let total = containers.len() as u64;
+        let images = self.list_images()?;
         Ok(SystemUsage {
-            containers_total: 2,
-            containers_running: 1,
-            containers_stopped: 1,
-            images_total: 2,
-            images_size: 566_000_000,
+            containers_total: total,
+            containers_running: running,
+            containers_stopped: total - running,
+            images_total: images.len() as u64,
+            images_size: images.iter().map(|i| i.size).sum(),
             volumes_total: 1,
             volumes_size: 0,
         })

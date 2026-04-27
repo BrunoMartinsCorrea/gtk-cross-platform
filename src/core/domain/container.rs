@@ -74,23 +74,31 @@ mod tests {
     use super::*;
 
     #[test]
-    fn status_from_running_state() {
+    fn status_from_state_table() {
         assert_eq!(
             ContainerStatus::from_state("running", None),
             ContainerStatus::Running
         );
-    }
-
-    #[test]
-    fn status_from_paused_state() {
         assert_eq!(
             ContainerStatus::from_state("paused", None),
             ContainerStatus::Paused
         );
-    }
-
-    #[test]
-    fn status_from_exited_with_code() {
+        assert_eq!(
+            ContainerStatus::from_state("created", None),
+            ContainerStatus::Stopped
+        );
+        assert_eq!(
+            ContainerStatus::from_state("stopped", None),
+            ContainerStatus::Stopped
+        );
+        assert_eq!(
+            ContainerStatus::from_state("restarting", None),
+            ContainerStatus::Restarting
+        );
+        assert_eq!(
+            ContainerStatus::from_state("dead", None),
+            ContainerStatus::Dead
+        );
         assert_eq!(
             ContainerStatus::from_state("exited", Some(1)),
             ContainerStatus::Exited(1)
@@ -99,10 +107,6 @@ mod tests {
             ContainerStatus::from_state("exited", None),
             ContainerStatus::Exited(0)
         );
-    }
-
-    #[test]
-    fn status_from_unknown_state() {
         assert!(matches!(
             ContainerStatus::from_state("fancy-new-state", None),
             ContainerStatus::Unknown(_)
@@ -220,38 +224,31 @@ mod tests {
         assert_eq!(RestartPolicy::UnlessStopped.as_str(), "unless-stopped");
     }
 
-    // ── is_secret_env_key ──────────────────────────────────────────────────────
+    // ── is_secret_env_key — table-driven ──────────────────────────────────────
 
     #[test]
-    fn secret_key_password_variant() {
-        assert!(is_secret_env_key("POSTGRES_PASSWORD"));
-        assert!(is_secret_env_key("password"));
-    }
-
-    #[test]
-    fn secret_key_token_variant() {
-        assert!(is_secret_env_key("GITHUB_TOKEN"));
-        assert!(is_secret_env_key("api_token"));
-    }
-
-    #[test]
-    fn secret_key_secret_variant() {
-        assert!(is_secret_env_key("API_SECRET"));
-        assert!(is_secret_env_key("my_secret"));
-    }
-
-    #[test]
-    fn secret_key_safe_key() {
-        assert!(!is_secret_env_key("NGINX_HOST"));
-        assert!(!is_secret_env_key("TZ"));
-        assert!(!is_secret_env_key("PORT"));
-    }
-
-    #[test]
-    fn secret_key_contains_key_substring() {
-        // "KEY" substring is a secret indicator
-        assert!(is_secret_env_key("AWS_ACCESS_KEY_ID"));
-        assert!(is_secret_env_key("PRIVATE_KEY_PATH"));
+    fn secret_key_classification() {
+        let cases: &[(&str, bool)] = &[
+            ("POSTGRES_PASSWORD", true),
+            ("password", true),
+            ("GITHUB_TOKEN", true),
+            ("api_token", true),
+            ("API_SECRET", true),
+            ("my_secret", true),
+            ("AWS_ACCESS_KEY_ID", true),
+            ("PRIVATE_KEY_PATH", true),
+            ("NGINX_HOST", false),
+            ("TZ", false),
+            ("PORT", false),
+            ("", false),
+        ];
+        for (key, expected) in cases {
+            assert_eq!(
+                is_secret_env_key(key),
+                *expected,
+                "is_secret_env_key({key:?}) should be {expected}"
+            );
+        }
     }
 
     // ── filter_containers ──────────────────────────────────────────────────────

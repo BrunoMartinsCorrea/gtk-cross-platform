@@ -10,7 +10,7 @@ use glib;
 use gtk4::gio;
 
 use gtk_cross_platform::core::domain::container::{
-    Container, CreateContainerOptions, filter_containers, is_secret_env_key,
+    Container, CreateContainerOptions, is_secret_env_key,
 };
 use gtk_cross_platform::infrastructure::containers::background::spawn_driver_task;
 use gtk_cross_platform::infrastructure::containers::error::log_container_error;
@@ -18,9 +18,10 @@ use gtk_cross_platform::infrastructure::logging::app_logger::AppLogger;
 use gtk_cross_platform::ports::use_cases::i_container_use_case::IContainerUseCase;
 
 use crate::window::components::{
-    confirm_dialog, detail_pane, empty_state::EmptyState, resource_row, status_badge,
+    clear_box, confirm_dialog, detail_pane, empty_state::EmptyState, resource_row, status_badge,
 };
 use crate::window::objects::ContainerObject;
+use crate::window::utils::store::find_store_position;
 
 const LOG_DOMAIN: &str = concat!(env!("APP_ID"), ".view.containers");
 const MAX_SAMPLES: usize = 60;
@@ -135,9 +136,13 @@ impl ContainersView {
         // Filter: name, image, short_id, compose_project
         let se_weak = search_entry.downgrade();
         let filter = gtk4::CustomFilter::new(move |obj| {
-            let Some(entry) = se_weak.upgrade() else { return true };
+            let Some(entry) = se_weak.upgrade() else {
+                return true;
+            };
             let query = entry.text();
-            if query.is_empty() { return true; }
+            if query.is_empty() {
+                return true;
+            }
             let q = query.to_ascii_lowercase();
             let c = obj.downcast_ref::<ContainerObject>().unwrap();
             c.name().to_ascii_lowercase().contains(&q)
@@ -146,8 +151,7 @@ impl ContainersView {
                 || c.compose_project().to_ascii_lowercase().contains(&q)
         });
 
-        let filter_model =
-            gtk4::FilterListModel::new(Some(store.clone()), Some(filter.clone()));
+        let filter_model = gtk4::FilterListModel::new(Some(store.clone()), Some(filter.clone()));
 
         // Phase 5: sort by compose_project (non-empty first) → name
         let item_sorter = gtk4::CustomSorter::new(|a, b| {
@@ -162,8 +166,7 @@ impl ContainersView {
             }
         });
 
-        let sort_model =
-            gtk4::SortListModel::new(Some(filter_model.clone()), Some(item_sorter));
+        let sort_model = gtk4::SortListModel::new(Some(filter_model.clone()), Some(item_sorter));
 
         // Section sorter: same compose_project → same section
         let section_sorter = gtk4::CustomSorter::new(|a, b| {
@@ -176,10 +179,8 @@ impl ContainersView {
         let selection = gtk4::SingleSelection::new(Some(sort_model.clone()));
         selection.set_autoselect(false);
 
-        let list_view = gtk4::ListView::new(
-            Some(selection.clone()),
-            None::<gtk4::SignalListItemFactory>,
-        );
+        let list_view =
+            gtk4::ListView::new(Some(selection.clone()), None::<gtk4::SignalListItemFactory>);
         list_view.add_css_class("boxed-list");
         list_view.set_hexpand(true);
         list_view.set_show_separators(true);
@@ -302,7 +303,6 @@ impl ContainersView {
                 row.set_activatable(true);
                 row.set_focusable(true);
 
-                // Badge label (placeholder CSS; updated in connect_bind)
                 let badge = gtk4::Label::builder()
                     .accessible_role(gtk4::AccessibleRole::Status)
                     .valign(gtk4::Align::Center)
@@ -317,10 +317,7 @@ impl ContainersView {
                 toggle_btn.set_direction(gtk4::TextDirection::Ltr);
                 toggle_btn.add_css_class("flat");
                 toggle_btn.set_valign(gtk4::Align::Center);
-                toggle_btn.set_tooltip_text(Some(&pgettext(
-                    "container action",
-                    "Start container",
-                )));
+                toggle_btn.set_tooltip_text(Some(&pgettext("container action", "Start container")));
                 toggle_btn.update_property(&[gtk4::accessible::Property::Label(&pgettext(
                     "container action",
                     "Start container",
@@ -332,10 +329,7 @@ impl ContainersView {
                 pause_btn.set_icon_name("media-playback-pause-symbolic");
                 pause_btn.add_css_class("flat");
                 pause_btn.set_valign(gtk4::Align::Center);
-                pause_btn.set_tooltip_text(Some(&pgettext(
-                    "container action",
-                    "Pause container",
-                )));
+                pause_btn.set_tooltip_text(Some(&pgettext("container action", "Pause container")));
                 pause_btn.update_property(&[gtk4::accessible::Property::Label(&pgettext(
                     "container action",
                     "Pause container",
@@ -355,7 +349,9 @@ impl ContainersView {
                     let item_weak = item.downgrade();
                     let iw_t = iw.clone();
                     toggle_btn.connect_clicked(move |_| {
-                        let Some(item) = item_weak.upgrade() else { return };
+                        let Some(item) = item_weak.upgrade() else {
+                            return;
+                        };
                         let Some(inner) = iw_t.upgrade() else { return };
                         let Some(c_obj) = item.item().and_downcast::<ContainerObject>() else {
                             return;
@@ -376,10 +372,7 @@ impl ContainersView {
                                     }
                                     Err(ref e) => {
                                         log_container_error(&AppLogger::new(LOG_DOMAIN), e);
-                                        (cb.on_toast)(&format!(
-                                            "{}: {e}",
-                                            gettext("Stop failed")
-                                        ));
+                                        (cb.on_toast)(&format!("{}: {e}", gettext("Stop failed")));
                                     }
                                 },
                             );
@@ -395,10 +388,7 @@ impl ContainersView {
                                     }
                                     Err(ref e) => {
                                         log_container_error(&AppLogger::new(LOG_DOMAIN), e);
-                                        (cb.on_toast)(&format!(
-                                            "{}: {e}",
-                                            gettext("Start failed")
-                                        ));
+                                        (cb.on_toast)(&format!("{}: {e}", gettext("Start failed")));
                                     }
                                 },
                             );
@@ -411,7 +401,9 @@ impl ContainersView {
                     let item_weak = item.downgrade();
                     let iw_p = iw.clone();
                     pause_btn.connect_clicked(move |_| {
-                        let Some(item) = item_weak.upgrade() else { return };
+                        let Some(item) = item_weak.upgrade() else {
+                            return;
+                        };
                         let Some(inner) = iw_p.upgrade() else { return };
                         let Some(c_obj) = item.item().and_downcast::<ContainerObject>() else {
                             return;
@@ -449,10 +441,7 @@ impl ContainersView {
                                     }
                                     Err(ref e) => {
                                         log_container_error(&AppLogger::new(LOG_DOMAIN), e);
-                                        (cb.on_toast)(&format!(
-                                            "{}: {e}",
-                                            gettext("Pause failed")
-                                        ));
+                                        (cb.on_toast)(&format!("{}: {e}", gettext("Pause failed")));
                                     }
                                 },
                             );
@@ -465,14 +454,18 @@ impl ContainersView {
                     let item_weak = item.downgrade();
                     let iw_r = iw.clone();
                     remove_btn.connect_clicked(move |btn| {
-                        let Some(item) = item_weak.upgrade() else { return };
+                        let Some(item) = item_weak.upgrade() else {
+                            return;
+                        };
                         let Some(inner) = iw_r.upgrade() else { return };
                         let Some(c_obj) = item.item().and_downcast::<ContainerObject>() else {
                             return;
                         };
                         let id = c_obj.id();
                         let name = c_obj.name();
-                        let idx = find_store_position(&inner.store, &id);
+                        let idx = find_store_position::<ContainerObject, _>(&inner.store, |o| {
+                            o.id() == id
+                        });
                         let body = gettext("Remove container \"{name}\"? This cannot be undone.")
                             .replace("{name}", &name);
                         let inner2 = inner.clone();
@@ -510,7 +503,8 @@ impl ContainersView {
                     });
                 }
 
-                // Store widget refs for connect_bind access
+                // GObject carries no typed fields; set_data is the GTK4/Rust idiom for
+                // passing widget refs from connect_setup into connect_bind closures.
                 unsafe {
                     item.set_data("badge", badge);
                     item.set_data("toggle_btn", toggle_btn);
@@ -643,12 +637,19 @@ impl ContainersView {
         // ── Selection → detail pane ──────────────────────────────────────────
         {
             let iw = inner_weak.clone();
-            let handler_id =
-                self.0.selection.connect_selection_changed(move |sel, _, _| {
+            let handler_id = self
+                .0
+                .selection
+                .connect_selection_changed(move |sel, _, _| {
                     let Some(inner) = iw.upgrade() else { return };
                     if let Some(c_obj) = sel.selected_item().and_downcast::<ContainerObject>() {
                         let id = c_obj.id();
-                        let container = inner.containers.borrow().iter().find(|c| c.id == id).cloned();
+                        let container = inner
+                            .containers
+                            .borrow()
+                            .iter()
+                            .find(|c| c.id == id)
+                            .cloned();
                         if let Some(c) = container {
                             show_detail(&inner, &c);
                         }
@@ -663,10 +664,12 @@ impl ContainersView {
         // ── Empty state watcher ───────────────────────────────────────────────
         {
             let iw = inner_weak.clone();
-            self.0.filter_model.connect_items_changed(move |model, _, _, _| {
-                let Some(inner) = iw.upgrade() else { return };
-                update_empty_state(&inner, model.n_items());
-            });
+            self.0
+                .filter_model
+                .connect_items_changed(move |model, _, _, _| {
+                    let Some(inner) = iw.upgrade() else { return };
+                    update_empty_state(&inner, model.n_items());
+                });
         }
 
         // ── Search filter ─────────────────────────────────────────────────────
@@ -697,9 +700,9 @@ impl ContainersView {
             let key_ctrl = gtk4::EventControllerKey::new();
             key_ctrl.set_propagation_phase(gtk4::PropagationPhase::Capture);
             key_ctrl.connect_key_pressed(move |_, key, _, mods| {
-                if key == gtk4::gdk::Key::f
-                    && mods.contains(gtk4::gdk::ModifierType::CONTROL_MASK)
-                {
+                let primary = mods.contains(gtk4::gdk::ModifierType::CONTROL_MASK)
+                    || mods.contains(gtk4::gdk::ModifierType::META_MASK);
+                if key == gtk4::gdk::Key::f && primary {
                     if let Some(sb) = sb_weak.upgrade() {
                         sb.set_search_mode(true);
                     }
@@ -796,32 +799,29 @@ fn focus_after_store_update(inner: &Rc<Inner>, idx: u32) {
         inner.selection.unblock_signal(id);
     }
     inner.list_view.grab_focus();
-    if let Some(c_obj) = inner.selection.selected_item().and_downcast::<ContainerObject>() {
+    if let Some(c_obj) = inner
+        .selection
+        .selected_item()
+        .and_downcast::<ContainerObject>()
+    {
         let id = c_obj.id();
-        let container = inner.containers.borrow().iter().find(|c| c.id == id).cloned();
+        let container = inner
+            .containers
+            .borrow()
+            .iter()
+            .find(|c| c.id == id)
+            .cloned();
         if let Some(c) = container {
             show_detail(inner, &c);
         }
     }
 }
 
-fn find_store_position(store: &gio::ListStore, id: &str) -> Option<u32> {
-    (0..store.n_items()).find(|&i| {
-        store
-            .item(i)
-            .and_downcast::<ContainerObject>()
-            .map(|o| o.id() == id)
-            .unwrap_or(false)
-    })
-}
-
 fn update_empty_state(inner: &Rc<Inner>, n_items: u32) {
     if n_items == 0 {
         let is_searching = !inner.search_entry.text().is_empty();
         if is_searching {
-            inner
-                .empty_status
-                .set_icon_name(Some("edit-find-symbolic"));
+            inner.empty_status.set_icon_name(Some("edit-find-symbolic"));
             inner.empty_status.set_title(&gettext("No Results"));
             inner.empty_status.set_description(Some(&format!(
                 "{} \"{}\"",
@@ -912,7 +912,9 @@ fn build_info_tab(inner: &Rc<Inner>, c: &Container) -> gtk4::ScrolledWindow {
         let cb = inner.clone();
 
         let do_rename = Rc::new(move || {
-            let Some(entry) = entry_w.upgrade() else { return };
+            let Some(entry) = entry_w.upgrade() else {
+                return;
+            };
             let new_name = entry.text().trim().to_string();
             if new_name == original_name || new_name.is_empty() {
                 entry.set_text(&original_name);
@@ -954,7 +956,11 @@ fn build_info_tab(inner: &Rc<Inner>, c: &Container) -> gtk4::ScrolledWindow {
     let ports_str = if c.ports.is_empty() {
         "—".to_string()
     } else {
-        c.ports.iter().map(|p| p.display()).collect::<Vec<_>>().join(", ")
+        c.ports
+            .iter()
+            .map(|p| p.display())
+            .collect::<Vec<_>>()
+            .join(", ")
     };
     let mounts_str = if c.mounts.is_empty() {
         "—".to_string()
@@ -1421,13 +1427,7 @@ fn apply_json_syntax_tags(buffer: &gtk4::TextBuffer) {
     }
 }
 
-fn apply_char_tag(
-    buffer: &gtk4::TextBuffer,
-    text: &str,
-    start_c: usize,
-    end_c: usize,
-    tag: &str,
-) {
+fn apply_char_tag(buffer: &gtk4::TextBuffer, text: &str, start_c: usize, end_c: usize, tag: &str) {
     let byte = |c: usize| -> i32 {
         text.char_indices()
             .nth(c)
@@ -1563,11 +1563,8 @@ fn build_logs_tab(inner: &Rc<Inner>, c: &Container) -> gtk4::Box {
                         if let Some(s) = stack_w2.upgrade() {
                             s.set_visible_child_name("content");
                         }
-                        let following =
-                            follow_w2.upgrade().map(|b| b.is_active()).unwrap_or(false);
-                        if following
-                            && let Some(s) = scroll_w2.upgrade()
-                        {
+                        let following = follow_w2.upgrade().map(|b| b.is_active()).unwrap_or(false);
+                        if following && let Some(s) = scroll_w2.upgrade() {
                             let adj = s.vadjustment();
                             adj.set_value(adj.upper() - adj.page_size());
                         }
@@ -1641,7 +1638,10 @@ fn build_terminal_tab(inner: &Rc<Inner>, c: &Container) -> gtk4::Box {
     let run_btn = gtk4::Button::with_label(&gettext("Run"));
     run_btn.add_css_class("suggested-action");
     run_btn.set_valign(gtk4::Align::Center);
-    run_btn.set_tooltip_text(Some(&pgettext("terminal action", "Run command in container")));
+    run_btn.set_tooltip_text(Some(&pgettext(
+        "terminal action",
+        "Run command in container",
+    )));
     run_btn.update_property(&[gtk4::accessible::Property::Label(&pgettext(
         "terminal action",
         "Run command in container",
@@ -2133,18 +2133,4 @@ fn parse_port_bindings(text: &str) -> Vec<(u16, u16)> {
             Some((h.trim().parse().ok()?, c.trim().parse().ok()?))
         })
         .collect()
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-fn clear_box(b: &gtk4::Box) {
-    while let Some(child) = b.first_child() {
-        b.remove(&child);
-    }
-}
-
-// filter_containers is kept for independent domain tests; the view uses CustomFilter inline
-#[allow(dead_code)]
-fn _use_filter_containers_in_tests_only() {
-    let _: Vec<&Container> = filter_containers(&[], "");
 }

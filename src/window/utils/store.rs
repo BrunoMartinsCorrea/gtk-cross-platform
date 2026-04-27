@@ -8,10 +8,5 @@ where
     T: glib::object::IsA<glib::Object>,
     F: Fn(&T) -> bool,
 {
-    (0..store.n_items()).find(|&i| {
-        store
-            .item(i)
-            .and_downcast::<T>()
-            .map_or(false, |o| pred(&o))
-    })
+    (0..store.n_items()).find(|&i| store.item(i).and_downcast::<T>().is_some_and(|o| pred(&o)))
 }
