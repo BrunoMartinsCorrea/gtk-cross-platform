@@ -28,8 +28,12 @@ jobs:
 
       - uses: taiki-e/install-action@cargo-nextest
 
-      - name: Install validation tools
-        run: sudo apt-get install -y appstream desktop-file-utils gettext
+      - name: Install system libraries
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y \
+            libgtk-4-dev libadwaita-1-dev \
+            appstream desktop-file-utils gettext
 
       - name: Format check
         run: make fmt
