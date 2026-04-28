@@ -1,17 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-use std::sync::Arc;
+mod support;
 
-use gtk_cross_platform::core::use_cases::image_use_case::ImageUseCase;
-use gtk_cross_platform::infrastructure::containers::mock_driver::MockContainerDriver;
+use gtk_cross_platform::infrastructure::containers::error::ContainerError;
 use gtk_cross_platform::ports::use_cases::i_image_use_case::IImageUseCase;
 
-fn use_case() -> ImageUseCase {
-    ImageUseCase::new(Arc::new(MockContainerDriver::new()))
-}
+use support::image_uc;
 
 #[test]
 fn layers_returns_deterministic_list() {
-    let uc = use_case();
+    let uc = image_uc();
     let layers = uc.layers("sha256:aaaa").expect("layers");
     assert!(!layers.is_empty());
     assert_eq!(layers.len(), 3);
@@ -19,7 +16,7 @@ fn layers_returns_deterministic_list() {
 
 #[test]
 fn layers_for_known_image_have_populated_fields() {
-    let uc = use_case();
+    let uc = image_uc();
     let layers = uc.layers("sha256:aaaa").expect("layers");
     let first = &layers[0];
     assert!(!first.id.is_empty());
@@ -29,14 +26,17 @@ fn layers_for_known_image_have_populated_fields() {
 
 #[test]
 fn layers_unknown_image_returns_not_found() {
-    let uc = use_case();
+    let uc = image_uc();
     let result = uc.layers("sha256:doesnotexist");
-    assert!(result.is_err());
+    assert!(
+        matches!(result, Err(ContainerError::NotFound(_))),
+        "expected NotFound for unknown image, got: {result:?}"
+    );
 }
 
 #[test]
 fn layers_cumulative_size_positive() {
-    let uc = use_case();
+    let uc = image_uc();
     let layers = uc.layers("sha256:aaaa").expect("layers");
     let total: u64 = layers.iter().map(|l| l.size).sum();
     assert!(total > 0);

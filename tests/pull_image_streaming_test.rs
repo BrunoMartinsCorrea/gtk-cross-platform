@@ -6,16 +6,28 @@
 mod support;
 
 use gtk_cross_platform::core::domain::container::PullStatus;
+use gtk_cross_platform::infrastructure::containers::error::ContainerError;
 use gtk_cross_platform::ports::i_container_driver::IContainerDriver;
 
 use support::mock_driver as driver;
 
+fn collect_events(
+    d: &impl IContainerDriver,
+    reference: &str,
+) -> Vec<gtk_cross_platform::core::domain::container::PullProgress> {
+    let (tx, rx) = async_channel::bounded(64);
+    d.pull_image_streaming(reference, tx).expect("pull");
+    let mut events = vec![];
+    while let Ok(e) = rx.try_recv() {
+        events.push(e);
+    }
+    events
+}
+
 #[test]
 fn streaming_pull_emits_layer_events() {
     let d = driver();
-    let (tx, rx) = std::sync::mpsc::sync_channel(64);
-    d.pull_image_streaming("nginx:latest", tx).expect("pull");
-    let events: Vec<_> = rx.try_iter().collect();
+    let events = collect_events(&*d, "nginx:latest");
     assert!(
         events.len() >= 3,
         "expected 3+ events, got {}",
@@ -26,10 +38,7 @@ fn streaming_pull_emits_layer_events() {
 #[test]
 fn streaming_pull_all_layers_reach_done() {
     let d = driver();
-    let (tx, rx) = std::sync::mpsc::sync_channel(64);
-    d.pull_image_streaming("nginx:latest", tx).expect("pull");
-    let events: Vec<_> = rx.try_iter().collect();
-    // Collect the final status for each layer_id
+    let events = collect_events(&*d, "nginx:latest");
     let mut final_status: std::collections::HashMap<String, PullStatus> =
         std::collections::HashMap::new();
     for e in &events {
@@ -51,21 +60,25 @@ fn streaming_pull_all_layers_reach_done() {
 #[test]
 fn streaming_pull_invalid_ref_errors() {
     let d = driver();
-    let (tx, _rx) = std::sync::mpsc::sync_channel(64);
+    let (tx, _rx) = async_channel::bounded(64);
     let result = d.pull_image_streaming(":::", tx);
-    assert!(result.is_err(), "malformed reference should return Err");
+    assert!(
+        matches!(result, Err(ContainerError::ParseError(_))),
+        "malformed reference should return ParseError, got: {result:?}"
+    );
 }
 
 #[test]
 fn streaming_pull_cancel_stops_stream() {
     let d = driver();
-    // Pre-cancel so the streaming loop exits immediately
     d.cancel_pull();
-    let (tx, rx) = std::sync::mpsc::sync_channel(64);
+    let (tx, rx) = async_channel::bounded(64);
     d.pull_image_streaming("nginx:latest", tx)
         .expect("pull after cancel should not error");
-    let events: Vec<_> = rx.try_iter().collect();
-    // The stream was cancelled before any layer was processed
+    let mut events = vec![];
+    while let Ok(e) = rx.try_recv() {
+        events.push(e);
+    }
     assert!(
         events.is_empty(),
         "expected no events after pre-cancel, got {}",

@@ -8,17 +8,18 @@ mod support;
 use gtk_cross_platform::infrastructure::containers::error::ContainerError;
 use gtk_cross_platform::ports::use_cases::i_container_use_case::IContainerUseCase;
 
-use support::{RUNNING_CONTAINER_ID, STOPPED_CONTAINER_ID, container_uc};
+use support::{
+    MOCK_MEMORY_LIMIT_BYTES, MOCK_MEMORY_USAGE_BYTES, MOCK_NET_RX_BYTES, MOCK_NET_TX_BYTES,
+    RUNNING_CONTAINER_ID, STOPPED_CONTAINER_ID, container_uc,
+};
 
 #[test]
 fn stats_for_running_container_returns_values() {
     let uc = container_uc();
     let stats = uc.stats(RUNNING_CONTAINER_ID).expect("stats");
-    assert!(stats.cpu_percent >= 0.0);
     assert!(stats.memory_usage > 0);
-    // Verify exact mock values (net_rx=1024, net_tx=512)
-    assert_eq!(stats.net_rx_bytes, 1024, "mock net_rx_bytes must be 1024");
-    assert_eq!(stats.net_tx_bytes, 512, "mock net_tx_bytes must be 512");
+    assert_eq!(stats.net_rx_bytes, MOCK_NET_RX_BYTES);
+    assert_eq!(stats.net_tx_bytes, MOCK_NET_TX_BYTES);
 }
 
 #[test]
@@ -36,6 +37,7 @@ fn stats_cpu_percent_within_valid_range() {
 fn stats_memory_usage_does_not_exceed_limit() {
     let uc = container_uc();
     let stats = uc.stats(RUNNING_CONTAINER_ID).expect("stats");
+    assert_eq!(stats.memory_limit, MOCK_MEMORY_LIMIT_BYTES);
     assert!(
         stats.memory_usage <= stats.memory_limit,
         "memory_usage ({}) must not exceed memory_limit ({})",
@@ -48,8 +50,12 @@ fn stats_memory_usage_does_not_exceed_limit() {
 fn stats_memory_mb_conversion_is_accurate() {
     let uc = container_uc();
     let stats = uc.stats(RUNNING_CONTAINER_ID).expect("stats");
-    // 52_428_800 bytes = 50 MiB
-    assert!((stats.memory_usage_mb() - 50.0).abs() < 1.0);
+    let expected_mb = MOCK_MEMORY_USAGE_BYTES as f64 / (1024.0 * 1024.0);
+    assert!(
+        (stats.memory_usage_mb() - expected_mb).abs() < 1.0,
+        "memory_usage_mb() = {}, expected ~{expected_mb}",
+        stats.memory_usage_mb()
+    );
 }
 
 #[test]
@@ -67,5 +73,8 @@ fn stats_for_container_stopped_at_runtime() {
     let uc = container_uc();
     uc.stop(RUNNING_CONTAINER_ID, None).expect("stop");
     let result = uc.stats(RUNNING_CONTAINER_ID);
-    assert!(result.is_err(), "stopped container should return error");
+    assert!(
+        matches!(result, Err(ContainerError::NotRunning(_))),
+        "expected NotRunning after stopping container, got: {result:?}"
+    );
 }

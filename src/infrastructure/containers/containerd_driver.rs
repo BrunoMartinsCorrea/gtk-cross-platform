@@ -344,7 +344,7 @@ impl IContainerDriver for ContainerdDriver {
     fn pull_image_streaming(
         &self,
         reference: &str,
-        tx: std::sync::mpsc::SyncSender<PullProgress>,
+        tx: async_channel::Sender<PullProgress>,
     ) -> Result<(), ContainerError> {
         if reference.contains(":::") || reference.is_empty() {
             return Err(ContainerError::ParseError(format!(
@@ -353,7 +353,7 @@ impl IContainerDriver for ContainerdDriver {
         }
         self.run(&["pull", reference])?;
         // nerdctl doesn't emit per-layer JSON events; report a single Done.
-        let _ = tx.send(PullProgress {
+        let _ = tx.try_send(PullProgress {
             layer_id: "complete".to_string(),
             status: PullStatus::Done,
             percent: Some(100),

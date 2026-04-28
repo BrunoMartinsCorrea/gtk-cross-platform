@@ -126,7 +126,7 @@ impl IContainerDriver for DynamicDriver {
     fn pull_image_streaming(
         &self,
         reference: &str,
-        tx: std::sync::mpsc::SyncSender<PullProgress>,
+        tx: async_channel::Sender<PullProgress>,
     ) -> Result<(), ContainerError> {
         self.driver().pull_image_streaming(reference, tx)
     }

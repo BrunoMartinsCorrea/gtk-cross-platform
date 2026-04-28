@@ -280,7 +280,7 @@ reading the source:
   Wayland-first, Flatpak)
 - Never omit breakpoint values, licensing, or layer rules from documentation
 
-When updating the README, use `/project:update-readme`.
+When updating the README, use `/project:knowledge-planning`.
 
 ### Code comments
 
@@ -394,7 +394,6 @@ Makefile                                 # Convenience wrappers for Cargo/Flatpa
   settings.json                          # Project-level permissions (cargo/make allow-list)
   settings.local.json                    # Local overrides — gitignored
   commands/
-    update-readme.md                     # /project:update-readme
     refactor-components.md               # /project:refactor-components
     add-runtime-driver.md                # /project:add-runtime-driver <runtime>
     implement-container-ui.md            # /project:implement-container-ui
@@ -408,19 +407,56 @@ Makefile                                 # Convenience wrappers for Cargo/Flatpa
     release-audit.md                     # /project:release-audit
     apply-requester-patterns.md          # /project:apply-requester-patterns
     apply-conceptual-improvements.md     # /project:apply-conceptual-improvements
-    docs-audit.md                         # /project:docs-audit
-    apply-docs-fixes.md                  # /project:apply-docs-fixes
+    knowledge-audit.md                   # /project:knowledge-audit
+    knowledge-planning.md                # /project:knowledge-planning
     implement-v02-mvp.md                 # /project:implement-v02-mvp
     redesign-claude-setup.md             # /project:redesign-claude-setup
-    testing-audit.md                     # /project:testing-audit
-    cleanup-code.md                      # /project:cleanup-code
+    coverage-analysis.md                 # /project:coverage-analysis
+    structural-improvement.md            # /project:structural-improvement
     test-quality-guardrail.md            # /project:test-quality-guardrail
-    redesign-makefile.md                 # /project:redesign-makefile
+    tooling-design.md                    # /project:tooling-design
     dist-audit.md                        # /project:dist-audit
     sync-pull-request.md                 # /project:sync-pull-request
     content-audit.md                     # /project:content-audit
     plan-content-improvements.md         # /project:plan-content-improvements
     create-prompt.md                     # /project:create-prompt <context>
+  skills/
+    pipeline/
+      work-planning/SKILL.md             # pipeline:work-planning — decompose scope into prioritized tasks
+      acceptance-gate/SKILL.md           # pipeline:acceptance-gate — pre-PR gate: lint + tests + i18n + A11Y
+      scope-definition/SKILL.md          # pipeline:scope-definition — define problem, objectives, acceptance criteria
+      dependency-mapping/SKILL.md        # pipeline:dependency-mapping — map module/port dependency chains
+      risk-assessment/SKILL.md           # pipeline:risk-assessment — evaluate breaking changes and cross-platform risk
+      readiness-check/SKILL.md           # pipeline:readiness-check — verify prerequisites before starting a feature
+    craft/
+      fault-analysis/SKILL.md            # craft:fault-analysis — structured debugging: GTK/GLib/async-channel root cause
+      contract-testing/SKILL.md          # craft:contract-testing — validate IContainerDriver contracts with MockContainerDriver
+    ops/
+      fault-recovery/SKILL.md            # ops:fault-recovery — platform recovery playbooks (Flatpak rollback, DMG revert)
+      artifact-packaging/SKILL.md        # ops:artifact-packaging — build Flatpak x86_64/aarch64, macOS .app/.dmg, Windows ZIP
+      artifact-signing/SKILL.md          # ops:artifact-signing — codesign + notarization, Flatpak GPG, SHA256 checksums
+      store-submission/SKILL.md          # ops:store-submission — GitHub Release, Flathub submission, CHANGELOG update
+  agents/
+    craft--quality-inspector.md          # Autonomous code review: hexagonal, A11Y, i18n, threading
+    craft--environment-inspector.md      # Repository health audit: CI/CD, security, distribution, docs
+    craft--knowledge-writer.md           # Generate/update README, CONTRIBUTING, CHANGELOG, prompts
+    craft--schema-designer.md            # Design domain models, port traits, GObject wrappers
+    craft--coverage-synthesizer.md       # Identify test coverage gaps; propose concrete test code
+    craft--migration-inspector.md        # GSettings schema migration audit (reserved)
+    pipeline--work-coordinator.md        # Live task board; coordinate parallel work; session handoff
+    ops--supply-chain-auditor.md         # Cargo dependency CVE, license, and version drift audit
+    ops--throughput-analyzer.md          # CI job duration, build time, cache effectiveness analysis
+    ops--incident-coordinator.md         # Coordinate incident response: CI broken, artifact, crash
+    ops--distribution-auditor.md         # Audit checksums, GitHub Release, AppStream, license, version
+    domain--event-modeler.md             # Model container lifecycle events and UI state transitions
+  rules/
+    domain/
+      container-management.md            # globs: src/core/domain/**, src/infrastructure/containers/**, src/ports/**
+    standards/
+      language.md                        # globs: **/*.rs — threading, async, logging, code quality, i18n
+      interface.md                       # globs: src/ports/**, src/infrastructure/containers/**
+      verification.md                    # globs: tests/**, src/**/tests/**
+      observability.md                   # globs: src/infrastructure/logging/**, src/**/*.rs
   docs/
     content-audit.md                     # Generated by /project:content-audit; managed automatically
     content-improvement-plan.md          # Generated by /project:plan-content-improvements; managed automatically
@@ -439,7 +475,6 @@ it does not require reading prior conversation context to execute correctly.
 
 | Command                              | When to use                                                                             |
 |--------------------------------------|-----------------------------------------------------------------------------------------|
-| `/project:update-readme`             | README or CONTRIBUTING.md needs updating after structural changes                       |
 | `/project:refactor-components`       | Decompose `src/window/` into finer-grained components and views                         |
 | `/project:add-runtime-driver <name>` | Add a new container runtime adapter (e.g., `nerdctl`, `lima`)                           |
 | `/project:implement-container-ui`    | Implement or overhaul the GTK4/Adwaita UI layer for container management                |
@@ -454,14 +489,14 @@ it does not require reading prior conversation context to execute correctly.
 | `/project:optimize-dashboard-loading` | Fix startup latency: lazy view loading, deferred `system_df`, debounced search, duplicate-call elimination |
 | `/project:apply-requester-patterns`  | Apply GTK4/Adwaita patterns from Requester: GSettings, CommonActions, EmptyState, ToastUtil, AdwClamp, SplitButton, domain derives, CSS split |
 | `/project:apply-conceptual-improvements` | Migrate ListBox→GListModel+SignalListItemFactory, add GObject wrappers, FilterListModel, reactive bindings, CustomSorter |
-| `/project:docs-audit`                    | Audit documentation layer for staleness, cross-document inconsistencies, coverage gaps, and README/CLAUDE.md accuracy  |
-| `/project:apply-docs-fixes`              | Apply all fixes identified by `/project:docs-audit` (URLs, stale paths, missing constants, breakpoint table, PR checklist) |
+| `/project:knowledge-audit`               | Audit documentation layer for staleness, cross-document inconsistencies, coverage gaps, and README/CLAUDE.md accuracy  |
+| `/project:knowledge-planning`            | Apply targeted doc fixes (Mode A) or regenerate README from scratch (Mode B)            |
 | `/project:implement-v02-mvp`             | Implement v0.2 MVP features from Doca.zip specs (search, pull wizard, stats, terminal, compose, dashboard, runtime switcher) |
 | `/project:redesign-claude-setup`         | Survey and regenerate the full `.claude/commands/` set for the complete FLOSS development lifecycle |
-| `/project:testing-audit`                 | Audit and plan the full Rust test strategy; identify coverage gaps and missing test categories |
-| `/project:cleanup-code`                  | Remove dead code (`#[allow(dead_code)]`), useless comments, and duplicated view helpers; extract shared `window/utils/` module |
+| `/project:coverage-analysis`             | Audit and plan the full Rust test strategy; identify coverage gaps and missing test categories |
+| `/project:structural-improvement`        | Remove dead code (`#[allow(dead_code)]`), useless comments, and duplicated view helpers; extract shared `window/utils/` module |
 | `/project:test-quality-guardrail`        | Guardrail de qualidade: audita testes contra princípios universais, identifica antipadrões e aplica abstrações (Builder, Object Mother, fixtures compartilhadas, parametrização) |
-| `/project:redesign-makefile`             | Reestrutura o Makefile como instrumento SOLID de ciclo de vida: agregadores genéricos delegam para específicos, `make` sem args configura e roda automaticamente |
+| `/project:tooling-design`                | Redesign Makefile as SOLID lifecycle instrument (Phase 1) + consolidate GitHub Actions into 2 workflow files (Phase 2) |
 | `/project:dist-audit`                    | Audit distributed artifacts (Flatpak, macOS DMG, Windows ZIP) for runtime completeness, identity consistency, store compliance, and first-install UX |
 | `/project:sync-pull-request`             | Create or update the PR for the current branch — enforces title/body/base contracts and reports state, review status, and CI checks |
 | `/project:content-audit`                 | Audit content quality: human-first readability, AI-free codebase, Mermaid-over-ASCII diagrams, comment quality, terminology consistency, and placeholder hygiene |

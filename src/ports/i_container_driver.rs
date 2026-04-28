@@ -60,7 +60,7 @@ pub trait IContainerDriver: Send + Sync {
     fn pull_image_streaming(
         &self,
         reference: &str,
-        tx: std::sync::mpsc::SyncSender<PullProgress>,
+        tx: async_channel::Sender<PullProgress>,
     ) -> Result<(), ContainerError>;
 
     /// Cancel an in-flight `pull_image_streaming` call. Best-effort; may be a no-op.

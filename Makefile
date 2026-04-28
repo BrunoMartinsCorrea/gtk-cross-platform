@@ -127,14 +127,51 @@ test-unit: ## Run unit tests via cargo nextest (NEXTEST_PROFILE=default|ci)
 
 test-integration: ## Run integration tests via cargo nextest
 	cargo nextest run --profile $(NEXTEST_PROFILE) \
-	  --test container_driver_test --test greet_use_case_test
+	  --test cancellable_test \
+	  --test compose_grouping_test \
+	  --test compose_lifecycle_test \
+	  --test container_driver_test \
+	  --test container_lifecycle_test \
+	  --test container_logs_test \
+	  --test container_stats_test \
+	  --test create_container_test \
+	  --test dashboard_test \
+	  --test env_masking_test \
+	  --test greet_use_case_test \
+	  --test image_layers_test \
+	  --test inspect_test \
+	  --test pull_image_streaming_test \
+	  --test pull_image_test \
+	  --test runtime_switcher_test \
+	  --test search_filter_test \
+	  --test system_events_test \
+	  --test terminal_test
 
 test-i18n: ## Run i18n structural tests via cargo nextest
 	cargo nextest run --profile $(NEXTEST_PROFILE) --test i18n_test
 
 coverage: ## Measure line coverage (manual tool; not part of CI)
-	cargo llvm-cov --lib --test container_driver_test --test greet_use_case_test \
-	  --summary-only --fail-under-lines 25
+	cargo llvm-cov --lib \
+	  --test cancellable_test \
+	  --test compose_grouping_test \
+	  --test compose_lifecycle_test \
+	  --test container_driver_test \
+	  --test container_lifecycle_test \
+	  --test container_logs_test \
+	  --test container_stats_test \
+	  --test create_container_test \
+	  --test dashboard_test \
+	  --test env_masking_test \
+	  --test greet_use_case_test \
+	  --test image_layers_test \
+	  --test inspect_test \
+	  --test pull_image_streaming_test \
+	  --test pull_image_test \
+	  --test runtime_switcher_test \
+	  --test search_filter_test \
+	  --test system_events_test \
+	  --test terminal_test \
+	  --summary-only --fail-under-lines 50
 
 # ── Validate (Quality Gates) ──────────────────────────────────────────────────
 

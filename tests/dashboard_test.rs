@@ -1,34 +1,43 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //! Tests for dashboard data (Feature D — Dashboard/Home tab).
 //!
-//! Verifies system_df and prune_system return valid, non-negative data that the
+//! Verifies system_df and prune return valid, non-negative data that the
 //! dashboard can display without additional validation.
 mod support;
 
-use gtk_cross_platform::ports::i_container_driver::IContainerDriver;
+use gtk_cross_platform::ports::use_cases::i_network_use_case::INetworkUseCase;
 
-use support::mock_driver as driver;
+use support::{
+    MOCK_CONTAINERS_RUNNING, MOCK_CONTAINERS_TOTAL, MOCK_IMAGES_TOTAL, STOPPED_CONTAINER_SHORT_ID,
+    network_uc,
+};
 
-/// system_df should return a SystemUsage consistent with the mock state.
 #[test]
 fn system_df_returns_usage() {
-    let d = driver();
-    let usage = d.system_df().expect("system_df");
-    // Mock has 3 containers (web-server Running, db Exited, standalone Stopped)
-    assert_eq!(usage.containers_total, 3, "mock has 3 containers");
-    // Mock has 3 images (nginx:latest, postgres:15, dangling sha256:cccc)
-    assert_eq!(usage.images_total, 3, "mock has 3 images");
+    let uc = network_uc();
+    let usage = uc.system_df().expect("system_df");
+    assert_eq!(
+        usage.containers_total, MOCK_CONTAINERS_TOTAL as u64,
+        "mock has {MOCK_CONTAINERS_TOTAL} containers"
+    );
+    assert_eq!(
+        usage.images_total, MOCK_IMAGES_TOTAL as u64,
+        "mock has {MOCK_IMAGES_TOTAL} images (including dangling)"
+    );
+    assert_eq!(
+        usage.containers_running, MOCK_CONTAINERS_RUNNING as u64,
+        "mock has {MOCK_CONTAINERS_RUNNING} running container(s)"
+    );
     assert!(
         usage.images_size > 0,
         "mock should report non-zero images size"
     );
 }
 
-/// When listing all containers, the total count must be ≥ running count.
 #[test]
 fn system_df_containers_total_includes_stopped() {
-    let d = driver();
-    let usage = d.system_df().expect("system_df");
+    let uc = network_uc();
+    let usage = uc.system_df().expect("system_df");
     assert!(
         usage.containers_total >= usage.containers_running,
         "total ({}) must be >= running ({})",
@@ -37,18 +46,16 @@ fn system_df_containers_total_includes_stopped() {
     );
 }
 
-/// prune_system should return a PruneReport with the expected deleted resources.
 #[test]
 fn prune_system_returns_report() {
-    let d = driver();
-    let report = d.prune_system(false).expect("prune");
-    // The mock declares "112233445566" as the deleted container
+    let uc = network_uc();
+    let report = uc.prune(false).expect("prune");
     assert_eq!(report.containers_deleted.len(), 1);
     assert!(
         report
             .containers_deleted
-            .contains(&"112233445566".to_string()),
-        "expected 112233445566 in deleted containers, got: {:?}",
+            .contains(&STOPPED_CONTAINER_SHORT_ID.to_string()),
+        "expected {STOPPED_CONTAINER_SHORT_ID} in deleted containers, got: {:?}",
         report.containers_deleted
     );
     assert!(

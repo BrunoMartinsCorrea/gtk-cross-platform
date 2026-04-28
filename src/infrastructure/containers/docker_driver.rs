@@ -591,7 +591,7 @@ impl IContainerDriver for DockerDriver {
     fn pull_image_streaming(
         &self,
         reference: &str,
-        tx: std::sync::mpsc::SyncSender<PullProgress>,
+        tx: async_channel::Sender<PullProgress>,
     ) -> Result<(), ContainerError> {
         if reference.contains(":::") || reference.is_empty() {
             return Err(ContainerError::ParseError(format!(
@@ -620,7 +620,7 @@ impl IContainerDriver for DockerDriver {
                 let total = v["progressDetail"]["total"].as_u64().unwrap_or(0);
                 let (status, percent) = map_docker_pull_status(status_str, current, total);
                 if tx
-                    .send(PullProgress {
+                    .try_send(PullProgress {
                         layer_id,
                         status,
                         percent,

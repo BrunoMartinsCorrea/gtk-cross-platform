@@ -103,7 +103,7 @@ fn create_container_restart_policy_no_panics() {
         restart_policy: RestartPolicy::Always,
         ..Default::default()
     };
-    assert!(uc.create(&opts).is_ok());
+    uc.create(&opts).expect("create with restart policy must succeed");
 }
 
 #[test]

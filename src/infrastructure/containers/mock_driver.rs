@@ -197,6 +197,7 @@ impl IContainerDriver for MockContainerDriver {
     }
 
     fn pause_container(&self, id: &str) -> Result<(), ContainerError> {
+        self.inspect_container(id)?;
         let short = id.chars().take(12).collect::<String>();
         if !self.running.lock().unwrap().contains(&short) {
             return Err(ContainerError::NotRunning(id.to_string()));
@@ -388,7 +389,7 @@ impl IContainerDriver for MockContainerDriver {
     fn pull_image_streaming(
         &self,
         reference: &str,
-        tx: std::sync::mpsc::SyncSender<PullProgress>,
+        tx: async_channel::Sender<PullProgress>,
     ) -> Result<(), ContainerError> {
         if reference.contains(":::") || reference.is_empty() {
             return Err(ContainerError::ParseError(format!(
@@ -423,7 +424,7 @@ impl IContainerDriver for MockContainerDriver {
                 },
             ];
             for event in events {
-                if tx.send(event.clone()).is_err() {
+                if tx.try_send(event.clone()).is_err() {
                     return Ok(());
                 }
                 if self.pull_cancelled.load(Ordering::Relaxed) {

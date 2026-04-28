@@ -1,31 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-use std::sync::Arc;
+mod support;
 
-use gtk_cross_platform::core::use_cases::container_use_case::ContainerUseCase;
-use gtk_cross_platform::core::use_cases::image_use_case::ImageUseCase;
-use gtk_cross_platform::core::use_cases::network_use_case::NetworkUseCase;
-use gtk_cross_platform::core::use_cases::volume_use_case::VolumeUseCase;
-use gtk_cross_platform::infrastructure::containers::mock_driver::MockContainerDriver;
 use gtk_cross_platform::ports::use_cases::i_container_use_case::IContainerUseCase;
 use gtk_cross_platform::ports::use_cases::i_image_use_case::IImageUseCase;
 use gtk_cross_platform::ports::use_cases::i_network_use_case::INetworkUseCase;
 use gtk_cross_platform::ports::use_cases::i_volume_use_case::IVolumeUseCase;
 
-fn container_uc() -> impl IContainerUseCase {
-    ContainerUseCase::new(Arc::new(MockContainerDriver::new()))
-}
-
-fn image_uc() -> impl IImageUseCase {
-    ImageUseCase::new(Arc::new(MockContainerDriver::new()))
-}
-
-fn volume_uc() -> impl IVolumeUseCase {
-    VolumeUseCase::new(Arc::new(MockContainerDriver::new()))
-}
-
-fn network_uc() -> impl INetworkUseCase {
-    NetworkUseCase::new(Arc::new(MockContainerDriver::new()))
-}
+use support::{
+    MOCK_CONTAINERS_TOTAL, MOCK_IMAGES_TOTAL, MOCK_MEMORY_USAGE_BYTES, container_uc, image_uc,
+    network_uc, volume_uc,
+};
 
 #[test]
 fn list_with_all_flag_includes_stopped_containers() {
@@ -79,7 +63,7 @@ fn stop_container_removes_from_running() {
 fn list_images_returns_images() {
     let uc = image_uc();
     let images = uc.list().expect("list images");
-    assert!(images.len() >= 2);
+    assert_eq!(images.len(), MOCK_IMAGES_TOTAL);
     assert!(images.iter().any(|i| i.primary_tag() == "nginx:latest"));
     assert!(images.iter().any(|i| i.primary_tag() == "postgres:15"));
 }
@@ -106,17 +90,21 @@ fn container_stats_returns_values() {
     let stats = uc.stats("aabbccdd1122").expect("stats");
     assert!(stats.cpu_percent >= 0.0);
     assert!(stats.memory_usage > 0);
-    assert!((stats.memory_usage_mb() - 50.0).abs() < 1.0);
+    let expected_mb = MOCK_MEMORY_USAGE_BYTES as f64 / (1024.0 * 1024.0);
+    assert!((stats.memory_usage_mb() - expected_mb).abs() < 1.0);
 }
 
 #[test]
 fn system_df_returns_usage() {
     let uc = network_uc();
     let usage = uc.system_df().expect("df");
-    assert_eq!(usage.containers_total, 3, "mock has 3 containers");
     assert_eq!(
-        usage.images_total, 3,
-        "mock has 3 images (including dangling)"
+        usage.containers_total, MOCK_CONTAINERS_TOTAL as u64,
+        "mock has {MOCK_CONTAINERS_TOTAL} containers"
+    );
+    assert_eq!(
+        usage.images_total, MOCK_IMAGES_TOTAL as u64,
+        "mock has {MOCK_IMAGES_TOTAL} images (including dangling)"
     );
     assert_eq!(usage.containers_running, 1);
     assert!(usage.containers_total >= usage.containers_running);
