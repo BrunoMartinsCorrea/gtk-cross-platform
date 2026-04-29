@@ -4,7 +4,7 @@ use std::sync::{Arc, RwLock};
 use crate::core::domain::{
     container::{Container, ContainerStats, CreateContainerOptions, PullProgress},
     image::{Image, ImageLayer},
-    network::{ContainerEvent, CreateNetworkOptions, Network, PruneReport, SystemUsage},
+    network::{ContainerEvent, CreateNetworkOptions, HostStats, Network, PruneReport, SystemUsage},
     volume::{CreateVolumeOptions, Volume},
 };
 use crate::infrastructure::containers::error::ContainerError;
@@ -185,6 +185,10 @@ impl IContainerDriver for DynamicDriver {
 
     fn system_df(&self) -> Result<SystemUsage, ContainerError> {
         self.driver().system_df()
+    }
+
+    fn host_stats(&self) -> Result<HostStats, ContainerError> {
+        self.driver().host_stats()
     }
 
     fn prune_system(&self, volumes: bool) -> Result<PruneReport, ContainerError> {

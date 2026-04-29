@@ -9,7 +9,7 @@ use crate::core::domain::{
         PullProgress, PullStatus,
     },
     image::{Image, ImageLayer},
-    network::{ContainerEvent, CreateNetworkOptions, Network, PruneReport, SystemUsage},
+    network::{ContainerEvent, CreateNetworkOptions, HostStats, Network, PruneReport, SystemUsage},
     volume::{CreateVolumeOptions, Volume},
 };
 use crate::infrastructure::containers::error::ContainerError;
@@ -49,6 +49,7 @@ fn make_container(
         env: env.into_iter().map(str::to_string).collect(),
         labels,
         mounts: vec![],
+        networks: vec!["bridge".to_string()],
     }
 }
 
@@ -603,6 +604,15 @@ impl IContainerDriver for MockContainerDriver {
             images_size: images.iter().map(|i| i.size).sum(),
             volumes_total: 1,
             volumes_size: 0,
+        })
+    }
+
+    fn host_stats(&self) -> Result<HostStats, ContainerError> {
+        Ok(HostStats {
+            cpu_percent: 25.0,
+            mem_percent: 60.0,
+            disk_percent: 45.0,
+            disk_total_bytes: 100_000_000_000, // 100 GB sentinel for tests
         })
     }
 

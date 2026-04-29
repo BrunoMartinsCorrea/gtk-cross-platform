@@ -222,16 +222,7 @@ mod imp {
             let prefs_action = gio::SimpleAction::new("preferences", None);
             let app3 = app.clone();
             prefs_action.connect_activate(move |_, _| {
-                if let Some(win) = app3.active_window() {
-                    let toast_overlay = win
-                        .first_child()
-                        .and_then(|c| c.downcast::<adw::ToastOverlay>().ok());
-                    if let Some(overlay) = toast_overlay {
-                        let toast = adw::Toast::new(&gettext("Preferences not yet implemented"));
-                        toast.set_timeout(3);
-                        overlay.add_toast(toast);
-                    }
-                }
+                app3.imp().show_preferences_window();
             });
             app.add_action(&prefs_action);
         }
@@ -287,6 +278,87 @@ mod imp {
             }
 
             about.present();
+        }
+
+        fn show_preferences_window(&self) {
+            let parent = self.obj().active_window();
+            let prefs = adw::PreferencesWindow::new();
+            prefs.set_title(Some(&gettext("Preferences")));
+            if let Some(ref p) = parent {
+                prefs.set_transient_for(Some(p));
+            }
+            prefs.set_modal(true);
+
+            // ── Appearance page ──────────────────────────────────────────────
+            let appearance_page = adw::PreferencesPage::new();
+            appearance_page.set_title(&gettext("Appearance"));
+            appearance_page.set_icon_name(Some("display-brightness-symbolic"));
+
+            let theme_group = adw::PreferencesGroup::new();
+            theme_group.set_title(&gettext("Theme"));
+
+            let theme_row = adw::ComboRow::new();
+            theme_row.set_title(&gettext("Color Scheme"));
+            theme_row.set_subtitle(&gettext("Light, dark, or follow the system default"));
+            let theme_model = gtk4::StringList::new(&[
+                &gettext("System Default"),
+                &gettext("Light"),
+                &gettext("Dark"),
+            ]);
+            theme_row.set_model(Some(&theme_model));
+
+            let current_idx = match adw::StyleManager::default().color_scheme() {
+                adw::ColorScheme::ForceLight => 1,
+                adw::ColorScheme::ForceDark => 2,
+                _ => 0,
+            };
+            theme_row.set_selected(current_idx);
+
+            theme_row.connect_selected_notify(|row| {
+                let scheme = match row.selected() {
+                    1 => adw::ColorScheme::ForceLight,
+                    2 => adw::ColorScheme::ForceDark,
+                    _ => adw::ColorScheme::Default,
+                };
+                adw::StyleManager::default().set_color_scheme(scheme);
+            });
+
+            theme_group.add(&theme_row);
+            appearance_page.add(&theme_group);
+
+            // ── Runtime page ─────────────────────────────────────────────────
+            let runtime_page = adw::PreferencesPage::new();
+            runtime_page.set_title(&gettext("Runtime"));
+            runtime_page.set_icon_name(Some("system-run-symbolic"));
+
+            let runtime_group = adw::PreferencesGroup::new();
+            runtime_group.set_title(&gettext("Container Runtime"));
+            runtime_group.set_description(Some(&gettext(
+                "Custom socket path or CLI override. Leave empty to use auto-detection.",
+            )));
+
+            let runtime_row = adw::EntryRow::new();
+            runtime_row.set_title(&gettext("Socket / CLI path"));
+            if let Some(settings) = self.settings.get() {
+                runtime_row.set_text(&settings.string("preferred-runtime"));
+                let settings_c = settings.clone();
+                runtime_row.connect_entry_activated(move |row| {
+                    let _ = settings_c.set_string("preferred-runtime", &row.text());
+                });
+                let focus_ctrl = gtk4::EventControllerFocus::new();
+                let settings_c2 = settings.clone();
+                focus_ctrl.connect_leave(glib::clone!(#[weak] runtime_row, move |_| {
+                    let _ = settings_c2.set_string("preferred-runtime", &runtime_row.text());
+                }));
+                runtime_row.add_controller(focus_ctrl);
+            }
+
+            runtime_group.add(&runtime_row);
+            runtime_page.add(&runtime_group);
+
+            prefs.add(&appearance_page);
+            prefs.add(&runtime_page);
+            prefs.present();
         }
 
         fn load_css(&self) {

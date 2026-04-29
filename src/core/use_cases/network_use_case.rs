@@ -2,7 +2,7 @@
 use std::sync::Arc;
 
 use crate::core::domain::network::{
-    ContainerEvent, CreateNetworkOptions, Network, PruneReport, SystemUsage,
+    ContainerEvent, CreateNetworkOptions, HostStats, Network, PruneReport, SystemUsage,
 };
 use crate::infrastructure::containers::error::ContainerError;
 use crate::ports::i_container_driver::IContainerDriver;
@@ -33,6 +33,10 @@ impl INetworkUseCase for NetworkUseCase {
 
     fn system_df(&self) -> Result<SystemUsage, ContainerError> {
         self.driver.system_df()
+    }
+
+    fn host_stats(&self) -> Result<HostStats, ContainerError> {
+        self.driver.host_stats()
     }
 
     fn prune(&self, volumes: bool) -> Result<PruneReport, ContainerError> {

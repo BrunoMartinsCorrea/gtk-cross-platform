@@ -4,6 +4,7 @@ pub mod containerd_driver; // CLI-based — cross-platform
 pub mod dynamic_driver;
 pub mod error;
 pub mod factory;
+pub mod host_stats;
 pub mod mock_driver;
 
 // Unix-socket drivers (Linux + macOS). Docker Desktop on Windows uses named pipes

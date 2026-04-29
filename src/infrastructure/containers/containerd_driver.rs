@@ -17,7 +17,7 @@ use crate::core::domain::{
         PullProgress, PullStatus,
     },
     image::{Image, ImageLayer},
-    network::{ContainerEvent, CreateNetworkOptions, Network, PruneReport, SystemUsage},
+    network::{ContainerEvent, CreateNetworkOptions, HostStats, Network, PruneReport, SystemUsage},
     volume::{CreateVolumeOptions, Volume},
 };
 use crate::infrastructure::containers::error::ContainerError;
@@ -142,6 +142,7 @@ fn nerdctl_container(v: &Value) -> Container {
         mounts: vec![],
         env: vec![],
         compose_project: None,
+        networks: vec![],
     }
 }
 
@@ -536,6 +537,10 @@ impl IContainerDriver for ContainerdDriver {
             volumes_total: volumes.len() as u64,
             volumes_size: 0,
         })
+    }
+
+    fn host_stats(&self) -> Result<HostStats, ContainerError> {
+        crate::infrastructure::containers::host_stats::read_host_stats()
     }
 
     fn prune_system(&self, volumes: bool) -> Result<PruneReport, ContainerError> {

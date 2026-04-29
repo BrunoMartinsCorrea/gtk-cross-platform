@@ -44,6 +44,8 @@ mod imp {
         #[template_child]
         pub split_view: TemplateChild<adw::NavigationSplitView>,
         #[template_child]
+        pub content_page: TemplateChild<adw::NavigationPage>,
+        #[template_child]
         pub view_stack: TemplateChild<adw::ViewStack>,
         #[template_child]
         pub detail_stack: TemplateChild<gtk4::Stack>,
@@ -267,6 +269,9 @@ impl MainWindow {
         win.setup_views(container_uc, image_uc, volume_uc, network_uc);
         win.setup_runtime_switcher();
         win.setup_signals();
+        // Dashboard is the initial tab; collapse the split view so the sidebar fills 100%.
+        win.imp().content_page.set_visible(false);
+        win.imp().split_view.set_collapsed(true);
         win.reload_visible_page();
         win
     }
@@ -334,10 +339,23 @@ impl MainWindow {
         }
 
         // ── Home / Dashboard tab (first position) ────────────────────────────
+        // Navigation targets may carry a status fragment: "containers:running",
+        // "containers:paused", "containers:stopped", "containers:errors".
+        // The fragment is forwarded to ContainersView::set_status_filter so
+        // users land on a pre-filtered list when clicking dashboard stat cards.
         let view_stack_weak = imp.view_stack.downgrade();
-        let on_navigate = Rc::new(move |tab_name: &str| {
+        let win_weak_nav = self.downgrade();
+        let on_navigate = Rc::new(move |target: &str| {
+            let (tab, filter) = target.split_once(':').unwrap_or((target, ""));
             if let Some(vs) = view_stack_weak.upgrade() {
-                vs.set_visible_child_name(tab_name);
+                vs.set_visible_child_name(tab);
+            }
+            if !filter.is_empty()
+                && tab == "containers"
+                && let Some(win) = win_weak_nav.upgrade()
+                && let Some(cv) = win.imp().containers_view.get()
+            {
+                cv.set_status_filter(filter);
             }
         });
 
@@ -358,7 +376,7 @@ impl MainWindow {
         // ── Containers ───────────────────────────────────────────────────────
         let (ot, otd, ol) = make_callbacks!();
         let cv = ContainersView::new(
-            container_uc,
+            Arc::clone(&container_uc),
             detail_content.clone(),
             detail_stack.clone(),
             ot,
@@ -417,6 +435,7 @@ impl MainWindow {
         let (ot, _otd, ol) = make_callbacks!();
         let nv = NetworksView::new(
             network_uc,
+            Arc::clone(&container_uc),
             detail_content.clone(),
             detail_stack.clone(),
             ot,
@@ -523,20 +542,48 @@ impl MainWindow {
         });
 
         let detail_stack_weak = imp.detail_stack.downgrade();
+        let content_page_weak = imp.content_page.downgrade();
+        let split_view_weak = imp.split_view.downgrade();
         let win_weak_nav = self.downgrade();
         imp.view_stack
             .connect_notify_local(Some("visible-child"), move |vs, _| {
+                let is_home = vs.visible_child_name().as_deref() == Some("home");
+                // Hide the detail pane on the dashboard so it fills the full window width.
+                if let Some(cp) = content_page_weak.upgrade() {
+                    cp.set_visible(!is_home);
+                }
+                // Collapse the split view on home so the dashboard fills the full window.
+                // sidebar-width-fraction alone is not enough because the content pane still
+                // gets a minimum allocation even when hidden.
+                if let Some(sv) = split_view_weak.upgrade() {
+                    sv.set_collapsed(is_home);
+                }
                 if let Some(ds) = detail_stack_weak.upgrade() {
                     ds.set_visible_child_name("empty");
                 }
                 if let Some(win) = win_weak_nav.upgrade() {
-                    // Cancel dashboard auto-refresh when leaving the Home tab.
-                    if vs.visible_child_name().as_deref() != Some("home")
-                        && let Some(dv) = win.imp().dashboard_view.get()
-                    {
-                        dv.stop_auto_refresh();
+                    if !is_home {
+                        if let Some(dv) = win.imp().dashboard_view.get() {
+                            dv.stop_auto_refresh();
+                        }
                     }
                     win.reload_visible_page();
+                }
+            });
+
+        // Guard: the AdwBreakpoint at ≤ 900sp reverts `collapsed` to false when the
+        // window widens. Re-apply collapsed=true whenever that happens on the home tab.
+        let view_stack_weak = imp.view_stack.downgrade();
+        imp.split_view
+            .connect_notify_local(Some("collapsed"), move |sv, _| {
+                if !sv.is_collapsed()
+                    && view_stack_weak
+                        .upgrade()
+                        .and_then(|vs| vs.visible_child_name())
+                        .as_deref()
+                        == Some("home")
+                {
+                    sv.set_collapsed(true);
                 }
             });
     }

@@ -12,6 +12,7 @@ use gtk_cross_platform::core::domain::network::CreateNetworkOptions;
 use gtk_cross_platform::infrastructure::containers::background::spawn_driver_task;
 use gtk_cross_platform::infrastructure::containers::error::log_container_error;
 use gtk_cross_platform::infrastructure::logging::app_logger::AppLogger;
+use gtk_cross_platform::ports::use_cases::i_container_use_case::IContainerUseCase;
 use gtk_cross_platform::ports::use_cases::i_network_use_case::INetworkUseCase;
 
 use crate::window::components::{
@@ -36,12 +37,14 @@ struct Inner {
     detail_content: gtk4::Box,
     detail_stack: gtk4::Stack,
     use_case: Arc<dyn INetworkUseCase>,
+    container_uc: Arc<dyn IContainerUseCase>,
     on_toast: Rc<dyn Fn(&str)>,
     on_loading: Rc<dyn Fn(bool)>,
     loading: Cell<bool>,
     loaded: Cell<bool>,
     selection_handler: std::cell::RefCell<Option<glib::SignalHandlerId>>,
     list_cancellable: std::cell::RefCell<Option<gio::Cancellable>>,
+    detail_cancellable: std::cell::RefCell<Option<gio::Cancellable>>,
 }
 
 #[derive(Clone)]
@@ -50,6 +53,7 @@ pub struct NetworksView(Rc<Inner>);
 impl NetworksView {
     pub fn new(
         use_case: Arc<dyn INetworkUseCase>,
+        container_uc: Arc<dyn IContainerUseCase>,
         detail_content: gtk4::Box,
         detail_stack: gtk4::Stack,
         on_toast: impl Fn(&str) + 'static,
@@ -152,12 +156,14 @@ impl NetworksView {
             detail_content,
             detail_stack,
             use_case,
+            container_uc,
             on_toast: Rc::new(on_toast),
             on_loading: Rc::new(on_loading),
             loading: Cell::new(false),
             loaded: Cell::new(false),
             selection_handler: std::cell::RefCell::new(None),
             list_cancellable: std::cell::RefCell::new(None),
+            detail_cancellable: std::cell::RefCell::new(None),
         });
 
         let view = Self(inner);
@@ -500,6 +506,10 @@ fn is_system_network(name: &str) -> bool {
 // ── Detail pane ───────────────────────────────────────────────────────────────
 
 fn show_detail(inner: &Rc<Inner>, obj: &NetworkObject) {
+    if let Some(c) = inner.detail_cancellable.borrow_mut().take() {
+        c.cancel();
+    }
+
     clear_box(&inner.detail_content);
 
     let subnet = if obj.subnet().is_empty() {
@@ -542,6 +552,44 @@ fn show_detail(inner: &Rc<Inner>, obj: &NetworkObject) {
     }
 
     inner.detail_stack.set_visible_child_name("detail");
+
+    // Async: fetch all containers and show those connected to this network.
+    let cancellable = gio::Cancellable::new();
+    *inner.detail_cancellable.borrow_mut() = Some(cancellable.clone());
+
+    let net_name = obj.name();
+    let detail_content = inner.detail_content.clone();
+    let cb_inner = inner.clone();
+    spawn_driver_task(
+        inner.container_uc.clone(),
+        |uc| uc.list(true),
+        move |result| {
+            if cancellable.is_cancelled() {
+                return;
+            }
+            *cb_inner.detail_cancellable.borrow_mut() = None;
+            let Ok(containers) = result else { return };
+            let connected: Vec<_> = containers
+                .iter()
+                .filter(|c| c.networks.iter().any(|n| n == &net_name))
+                .collect();
+            if connected.is_empty() {
+                return;
+            }
+            let group = adw::PreferencesGroup::new();
+            group.set_title(&gettext("Connected Containers"));
+            for c in &connected {
+                let row = adw::ActionRow::new();
+                row.set_title(&c.name);
+                row.set_subtitle(c.status.label());
+                group.add(&row);
+            }
+            let clamp = adw::Clamp::new();
+            clamp.set_maximum_size(720);
+            clamp.set_child(Some(&group));
+            detail_content.append(&clamp);
+        },
+    );
 }
 
 // ── Create network dialog ─────────────────────────────────────────────────────

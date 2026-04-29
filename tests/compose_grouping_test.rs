@@ -28,6 +28,7 @@ fn make_container(name: &str, compose: Option<&str>) -> Container {
         labels: HashMap::new(),
         mounts: vec![],
         env: vec![],
+        networks: vec![],
         compose_project: compose.map(str::to_string),
     }
 }

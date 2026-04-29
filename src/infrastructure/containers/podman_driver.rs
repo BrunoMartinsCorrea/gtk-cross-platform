@@ -4,7 +4,7 @@ use std::path::Path;
 use crate::core::domain::{
     container::{Container, ContainerStats, CreateContainerOptions, PullProgress},
     image::{Image, ImageLayer},
-    network::{ContainerEvent, CreateNetworkOptions, Network, PruneReport, SystemUsage},
+    network::{ContainerEvent, CreateNetworkOptions, HostStats, Network, PruneReport, SystemUsage},
     volume::{CreateVolumeOptions, Volume},
 };
 use crate::infrastructure::containers::{docker_driver::DockerDriver, error::ContainerError};
@@ -187,6 +187,9 @@ impl IContainerDriver for PodmanDriver {
     }
     fn system_df(&self) -> Result<SystemUsage, ContainerError> {
         self.inner.system_df()
+    }
+    fn host_stats(&self) -> Result<HostStats, ContainerError> {
+        self.inner.host_stats()
     }
     fn prune_system(&self, volumes: bool) -> Result<PruneReport, ContainerError> {
         self.inner.prune_system(volumes)

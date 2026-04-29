@@ -50,6 +50,16 @@ pub struct SystemUsage {
     pub volumes_size: u64,
 }
 
+/// Host system resource utilization percentages (0–100).
+#[derive(Debug, Clone, Default)]
+pub struct HostStats {
+    pub cpu_percent: f64,
+    pub mem_percent: f64,
+    pub disk_percent: f64,
+    /// Total disk space in bytes across all mounted filesystems; 0 when unavailable.
+    pub disk_total_bytes: u64,
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct PruneReport {
     pub containers_deleted: Vec<String>,

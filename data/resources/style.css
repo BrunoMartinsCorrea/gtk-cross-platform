@@ -12,3 +12,11 @@
   min-width:  44px;
   min-height: 44px;
 }
+
+/* Host resource progress bars: color-coded by utilization level */
+progressbar.level-warning trough progress {
+  background-color: @warning_color;
+}
+progressbar.level-error trough progress {
+  background-color: @error_color;
+}

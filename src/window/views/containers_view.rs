@@ -10,7 +10,7 @@ use glib;
 use gtk4::gio;
 
 use gtk_cross_platform::core::domain::container::{
-    Container, CreateContainerOptions, is_secret_env_key,
+    Container, CreateContainerOptions, RestartPolicy, is_secret_env_key,
 };
 use gtk_cross_platform::infrastructure::containers::background::spawn_driver_task;
 use gtk_cross_platform::infrastructure::containers::error::log_container_error;
@@ -106,6 +106,9 @@ struct Inner {
     selection_handler: RefCell<Option<glib::SignalHandlerId>>,
     list_cancellable: RefCell<Option<gio::Cancellable>>,
     detail_cancellable: RefCell<Option<gio::Cancellable>>,
+    /// Status filter pre-applied when navigating from the dashboard cards.
+    /// Values: "running" | "paused" | "stopped" | "errors" | "" (no filter).
+    status_filter: Rc<RefCell<Option<String>>>,
 }
 
 // ── ContainersView ────────────────────────────────────────────────────────────
@@ -133,9 +136,28 @@ impl ContainersView {
         search_bar.set_show_close_button(true);
         search_bar.set_child(Some(&search_entry));
 
-        // Filter: name, image, short_id, compose_project
+        // Filter: text search (name, image, short_id, compose_project) + optional status filter.
+        let status_filter: Rc<RefCell<Option<String>>> = Rc::new(RefCell::new(None));
         let se_weak = search_entry.downgrade();
+        let sf_clone = status_filter.clone();
         let filter = gtk4::CustomFilter::new(move |obj| {
+            let c = obj.downcast_ref::<ContainerObject>().unwrap();
+
+            // Status filter applied by dashboard card navigation.
+            if let Some(ref sf) = *sf_clone.borrow() {
+                let css = c.status_css();
+                let matches = match sf.as_str() {
+                    "running" => css == "success",
+                    "paused" => css == "warning",
+                    "stopped" => css == "dim-label",
+                    "errors" => css == "error",
+                    _ => true,
+                };
+                if !matches {
+                    return false;
+                }
+            }
+
             let Some(entry) = se_weak.upgrade() else {
                 return true;
             };
@@ -144,7 +166,6 @@ impl ContainersView {
                 return true;
             }
             let q = query.to_ascii_lowercase();
-            let c = obj.downcast_ref::<ContainerObject>().unwrap();
             c.name().to_ascii_lowercase().contains(&q)
                 || c.image().to_ascii_lowercase().contains(&q)
                 || c.short_id().to_ascii_lowercase().contains(&q)
@@ -250,6 +271,7 @@ impl ContainersView {
             selection_handler: RefCell::new(None),
             list_cancellable: RefCell::new(None),
             detail_cancellable: RefCell::new(None),
+            status_filter,
         });
 
         let view = Self(inner);
@@ -266,6 +288,18 @@ impl ContainersView {
         if active {
             self.0.search_entry.grab_focus();
         }
+    }
+
+    /// Pre-apply a status filter from dashboard card navigation.
+    /// Pass an empty string to clear the filter.
+    pub fn set_status_filter(&self, status: &str) {
+        let new_filter = if status.is_empty() {
+            None
+        } else {
+            Some(status.to_string())
+        };
+        *self.0.status_filter.borrow_mut() = new_filter;
+        self.0.filter.changed(gtk4::FilterChange::Different);
     }
 
     pub fn reload(&self) {
@@ -522,7 +556,7 @@ impl ContainersView {
             let c_obj = item.item().and_downcast::<ContainerObject>().unwrap();
 
             row.set_title(&c_obj.name());
-            row.set_subtitle(&format!("{} · {}", c_obj.image(), c_obj.short_id()));
+            row.set_subtitle(&c_obj.image());
 
             // Update badge imperatively (two properties: text + css class)
             let badge = unsafe {
@@ -607,31 +641,195 @@ impl ContainersView {
 
         self.0.list_view.set_factory(Some(&factory));
 
-        // Phase 5: section header factory for compose-project grouping
+        // Phase 5: section header factory for compose-project grouping.
+        // Each compose group header shows "project — X/Y Running" and exposes
+        // Start All / Stop All buttons for bulk lifecycle management.
         let header_factory = gtk4::SignalListItemFactory::new();
-        header_factory.connect_setup(|_, obj| {
-            let header = obj.downcast_ref::<gtk4::ListHeader>().unwrap();
-            let label = gtk4::Label::new(None);
-            label.add_css_class("caption-heading");
-            label.set_halign(gtk4::Align::Start);
-            label.set_margin_top(8);
-            label.set_margin_start(4);
-            label.set_margin_bottom(4);
-            header.set_child(Some(&label));
-        });
-        header_factory.connect_bind(|_, obj| {
-            let header = obj.downcast_ref::<gtk4::ListHeader>().unwrap();
-            let label = header.child().and_downcast::<gtk4::Label>().unwrap();
-            if let Some(c_obj) = header.item().and_downcast::<ContainerObject>() {
-                let project = c_obj.compose_project();
-                if project.is_empty() {
-                    label.set_visible(false);
-                } else {
-                    label.set_visible(true);
-                    label.set_text(&project);
+
+        {
+            let iw = inner_weak.clone();
+            header_factory.connect_setup(move |_, obj| {
+                let header = obj.downcast_ref::<gtk4::ListHeader>().unwrap();
+
+                let hbox = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
+                hbox.set_margin_top(4);
+                hbox.set_margin_bottom(4);
+                hbox.set_margin_start(4);
+                hbox.set_margin_end(4);
+
+                let label = gtk4::Label::new(None);
+                label.add_css_class("caption-heading");
+                label.set_halign(gtk4::Align::Start);
+                label.set_hexpand(true);
+                hbox.append(&label);
+
+                let start_btn = gtk4::Button::new();
+                start_btn.set_icon_name("media-playback-start-symbolic");
+                start_btn.add_css_class("flat");
+                start_btn.set_valign(gtk4::Align::Center);
+                start_btn.set_tooltip_text(Some(&pgettext(
+                    "compose action",
+                    "Start all containers in group",
+                )));
+                start_btn.update_property(&[gtk4::accessible::Property::Label(&pgettext(
+                    "compose action",
+                    "Start all containers in group",
+                ))]);
+                hbox.append(&start_btn);
+
+                let stop_btn = gtk4::Button::new();
+                stop_btn.set_icon_name("media-playback-stop-symbolic");
+                stop_btn.add_css_class("flat");
+                stop_btn.set_valign(gtk4::Align::Center);
+                stop_btn.set_tooltip_text(Some(&pgettext(
+                    "compose action",
+                    "Stop all containers in group",
+                )));
+                stop_btn.update_property(&[gtk4::accessible::Property::Label(&pgettext(
+                    "compose action",
+                    "Stop all containers in group",
+                ))]);
+                hbox.append(&stop_btn);
+
+                header.set_child(Some(&hbox));
+
+                // Start All — collect IDs of non-running containers and call start_all.
+                {
+                    let hdr_weak = header.downgrade();
+                    let iw_start = iw.clone();
+                    start_btn.connect_clicked(move |_| {
+                        let Some(header) = hdr_weak.upgrade() else { return };
+                        let Some(inner) = iw_start.upgrade() else { return };
+                        let n = header.n_items();
+                        let pos = header.start();
+                        let ids: Vec<String> = (pos..pos + n)
+                            .filter_map(|i| {
+                                inner
+                                    .selection
+                                    .item(i)
+                                    .and_downcast::<ContainerObject>()
+                                    .filter(|c| c.status() != "Running")
+                                    .map(|c| c.id())
+                            })
+                            .collect();
+                        if ids.is_empty() {
+                            return;
+                        }
+                        let uc = inner.use_case.clone();
+                        let cb = inner.clone();
+                        spawn_driver_task(
+                            uc,
+                            move |uc| {
+                                let refs: Vec<&str> = ids.iter().map(String::as_str).collect();
+                                uc.start_all(&refs)
+                            },
+                            move |r| match r {
+                                Ok(_) => {
+                                    (cb.on_toast)(&gettext("Compose group started"));
+                                    reload_impl(cb.clone(), None);
+                                }
+                                Err(ref e) => {
+                                    log_container_error(&AppLogger::new(LOG_DOMAIN), e);
+                                    (cb.on_toast)(&format!(
+                                        "{}: {e}",
+                                        gettext("Start all failed")
+                                    ));
+                                }
+                            },
+                        );
+                    });
                 }
-            }
-        });
+
+                // Stop All — collect IDs of running containers and call stop_all.
+                {
+                    let hdr_weak = header.downgrade();
+                    let iw_stop = iw.clone();
+                    stop_btn.connect_clicked(move |_| {
+                        let Some(header) = hdr_weak.upgrade() else { return };
+                        let Some(inner) = iw_stop.upgrade() else { return };
+                        let n = header.n_items();
+                        let pos = header.start();
+                        let ids: Vec<String> = (pos..pos + n)
+                            .filter_map(|i| {
+                                inner
+                                    .selection
+                                    .item(i)
+                                    .and_downcast::<ContainerObject>()
+                                    .filter(|c| c.status() == "Running")
+                                    .map(|c| c.id())
+                            })
+                            .collect();
+                        if ids.is_empty() {
+                            return;
+                        }
+                        let uc = inner.use_case.clone();
+                        let cb = inner.clone();
+                        spawn_driver_task(
+                            uc,
+                            move |uc| {
+                                let refs: Vec<&str> = ids.iter().map(String::as_str).collect();
+                                uc.stop_all(&refs, Some(10))
+                            },
+                            move |r| match r {
+                                Ok(_) => {
+                                    (cb.on_toast)(&gettext("Compose group stopped"));
+                                    reload_impl(cb.clone(), None);
+                                }
+                                Err(ref e) => {
+                                    log_container_error(&AppLogger::new(LOG_DOMAIN), e);
+                                    (cb.on_toast)(&format!(
+                                        "{}: {e}",
+                                        gettext("Stop all failed")
+                                    ));
+                                }
+                            },
+                        );
+                    });
+                }
+            });
+        }
+
+        {
+            let iw = inner_weak.clone();
+            header_factory.connect_bind(move |_, obj| {
+                let header = obj.downcast_ref::<gtk4::ListHeader>().unwrap();
+                let Some(hbox) = header.child().and_downcast::<gtk4::Box>() else {
+                    return;
+                };
+                let Some(label) = hbox.first_child().and_downcast::<gtk4::Label>() else {
+                    return;
+                };
+                if let Some(c_obj) = header.item().and_downcast::<ContainerObject>() {
+                    let project = c_obj.compose_project();
+                    if project.is_empty() {
+                        hbox.set_visible(false);
+                    } else {
+                        hbox.set_visible(true);
+                        let n_items = header.n_items();
+                        let pos = header.start();
+                        let running = if let Some(inner) = iw.upgrade() {
+                            (pos..pos + n_items)
+                                .filter(|&i| {
+                                    inner
+                                        .selection
+                                        .item(i)
+                                        .and_downcast::<ContainerObject>()
+                                        .map(|c| c.status() == "Running")
+                                        .unwrap_or(false)
+                                })
+                                .count()
+                        } else {
+                            0
+                        };
+                        label.set_text(&format!(
+                            "{project} — {running}/{n_items} {}",
+                            gettext("Running")
+                        ));
+                    }
+                }
+            });
+        }
+
         self.0.list_view.set_header_factory(Some(&header_factory));
 
         // ── Selection → detail pane ──────────────────────────────────────────
@@ -1345,6 +1543,65 @@ fn build_inspect_tab(inner: &Rc<Inner>, c: &Container) -> gtk4::Box {
     vbox
 }
 
+fn apply_log_level_tags(buffer: &gtk4::TextBuffer) {
+    let table = buffer.tag_table();
+    let add_tag = |name: &str, color: &str| {
+        if table.lookup(name).is_none() {
+            let tag = gtk4::TextTag::new(Some(name));
+            tag.set_foreground(Some(color));
+            table.add(&tag);
+        }
+    };
+    add_tag("log-error", "#f28b82");
+    add_tag("log-warn", "#f4c430");
+    add_tag("log-info", "#7ec8e3");
+    add_tag("log-debug", "#888888");
+
+    let text = buffer
+        .text(&buffer.start_iter(), &buffer.end_iter(), false)
+        .to_string();
+    let mut char_offset: i32 = 0;
+    for line in text.lines() {
+        let n_chars = line.chars().count() as i32;
+        let u = line.to_ascii_uppercase();
+        let tag = if u.contains("[ERROR]")
+            || u.contains("LEVEL=ERROR")
+            || u.contains("\"LEVEL\":\"ERROR\"")
+            || u.contains(" ERROR ")
+            || u.contains("[FATAL]")
+            || u.contains("[CRIT")
+        {
+            Some("log-error")
+        } else if u.contains("[WARN")
+            || u.contains("LEVEL=WARN")
+            || u.contains("WARNING")
+            || u.contains(" WARN ")
+        {
+            Some("log-warn")
+        } else if u.contains("[INFO")
+            || u.contains("LEVEL=INFO")
+            || u.contains(" INFO ")
+            || u.contains(": INFO")
+        {
+            Some("log-info")
+        } else if u.contains("[DEBUG")
+            || u.contains("LEVEL=DEBUG")
+            || u.contains("[TRACE]")
+            || u.contains(" DEBUG ")
+        {
+            Some("log-debug")
+        } else {
+            None
+        };
+        if let Some(t) = tag {
+            let si = buffer.iter_at_offset(char_offset);
+            let ei = buffer.iter_at_offset(char_offset + n_chars);
+            buffer.apply_tag_by_name(t, &si, &ei);
+        }
+        char_offset += n_chars + 1; // +1 for '\n'
+    }
+}
+
 fn apply_json_syntax_tags(buffer: &gtk4::TextBuffer) {
     let table = buffer.tag_table();
     let add = |name: &str, color: &str| {
@@ -1559,6 +1816,7 @@ fn build_logs_tab(inner: &Rc<Inner>, c: &Container) -> gtk4::Box {
                     Ok(text) => {
                         if let Some(tv) = tv_w2.upgrade() {
                             tv.buffer().set_text(&text);
+                            apply_log_level_tags(&tv.buffer());
                         }
                         if let Some(s) = stack_w2.upgrade() {
                             s.set_visible_child_name("content");
@@ -1889,30 +2147,117 @@ fn show_create_dialog_impl(root: Option<&gtk4::Window>, inner: Rc<Inner>, prefil
     img_group.add(&img_row);
     stack.add_named(&img_group, Some("step1"));
 
+    // ── Step 2: Configuration ────────────────────────────────────────────────
     let cfg_group = adw::PreferencesGroup::new();
     cfg_group.set_title(&gettext("Configuration"));
     cfg_group.set_margin_top(12);
     cfg_group.set_margin_bottom(12);
     cfg_group.set_margin_start(12);
     cfg_group.set_margin_end(12);
+
     let name_row = adw::EntryRow::new();
     name_row.set_title(&gettext("Container name (optional)"));
     cfg_group.add(&name_row);
+
+    // Restart policy selector (No / Always / Unless-Stopped / On-Failure)
+    let policy_labels = gtk4::StringList::new(&[
+        &gettext("No"),
+        &gettext("Always"),
+        &gettext("Unless-Stopped"),
+        &gettext("On-Failure"),
+    ]);
+    let restart_drop = adw::ComboRow::new();
+    restart_drop.set_title(&gettext("Restart Policy"));
+    restart_drop.set_model(Some(&policy_labels));
+    restart_drop.set_selected(0);
+    cfg_group.add(&restart_drop);
+
+    // Network selector (text entry — user can type any network name)
+    let network_row = adw::EntryRow::new();
+    network_row.set_title(&gettext("Network (optional, e.g. bridge)"));
+    cfg_group.add(&network_row);
+
     stack.add_named(&cfg_group, Some("step2"));
 
-    let ports_group = adw::PreferencesGroup::new();
-    ports_group.set_title(&gettext("Port Mappings"));
-    ports_group.set_description(Some(&gettext(
-        "Format: host_port:container_port, e.g. 8080:80",
-    )));
-    ports_group.set_margin_top(12);
-    ports_group.set_margin_bottom(12);
-    ports_group.set_margin_start(12);
-    ports_group.set_margin_end(12);
-    let ports_row = adw::EntryRow::new();
-    ports_row.set_title(&gettext("Ports (comma-separated)"));
-    ports_group.add(&ports_row);
-    stack.add_named(&ports_group, Some("step3"));
+    // ── Step 3: Ports & Volumes ──────────────────────────────────────────────
+    type MappingRows = Rc<RefCell<Vec<(gtk4::Box, gtk4::Entry, gtk4::Entry)>>>;
+    let port_rows: MappingRows = Rc::new(RefCell::new(Vec::new()));
+    let vol_rows: MappingRows = Rc::new(RefCell::new(Vec::new()));
+
+    let step3_scroll = gtk4::ScrolledWindow::new();
+    step3_scroll.set_vexpand(true);
+    step3_scroll.set_hscrollbar_policy(gtk4::PolicyType::Never);
+
+    let step3_vbox = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
+    step3_vbox.set_margin_top(12);
+    step3_vbox.set_margin_bottom(12);
+    step3_vbox.set_margin_start(12);
+    step3_vbox.set_margin_end(12);
+
+    // Port mappings header + add button
+    let ports_header_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    let ports_title_lbl = gtk4::Label::new(Some(&gettext("Port Mappings")));
+    ports_title_lbl.add_css_class("heading");
+    ports_title_lbl.set_halign(gtk4::Align::Start);
+    ports_title_lbl.set_hexpand(true);
+    let ports_hint = gtk4::Label::new(Some(&gettext("Host : Container")));
+    ports_hint.add_css_class("caption");
+    ports_hint.add_css_class("dim-label");
+    ports_hint.set_margin_end(8);
+    let add_port_btn = gtk4::Button::new();
+    add_port_btn.set_icon_name("list-add-symbolic");
+    add_port_btn.set_tooltip_text(Some(&gettext("Add port mapping")));
+    add_port_btn.add_css_class("flat");
+    ports_header_box.append(&ports_title_lbl);
+    ports_header_box.append(&ports_hint);
+    ports_header_box.append(&add_port_btn);
+    step3_vbox.append(&ports_header_box);
+
+    let ports_rows_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
+    step3_vbox.append(&ports_rows_box);
+
+    // Volume mounts header + add button
+    let vols_header_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    let vols_title_lbl = gtk4::Label::new(Some(&gettext("Volume Mounts")));
+    vols_title_lbl.add_css_class("heading");
+    vols_title_lbl.set_halign(gtk4::Align::Start);
+    vols_title_lbl.set_hexpand(true);
+    let vols_hint = gtk4::Label::new(Some(&gettext("Host path : Container path")));
+    vols_hint.add_css_class("caption");
+    vols_hint.add_css_class("dim-label");
+    vols_hint.set_margin_end(8);
+    let add_vol_btn = gtk4::Button::new();
+    add_vol_btn.set_icon_name("list-add-symbolic");
+    add_vol_btn.set_tooltip_text(Some(&gettext("Add volume mount")));
+    add_vol_btn.add_css_class("flat");
+    vols_header_box.append(&vols_title_lbl);
+    vols_header_box.append(&vols_hint);
+    vols_header_box.append(&add_vol_btn);
+    step3_vbox.append(&vols_header_box);
+
+    let vols_rows_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
+    step3_vbox.append(&vols_rows_box);
+
+    step3_scroll.set_child(Some(&step3_vbox));
+    stack.add_named(&step3_scroll, Some("step3"));
+
+    // Wire Add Port button
+    {
+        let rows = port_rows.clone();
+        let parent = ports_rows_box.clone();
+        add_port_btn.connect_clicked(move |_| {
+            add_mapping_row(&rows, &parent, &gettext("Host port"), &gettext("Container port"), false);
+        });
+    }
+
+    // Wire Add Volume button
+    {
+        let rows = vol_rows.clone();
+        let parent = vols_rows_box.clone();
+        add_vol_btn.connect_clicked(move |_| {
+            add_mapping_row(&rows, &parent, &gettext("Host path"), &gettext("Container path"), true);
+        });
+    }
 
     let env_group = adw::PreferencesGroup::new();
     env_group.set_title(&gettext("Environment Variables"));
@@ -2047,9 +2392,12 @@ fn show_create_dialog_impl(root: Option<&gtk4::Window>, inner: Rc<Inner>, prefil
     {
         let img_w = img_row.downgrade();
         let name_w = name_row.downgrade();
-        let ports_w = ports_row.downgrade();
+        let restart_w = restart_drop.downgrade();
+        let network_w = network_row.downgrade();
         let env_w = env_text.downgrade();
         let dialog_w = dialog.downgrade();
+        let port_rows_ref = port_rows.clone();
+        let vol_rows_ref = vol_rows.clone();
         let cb = inner.clone();
         create_btn.connect_clicked(move |_| {
             let image = img_w
@@ -2063,10 +2411,37 @@ fn show_create_dialog_impl(root: Option<&gtk4::Window>, inner: Rc<Inner>, prefil
                 let t = r.text().to_string();
                 if t.is_empty() { None } else { Some(t) }
             });
-            let port_bindings = ports_w
+            let restart_policy = restart_w
                 .upgrade()
-                .map(|r| parse_port_bindings(&r.text()))
-                .unwrap_or_default();
+                .map(|d| match d.selected() {
+                    1 => RestartPolicy::Always,
+                    2 => RestartPolicy::UnlessStopped,
+                    3 => RestartPolicy::OnFailure(0),
+                    _ => RestartPolicy::No,
+                })
+                .unwrap_or(RestartPolicy::No);
+            let network = network_w.upgrade().and_then(|r| {
+                let t = r.text().trim().to_string();
+                if t.is_empty() { None } else { Some(t) }
+            });
+            let port_bindings: Vec<(u16, u16)> = port_rows_ref
+                .borrow()
+                .iter()
+                .filter_map(|(_, host_e, cont_e)| {
+                    let h: u16 = host_e.text().trim().parse().ok()?;
+                    let c: u16 = cont_e.text().trim().parse().ok()?;
+                    Some((h, c))
+                })
+                .collect();
+            let volume_bindings: Vec<(String, String)> = vol_rows_ref
+                .borrow()
+                .iter()
+                .filter_map(|(_, host_e, cont_e)| {
+                    let h = host_e.text().trim().to_string();
+                    let c = cont_e.text().trim().to_string();
+                    if h.is_empty() || c.is_empty() { None } else { Some((h, c)) }
+                })
+                .collect();
             let env = env_w
                 .upgrade()
                 .map(|tv| {
@@ -2083,6 +2458,9 @@ fn show_create_dialog_impl(root: Option<&gtk4::Window>, inner: Rc<Inner>, prefil
                 image,
                 name,
                 port_bindings,
+                volume_bindings,
+                restart_policy,
+                network,
                 env,
                 ..Default::default()
             };
@@ -2125,12 +2503,62 @@ fn show_create_dialog_impl(root: Option<&gtk4::Window>, inner: Rc<Inner>, prefil
     dialog.present();
 }
 
-fn parse_port_bindings(text: &str) -> Vec<(u16, u16)> {
-    text.split(',')
-        .filter_map(|p| {
-            let p = p.trim();
-            let (h, c) = p.split_once(':')?;
-            Some((h.trim().parse().ok()?, c.trim().parse().ok()?))
-        })
-        .collect()
+/// Append a dynamic host:container mapping row to `parent_box`.
+///
+/// Each row contains two `gtk4::Entry` widgets separated by ":" and a remove button.
+/// The row is pushed into `rows` and removed from both `rows` and `parent_box` when
+/// the remove button is clicked. Set `path_mode = true` for path entries (wider input).
+fn add_mapping_row(
+    rows: &Rc<RefCell<Vec<(gtk4::Box, gtk4::Entry, gtk4::Entry)>>>,
+    parent_box: &gtk4::Box,
+    left_placeholder: &str,
+    right_placeholder: &str,
+    path_mode: bool,
+) {
+    let row_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
+    row_box.set_margin_bottom(2);
+
+    let left_e = gtk4::Entry::new();
+    left_e.set_placeholder_text(Some(left_placeholder));
+    left_e.set_hexpand(true);
+    if path_mode {
+        left_e.set_width_chars(16);
+    }
+
+    let sep = gtk4::Label::new(Some(":"));
+    sep.set_margin_start(4);
+    sep.set_margin_end(4);
+
+    let right_e = gtk4::Entry::new();
+    right_e.set_placeholder_text(Some(right_placeholder));
+    right_e.set_hexpand(true);
+    if path_mode {
+        right_e.set_width_chars(16);
+    }
+
+    let rem_btn = gtk4::Button::new();
+    rem_btn.set_icon_name("user-trash-symbolic");
+    rem_btn.add_css_class("flat");
+    rem_btn.set_valign(gtk4::Align::Center);
+    rem_btn.set_tooltip_text(Some(&gettext("Remove")));
+
+    row_box.append(&left_e);
+    row_box.append(&sep);
+    row_box.append(&right_e);
+    row_box.append(&rem_btn);
+
+    let rows_rc = Rc::downgrade(rows);
+    let parent_w = parent_box.downgrade();
+    let row_w = row_box.downgrade();
+    rem_btn.connect_clicked(move |_| {
+        let Some(rows) = rows_rc.upgrade() else { return };
+        let Some(parent) = parent_w.upgrade() else { return };
+        let Some(rbox) = row_w.upgrade() else { return };
+        parent.remove(&rbox);
+        rows.borrow_mut().retain(|(b, _, _)| b != &rbox);
+    });
+
+    parent_box.append(&row_box.clone());
+    rows.borrow_mut()
+        .push((row_box, left_e, right_e));
 }

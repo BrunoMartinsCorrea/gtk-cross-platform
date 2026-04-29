@@ -22,6 +22,7 @@ fn make_container(name: &str, image: &str, short_id: &str, compose: Option<&str>
         labels: HashMap::new(),
         mounts: vec![],
         env: vec![],
+        networks: vec![],
         compose_project: compose.map(str::to_string),
     }
 }

@@ -273,6 +273,7 @@ mod tests {
             mounts: vec![],
             env: vec![],
             compose_project: compose.map(str::to_string),
+            networks: vec![],
         }
     }
 
@@ -409,6 +410,8 @@ pub struct Container {
     pub env: Vec<String>,
     /// Compose project name extracted from the `com.docker.compose.project` label.
     pub compose_project: Option<String>,
+    /// Names of Docker networks this container is connected to.
+    pub networks: Vec<String>,
 }
 
 impl Container {

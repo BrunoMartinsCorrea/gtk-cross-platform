@@ -2,7 +2,7 @@
 use crate::core::domain::{
     container::{Container, ContainerStats, CreateContainerOptions, PullProgress},
     image::{Image, ImageLayer},
-    network::{ContainerEvent, CreateNetworkOptions, Network, PruneReport, SystemUsage},
+    network::{ContainerEvent, CreateNetworkOptions, HostStats, Network, PruneReport, SystemUsage},
     volume::{CreateVolumeOptions, Volume},
 };
 use crate::infrastructure::containers::error::ContainerError;
@@ -91,6 +91,8 @@ pub trait IContainerDriver: Send + Sync {
     fn version(&self) -> Result<String, ContainerError>;
 
     fn system_df(&self) -> Result<SystemUsage, ContainerError>;
+
+    fn host_stats(&self) -> Result<HostStats, ContainerError>;
 
     fn prune_system(&self, volumes: bool) -> Result<PruneReport, ContainerError>;
 

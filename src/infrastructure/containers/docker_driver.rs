@@ -10,7 +10,7 @@ use crate::core::domain::{
         PullProgress, PullStatus,
     },
     image::{Image, ImageLayer},
-    network::{ContainerEvent, CreateNetworkOptions, Network, PruneReport, SystemUsage},
+    network::{ContainerEvent, CreateNetworkOptions, HostStats, Network, PruneReport, SystemUsage},
     volume::{CreateVolumeOptions, Volume},
 };
 use crate::infrastructure::containers::error::ContainerError;
@@ -134,6 +134,11 @@ fn parse_container(v: &Value) -> Container {
 
     let compose_project = labels.get("com.docker.compose.project").cloned();
 
+    let networks = v["NetworkSettings"]["Networks"]
+        .as_object()
+        .map(|obj| obj.keys().cloned().collect())
+        .unwrap_or_default();
+
     Container {
         id,
         short_id,
@@ -148,6 +153,7 @@ fn parse_container(v: &Value) -> Container {
         mounts,
         env: vec![],
         compose_project,
+        networks,
     }
 }
 
@@ -325,6 +331,10 @@ impl IContainerDriver for DockerDriver {
             })
             .unwrap_or_default();
         let compose_project = labels.get("com.docker.compose.project").cloned();
+        let networks = json["NetworkSettings"]["Networks"]
+            .as_object()
+            .map(|obj| obj.keys().cloned().collect())
+            .unwrap_or_default();
 
         Ok(Container {
             id: raw_id,
@@ -340,6 +350,7 @@ impl IContainerDriver for DockerDriver {
             mounts,
             env,
             compose_project,
+            networks,
         })
     }
 
@@ -793,6 +804,10 @@ impl IContainerDriver for DockerDriver {
             volumes_total,
             volumes_size,
         })
+    }
+
+    fn host_stats(&self) -> Result<HostStats, ContainerError> {
+        crate::infrastructure::containers::host_stats::read_host_stats()
     }
 
     fn inspect_image_layers(&self, id: &str) -> Result<Vec<ImageLayer>, ContainerError> {
