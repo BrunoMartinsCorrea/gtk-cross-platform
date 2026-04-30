@@ -60,6 +60,10 @@ fn check_status(status: &u16, body: &str) -> Result<(), ContainerError> {
             let msg = extract_message(body);
             Err(ContainerError::NotFound(msg))
         }
+        409 => {
+            let msg = extract_message(body);
+            Err(ContainerError::AlreadyExists(msg))
+        }
         _ => {
             let msg = extract_message(body);
             Err(ContainerError::ApiError {
@@ -590,12 +594,7 @@ impl IContainerDriver for DockerDriver {
 
     fn pull_image(&self, reference: &str) -> Result<(), ContainerError> {
         let encoded = url_encode(reference);
-        http::request(
-            &self.socket,
-            "POST",
-            &format!("{API}/images/create?fromImage={encoded}"),
-            None,
-        )?;
+        self.post(&format!("{API}/images/create?fromImage={encoded}"), None)?;
         Ok(())
     }
 

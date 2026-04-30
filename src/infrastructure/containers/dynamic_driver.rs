@@ -29,11 +29,18 @@ impl DynamicDriver {
     /// Replace the inner driver atomically. All subsequent use-case calls will
     /// use the new driver.
     pub fn swap(&self, new_driver: Arc<dyn IContainerDriver>) {
-        *self.inner.write().expect("DynamicDriver write lock") = new_driver;
+        match self.inner.write() {
+            Ok(mut guard) => *guard = new_driver,
+            // Recover from a poisoned lock: the data is still valid, another thread panicked.
+            Err(poisoned) => *poisoned.into_inner() = new_driver,
+        }
     }
 
     fn driver(&self) -> Arc<dyn IContainerDriver> {
-        self.inner.read().expect("DynamicDriver read lock").clone()
+        match self.inner.read() {
+            Ok(guard) => guard.clone(),
+            Err(poisoned) => poisoned.into_inner().clone(),
+        }
     }
 }
 
