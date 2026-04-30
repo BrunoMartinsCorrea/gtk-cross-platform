@@ -7,7 +7,8 @@
 // This keeps the dependency footprint minimal while covering the same feature set.
 
 use std::collections::HashMap;
-use std::process::{Command, Output};
+use std::io::{BufRead, BufReader};
+use std::process::{Command, Output, Stdio};
 
 use serde_json::Value;
 
@@ -37,9 +38,25 @@ impl ContainerdDriver {
     }
 
     pub fn detect() -> Option<Self> {
-        let output = Command::new("nerdctl").arg("version").output().ok()?;
-        if output.status.success() {
-            return Some(Self::new("nerdctl", "default"));
+        const CANDIDATES: &[&str] = &[
+            "nerdctl",
+            "~/.rd/bin/nerdctl",         // Rancher Desktop on macOS
+            "/opt/homebrew/bin/nerdctl",
+        ];
+        for raw in CANDIDATES {
+            let bin = if let Some(rest) = raw.strip_prefix("~/") {
+                format!("{}/{rest}", std::env::var("HOME").ok()?)
+            } else {
+                raw.to_string()
+            };
+            let ok = Command::new(&bin)
+                .arg("version")
+                .output()
+                .map(|o| o.status.success())
+                .unwrap_or(false);
+            if ok {
+                return Some(Self::new(bin, "default"));
+            }
         }
         None
     }
@@ -167,6 +184,156 @@ fn nerdctl_image(v: &Value) -> Image {
     }
 }
 
+/// Parse a container from `nerdctl inspect --format json` output.
+/// The inspect format follows Docker's API (`Id`, `Name`, `State.Status`) —
+/// different from the list format (`ID`, `Names`, `Status`) used by nerdctl_container.
+fn nerdctl_inspect_container(v: &Value) -> Container {
+    let id = v["Id"].as_str().unwrap_or_default().to_string();
+    let short_id = id.chars().take(12).collect();
+    let name = v["Name"]
+        .as_str()
+        .unwrap_or_default()
+        .trim_start_matches('/')
+        .to_string();
+    let image = v["Config"]["Image"].as_str().unwrap_or_default().to_string();
+    let command = v["Config"]["Cmd"]
+        .as_array()
+        .map(|a| {
+            a.iter()
+                .filter_map(|x| x.as_str())
+                .collect::<Vec<_>>()
+                .join(" ")
+        })
+        .unwrap_or_default();
+    let state_str = v["State"]["Status"].as_str().unwrap_or("unknown");
+    let exit_code = v["State"]["ExitCode"].as_i64().map(|c| c as i32);
+    let status = ContainerStatus::from_state(state_str, exit_code);
+    let status_text = format!("{} (exit {})", state_str, exit_code.unwrap_or(0));
+    let labels: HashMap<String, String> = v["Config"]["Labels"]
+        .as_object()
+        .map(|obj| {
+            obj.iter()
+                .map(|(k, val)| (k.clone(), val.as_str().unwrap_or_default().to_string()))
+                .collect()
+        })
+        .unwrap_or_default();
+    let env: Vec<String> = v["Config"]["Env"]
+        .as_array()
+        .map(|a| {
+            a.iter()
+                .filter_map(|x| x.as_str().map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default();
+    let mounts = v["Mounts"]
+        .as_array()
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|m| m["Destination"].as_str().map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default();
+    let networks = v["NetworkSettings"]["Networks"]
+        .as_object()
+        .map(|obj| obj.keys().cloned().collect())
+        .unwrap_or_default();
+    let compose_project = labels.get("com.docker.compose.project").cloned();
+    Container {
+        id,
+        short_id,
+        name,
+        image,
+        command,
+        created: 0,
+        status,
+        status_text,
+        ports: vec![],
+        labels,
+        mounts,
+        env,
+        compose_project,
+        networks,
+    }
+}
+
+/// Parse an image from `nerdctl image inspect --format json` output.
+/// The inspect format follows Docker's API (`Id`, `RepoTags`, `Size` as integer bytes) —
+/// different from the list format used by nerdctl_image.
+fn nerdctl_inspect_image(v: &Value) -> Image {
+    let id = v["Id"].as_str().unwrap_or_default().to_string();
+    let short_id = id
+        .strip_prefix("sha256:")
+        .unwrap_or(&id)
+        .chars()
+        .take(12)
+        .collect();
+    let tags = v["RepoTags"]
+        .as_array()
+        .map(|a| {
+            a.iter()
+                .filter_map(|t| t.as_str().map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default();
+    let digest = v["RepoDigests"]
+        .as_array()
+        .and_then(|a| a.first())
+        .and_then(|d| d.as_str())
+        .map(str::to_string);
+    let size = v["Size"].as_u64().unwrap_or(0);
+    let labels = v["Config"]["Labels"]
+        .as_object()
+        .map(|obj| {
+            obj.iter()
+                .map(|(k, val)| (k.clone(), val.as_str().unwrap_or_default().to_string()))
+                .collect()
+        })
+        .unwrap_or_default();
+    Image {
+        id,
+        short_id,
+        tags,
+        size,
+        created: 0,
+        digest,
+        labels,
+        in_use: false,
+    }
+}
+
+/// Parse one line of nerdctl pull stderr progress output into a `PullProgress` event.
+/// nerdctl emits lines like:
+///   `sha256:abc123...:    done           |++++++++|`
+///   `sha256:abc123...:    downloading    |====>   |`
+///   `sha256:abc123...:    waiting        |        |`
+fn parse_nerdctl_progress_line(line: &str) -> Option<PullProgress> {
+    let trimmed = line.trim();
+    let sha_pos = trimmed.find("sha256:")?;
+    let after_sha = &trimmed[sha_pos + 7..];
+    let colon_pos = after_sha.find(':')?;
+    let hash = &after_sha[..colon_pos];
+    let layer_id = format!("sha256:{}", &hash[..hash.len().min(12)]);
+    let rest = after_sha[colon_pos + 1..].trim();
+    let (status, percent) = if rest.starts_with("done") || rest.starts_with("exists") || rest.starts_with("already") {
+        (PullStatus::Done, Some(100))
+    } else if rest.starts_with("downloading") || rest.starts_with("pull") {
+        (PullStatus::Downloading(50), Some(50))
+    } else if rest.starts_with("waiting") {
+        (PullStatus::Waiting, None)
+    } else {
+        (PullStatus::Pulling, None)
+    };
+    Some(PullProgress { layer_id, status, percent })
+}
+
+/// Parse a slash-separated size pair like "50MiB / 2GiB" into (used, limit) bytes.
+fn parse_slash_pair(s: &str) -> (u64, u64) {
+    let mut parts = s.splitn(2, '/');
+    let a = parts.next().and_then(|p| parse_size_str(p.trim())).unwrap_or(0);
+    let b = parts.next().and_then(|p| parse_size_str(p.trim())).unwrap_or(0);
+    (a, b)
+}
+
 fn parse_size_str(s: &str) -> Option<u64> {
     // nerdctl reports e.g. "77.8 MiB"
     let s = s.trim();
@@ -212,7 +379,7 @@ impl IContainerDriver for ContainerdDriver {
             .as_array()
             .and_then(|a| a.first())
             .ok_or_else(|| ContainerError::NotFound(id.to_string()))?;
-        Ok(nerdctl_container(v))
+        Ok(nerdctl_inspect_container(v))
     }
 
     fn inspect_container_json(&self, id: &str) -> Result<String, ContainerError> {
@@ -310,14 +477,41 @@ impl IContainerDriver for ContainerdDriver {
 
     fn container_stats(&self, id: &str) -> Result<ContainerStats, ContainerError> {
         let stdout = self.run(&["stats", "--no-stream", "--format", "json", id])?;
-        let v: Value = serde_json::from_str(stdout.trim()).unwrap_or_default();
-        let cpu_str = v["CPUPerc"].as_str().unwrap_or("0%");
-        let cpu = cpu_str.trim_end_matches('%').parse::<f64>().unwrap_or(0.0);
+        let v: Value = serde_json::from_str(stdout.trim())?;
+        let cpu = v["CPUPerc"]
+            .as_str()
+            .unwrap_or("0%")
+            .trim_end_matches('%')
+            .parse::<f64>()
+            .unwrap_or(0.0);
+        let (memory_usage, memory_limit) =
+            parse_slash_pair(v["MemUsage"].as_str().unwrap_or("0B / 0B"));
+        let memory_percent = v["MemPerc"]
+            .as_str()
+            .unwrap_or("0%")
+            .trim_end_matches('%')
+            .parse::<f64>()
+            .unwrap_or(0.0);
+        let (net_rx_bytes, net_tx_bytes) =
+            parse_slash_pair(v["NetIO"].as_str().unwrap_or("0B / 0B"));
+        let (block_read, block_write) =
+            parse_slash_pair(v["BlockIO"].as_str().unwrap_or("0B / 0B"));
+        let pids = v["PIDs"]
+            .as_str()
+            .and_then(|s| s.parse::<u64>().ok())
+            .unwrap_or(0);
         Ok(ContainerStats {
             id: id.to_string(),
             name: v["Name"].as_str().unwrap_or_default().to_string(),
             cpu_percent: cpu,
-            ..Default::default()
+            memory_usage,
+            memory_limit,
+            memory_percent,
+            net_rx_bytes,
+            net_tx_bytes,
+            block_read,
+            block_write,
+            pids,
         })
     }
 
@@ -352,8 +546,34 @@ impl IContainerDriver for ContainerdDriver {
                 "invalid image reference: {reference}"
             )));
         }
-        self.run(&["pull", reference])?;
-        // nerdctl doesn't emit per-layer JSON events; report a single Done.
+        // Spawn nerdctl pull with stderr captured so we can read per-layer progress.
+        // nerdctl emits lines like `sha256:abc123...:    done    |+++++|` to stderr.
+        let mut child = Command::new(&self.nerdctl)
+            .args(["--namespace", &self.namespace, "pull", reference])
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .spawn()?;
+
+        if let Some(stderr) = child.stderr.take() {
+            let reader = BufReader::new(stderr);
+            for line in reader.lines() {
+                let Ok(line) = line else { break };
+                if let Some(progress) = parse_nerdctl_progress_line(&line) {
+                    if tx.try_send(progress).is_err() {
+                        break;
+                    }
+                }
+            }
+        }
+
+        let status = child.wait()?;
+        if !status.success() {
+            return Err(ContainerError::SubprocessFailed {
+                code: status.code(),
+                stderr: String::new(),
+            });
+        }
+
         let _ = tx.try_send(PullProgress {
             layer_id: "complete".to_string(),
             status: PullStatus::Done,
@@ -388,7 +608,7 @@ impl IContainerDriver for ContainerdDriver {
             .as_array()
             .and_then(|a| a.first())
             .ok_or_else(|| ContainerError::NotFound(id.to_string()))?;
-        Ok(nerdctl_image(v))
+        Ok(nerdctl_inspect_image(v))
     }
 
     fn list_volumes(&self) -> Result<Vec<Volume>, ContainerError> {
@@ -510,7 +730,7 @@ impl IContainerDriver for ContainerdDriver {
 
     fn version(&self) -> Result<String, ContainerError> {
         let out = self.run(&["version", "--format", "json"])?;
-        let v: Value = serde_json::from_str(out.trim()).unwrap_or_default();
+        let v: Value = serde_json::from_str(out.trim())?;
         Ok(format!(
             "containerd/nerdctl {} (containerd {})",
             v["Client"]["Version"].as_str().unwrap_or("?"),
@@ -523,10 +743,10 @@ impl IContainerDriver for ContainerdDriver {
     }
 
     fn system_df(&self) -> Result<SystemUsage, ContainerError> {
-        // nerdctl system df does not emit JSON yet — provide basic counts
-        let containers = self.list_containers(true).unwrap_or_default();
-        let images = self.list_images().unwrap_or_default();
-        let volumes = self.list_volumes().unwrap_or_default();
+        // nerdctl system df does not emit JSON yet — derive counts from sub-commands
+        let containers = self.list_containers(true)?;
+        let images = self.list_images()?;
+        let volumes = self.list_volumes()?;
         let running = containers.iter().filter(|c| c.status.is_running()).count() as u64;
         Ok(SystemUsage {
             containers_total: containers.len() as u64,
@@ -544,12 +764,19 @@ impl IContainerDriver for ContainerdDriver {
     }
 
     fn prune_system(&self, volumes: bool) -> Result<PruneReport, ContainerError> {
+        let before = self.system_df().unwrap_or_default();
         let mut args = vec!["system", "prune", "-f"];
         if volumes {
             args.push("--volumes");
         }
         self.run(&args)?;
-        Ok(PruneReport::default())
+        let after = self.system_df().unwrap_or_default();
+        let space_reclaimed = (before.images_size + before.volumes_size)
+            .saturating_sub(after.images_size + after.volumes_size);
+        Ok(PruneReport {
+            space_reclaimed,
+            ..Default::default()
+        })
     }
 
     fn inspect_image_layers(&self, id: &str) -> Result<Vec<ImageLayer>, ContainerError> {
@@ -577,6 +804,10 @@ impl IContainerDriver for ContainerdDriver {
         _since: Option<i64>,
         _limit: Option<usize>,
     ) -> Result<Vec<ContainerEvent>, ContainerError> {
-        Ok(vec![])
+        // nerdctl has no `events` sub-command; surface this as RuntimeNotAvailable so
+        // callers receive a "feature not supported" signal rather than an HTTP-error signal.
+        Err(ContainerError::RuntimeNotAvailable(
+            "system_events is not supported by nerdctl/containerd".into(),
+        ))
     }
 }

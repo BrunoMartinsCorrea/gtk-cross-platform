@@ -20,12 +20,32 @@ pub enum RuntimeKind {
 
 pub struct ContainerDriverFactory;
 
+#[cfg(unix)]
+fn find_docker_socket() -> Option<String> {
+    const CANDIDATES: &[&str] = &[
+        "/var/run/docker.sock",
+        "~/.rd/docker.sock", // Rancher Desktop on macOS
+    ];
+    for raw in CANDIDATES {
+        let path = if let Some(rest) = raw.strip_prefix("~/") {
+            let home = std::env::var("HOME").ok()?;
+            format!("{home}/{rest}")
+        } else {
+            raw.to_string()
+        };
+        if Path::new(&path).exists() {
+            return Some(path);
+        }
+    }
+    None
+}
+
 impl ContainerDriverFactory {
     pub fn detect() -> Result<Arc<dyn IContainerDriver>, ContainerError> {
         #[cfg(unix)]
         {
-            if Path::new("/var/run/docker.sock").exists() {
-                let driver = DockerDriver::default_socket();
+            if let Some(sock) = find_docker_socket() {
+                let driver = DockerDriver::new(sock);
                 if driver.ping().is_ok() {
                     return Ok(Arc::new(driver));
                 }
@@ -106,8 +126,8 @@ impl ContainerDriverFactory {
 
         #[cfg(unix)]
         {
-            if Path::new("/var/run/docker.sock").exists() {
-                let d = DockerDriver::default_socket();
+            if let Some(sock) = find_docker_socket() {
+                let d = DockerDriver::new(sock);
                 if let Ok(v) = d.version() {
                     available.push((RuntimeKind::Docker, v));
                 }

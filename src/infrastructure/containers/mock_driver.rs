@@ -127,8 +127,8 @@ impl IContainerDriver for MockContainerDriver {
     }
 
     fn list_containers(&self, all: bool) -> Result<Vec<Container>, ContainerError> {
-        let running = self.running.lock().unwrap();
-        let mut containers = self.containers.lock().unwrap().clone();
+        let running = self.running.lock().expect("MockContainerDriver mutex poisoned");
+        let mut containers = self.containers.lock().expect("MockContainerDriver mutex poisoned").clone();
         for c in &mut containers {
             if running.contains(&c.short_id) {
                 c.status = ContainerStatus::Running;
@@ -178,13 +178,13 @@ impl IContainerDriver for MockContainerDriver {
 
     fn start_container(&self, id: &str) -> Result<(), ContainerError> {
         let short = id.chars().take(12).collect::<String>();
-        self.running.lock().unwrap().push(short);
+        self.running.lock().expect("MockContainerDriver mutex poisoned").push(short);
         Ok(())
     }
 
     fn stop_container(&self, id: &str, _timeout_secs: Option<u32>) -> Result<(), ContainerError> {
         let short = id.chars().take(12).collect::<String>();
-        self.running.lock().unwrap().retain(|r| r != &short);
+        self.running.lock().expect("MockContainerDriver mutex poisoned").retain(|r| r != &short);
         Ok(())
     }
 
@@ -200,7 +200,7 @@ impl IContainerDriver for MockContainerDriver {
     fn pause_container(&self, id: &str) -> Result<(), ContainerError> {
         self.inspect_container(id)?;
         let short = id.chars().take(12).collect::<String>();
-        if !self.running.lock().unwrap().contains(&short) {
+        if !self.running.lock().expect("MockContainerDriver mutex poisoned").contains(&short) {
             return Err(ContainerError::NotRunning(id.to_string()));
         }
         Ok(())
@@ -209,7 +209,7 @@ impl IContainerDriver for MockContainerDriver {
     fn unpause_container(&self, id: &str) -> Result<(), ContainerError> {
         self.inspect_container(id)?;
         let short = id.chars().take(12).collect::<String>();
-        if !self.running.lock().unwrap().contains(&short) {
+        if !self.running.lock().expect("MockContainerDriver mutex poisoned").contains(&short) {
             return Err(ContainerError::NotRunning(id.to_string()));
         }
         Ok(())
@@ -222,10 +222,10 @@ impl IContainerDriver for MockContainerDriver {
         _remove_volumes: bool,
     ) -> Result<(), ContainerError> {
         let short = id.chars().take(12).collect::<String>();
-        self.running.lock().unwrap().retain(|r| r != &short);
+        self.running.lock().expect("MockContainerDriver mutex poisoned").retain(|r| r != &short);
         self.containers
             .lock()
-            .unwrap()
+            .expect("MockContainerDriver mutex poisoned")
             .retain(|c| c.short_id != short && !c.id.starts_with(id));
         Ok(())
     }
@@ -249,7 +249,7 @@ impl IContainerDriver for MockContainerDriver {
             let exists = self
                 .containers
                 .lock()
-                .unwrap()
+                .expect("MockContainerDriver mutex poisoned")
                 .iter()
                 .any(|c| &c.name == name);
             if exists {
@@ -270,8 +270,8 @@ impl IContainerDriver for MockContainerDriver {
             None,
             opts.env.iter().map(String::as_str).collect(),
         );
-        self.containers.lock().unwrap().push(c);
-        self.running.lock().unwrap().push(new_id[..12].to_string());
+        self.containers.lock().expect("MockContainerDriver mutex poisoned").push(c);
+        self.running.lock().expect("MockContainerDriver mutex poisoned").push(new_id[..12].to_string());
         Ok(new_id)
     }
 
@@ -309,7 +309,7 @@ impl IContainerDriver for MockContainerDriver {
     fn container_stats(&self, id: &str) -> Result<ContainerStats, ContainerError> {
         // Return NotRunning for containers not in the running set
         let short = id.chars().take(12).collect::<String>();
-        let running = self.running.lock().unwrap();
+        let running = self.running.lock().expect("MockContainerDriver mutex poisoned");
         if !running.contains(&short) {
             return Err(ContainerError::NotRunning(id.to_string()));
         }
@@ -333,7 +333,7 @@ impl IContainerDriver for MockContainerDriver {
         self.inspect_container(id)?;
         // Must be running to exec
         let short = id.chars().take(12).collect::<String>();
-        if !self.running.lock().unwrap().contains(&short) {
+        if !self.running.lock().expect("MockContainerDriver mutex poisoned").contains(&short) {
             return Err(ContainerError::NotRunning(id.to_string()));
         }
         if cmd.is_empty() {
