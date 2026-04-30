@@ -118,3 +118,8 @@ $RECYCLE.BIN/
 
 # --- Project-local tooling (not published source) ---
 .prompt/
+
+# Subprojects
+/subprojects
+
+/subprojects/blueprint-compiler

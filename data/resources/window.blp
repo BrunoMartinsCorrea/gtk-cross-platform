@@ -1,0 +1,176 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $GtkCrossPlatformMainWindow : Adw.ApplicationWindow {
+  title: _("Container Manager");
+  default-width: 1100;
+  default-height: 640;
+
+  Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar header_bar {
+      [start]
+      MenuButton menu_button {
+        icon-name: "open-menu-symbolic";
+        tooltip-text: _("Main Menu");
+        menu-model: primary_menu;
+
+        styles ["action-button"]
+      }
+
+      [title]
+      Adw.ViewSwitcher view_switcher_top {
+        stack: view_stack;
+        policy: wide;
+      }
+
+      [end]
+      Spinner spinner {
+        visible: false;
+      }
+
+      [end]
+      Button refresh_button {
+        icon-name: "view-refresh-symbolic";
+        tooltip-text: _("Refresh");
+
+        accessibility {
+          label: _("Refresh");
+        }
+
+        styles ["action-button"]
+      }
+    }
+
+    [bottom]
+    Adw.ViewSwitcherBar view_switcher_bar {
+      stack: view_stack;
+      reveal: false;
+    }
+
+    content: Adw.ToastOverlay toast_overlay {
+      child: Adw.NavigationSplitView split_view {
+        max-sidebar-width: 320;
+
+        sidebar: Adw.NavigationPage sidebar_page {
+          title: _("Container Manager");
+          child: Adw.ViewStack view_stack {
+          };
+        };
+
+        content: Adw.NavigationPage content_page {
+          title: "";
+          child: Stack detail_stack {
+            vexpand: true;
+            transition-type: slide_left_right;
+
+            StackPage {
+              name: "empty";
+              child: Adw.StatusPage detail_status_page {
+                vexpand: true;
+                valign: center;
+                title: _("No Selection");
+                description: _("Select an item from the list to view its details.");
+                icon-name: "view-list-symbolic";
+              };
+            }
+
+            StackPage {
+              name: "detail";
+              child: ScrolledWindow {
+                hscrollbar-policy: never;
+                vexpand: true;
+                child: Box detail_content {
+                  orientation: vertical;
+                  margin-top: 48;
+                  margin-bottom: 48;
+                  margin-start: 48;
+                  margin-end: 48;
+                  spacing: 12;
+                };
+              };
+            }
+          };
+        };
+      };
+    };
+  }
+
+  Adw.Breakpoint {
+    condition ("max-width: 768sp")
+
+    setters {
+      detail_content.margin-start: 32;
+      detail_content.margin-end: 32;
+      detail_content.margin-top: 32;
+      detail_content.margin-bottom: 32;
+    }
+  }
+
+  Adw.Breakpoint {
+    condition ("max-width: 600sp")
+
+    setters {
+      detail_content.margin-start: 24;
+      detail_content.margin-end: 24;
+      detail_content.margin-top: 24;
+      detail_content.margin-bottom: 24;
+    }
+  }
+
+  Adw.Breakpoint {
+    condition ("max-width: 900sp")
+
+    setters {
+      split_view.collapsed: true;
+      view_switcher_bar.reveal: true;
+      view_switcher_top.visible: false;
+    }
+  }
+
+  Adw.Breakpoint {
+    condition ("max-width: 360sp")
+
+    setters {
+      detail_content.margin-start: 16;
+      detail_content.margin-end: 16;
+      detail_content.margin-top: 16;
+      detail_content.margin-bottom: 16;
+    }
+  }
+
+  ShortcutController {
+    scope: local;
+
+    Shortcut {
+      trigger: "<Primary>f";
+      action: "action(win.focus-search)";
+    }
+
+    Shortcut {
+      trigger: "Escape";
+      action: "action(win.clear-search)";
+    }
+  }
+}
+
+menu primary_menu {
+  section {
+    item {
+      label: _("_Prune System…");
+      action: "win.prune-system";
+    }
+  }
+
+  section {
+    item {
+      label: _("_Preferences");
+      action: "app.preferences";
+    }
+
+    item {
+      label: _("_About Container Manager");
+      action: "app.about";
+    }
+  }
+}
