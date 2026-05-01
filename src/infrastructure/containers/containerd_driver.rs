@@ -40,7 +40,7 @@ impl ContainerdDriver {
     pub fn detect() -> Option<Self> {
         const CANDIDATES: &[&str] = &[
             "nerdctl",
-            "~/.rd/bin/nerdctl",         // Rancher Desktop on macOS
+            "~/.rd/bin/nerdctl", // Rancher Desktop on macOS
             "/opt/homebrew/bin/nerdctl",
         ];
         for raw in CANDIDATES {
@@ -195,7 +195,10 @@ fn nerdctl_inspect_container(v: &Value) -> Container {
         .unwrap_or_default()
         .trim_start_matches('/')
         .to_string();
-    let image = v["Config"]["Image"].as_str().unwrap_or_default().to_string();
+    let image = v["Config"]["Image"]
+        .as_str()
+        .unwrap_or_default()
+        .to_string();
     let command = v["Config"]["Cmd"]
         .as_array()
         .map(|a| {
@@ -314,23 +317,34 @@ fn parse_nerdctl_progress_line(line: &str) -> Option<PullProgress> {
     let hash = &after_sha[..colon_pos];
     let layer_id = format!("sha256:{}", &hash[..hash.len().min(12)]);
     let rest = after_sha[colon_pos + 1..].trim();
-    let (status, percent) = if rest.starts_with("done") || rest.starts_with("exists") || rest.starts_with("already") {
-        (PullStatus::Done, Some(100))
-    } else if rest.starts_with("downloading") || rest.starts_with("pull") {
-        (PullStatus::Downloading(50), Some(50))
-    } else if rest.starts_with("waiting") {
-        (PullStatus::Waiting, None)
-    } else {
-        (PullStatus::Pulling, None)
-    };
-    Some(PullProgress { layer_id, status, percent })
+    let (status, percent) =
+        if rest.starts_with("done") || rest.starts_with("exists") || rest.starts_with("already") {
+            (PullStatus::Done, Some(100))
+        } else if rest.starts_with("downloading") || rest.starts_with("pull") {
+            (PullStatus::Downloading(50), Some(50))
+        } else if rest.starts_with("waiting") {
+            (PullStatus::Waiting, None)
+        } else {
+            (PullStatus::Pulling, None)
+        };
+    Some(PullProgress {
+        layer_id,
+        status,
+        percent,
+    })
 }
 
 /// Parse a slash-separated size pair like "50MiB / 2GiB" into (used, limit) bytes.
 fn parse_slash_pair(s: &str) -> (u64, u64) {
     let mut parts = s.splitn(2, '/');
-    let a = parts.next().and_then(|p| parse_size_str(p.trim())).unwrap_or(0);
-    let b = parts.next().and_then(|p| parse_size_str(p.trim())).unwrap_or(0);
+    let a = parts
+        .next()
+        .and_then(|p| parse_size_str(p.trim()))
+        .unwrap_or(0);
+    let b = parts
+        .next()
+        .and_then(|p| parse_size_str(p.trim()))
+        .unwrap_or(0);
     (a, b)
 }
 
@@ -558,10 +572,10 @@ impl IContainerDriver for ContainerdDriver {
             let reader = BufReader::new(stderr);
             for line in reader.lines() {
                 let Ok(line) = line else { break };
-                if let Some(progress) = parse_nerdctl_progress_line(&line) {
-                    if tx.try_send(progress).is_err() {
-                        break;
-                    }
+                if let Some(progress) = parse_nerdctl_progress_line(&line)
+                    && tx.try_send(progress).is_err()
+                {
+                    break;
                 }
             }
         }

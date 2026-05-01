@@ -15,6 +15,7 @@ runtimes (Docker, Podman, containerd). The domain's primary concept is **contain
 ## Container lifecycle events
 
 Model each event with:
+
 - **Event name** (past tense, domain language)
 - **Trigger** (what causes it)
 - **Precondition** (what state must exist)
@@ -24,21 +25,21 @@ Model each event with:
 
 ### Core lifecycle events
 
-| Event | Trigger | Precondition | Postcondition |
-|-------|---------|--------------|---------------|
-| `ContainerCreated` | user runs create wizard | image exists | container in `stopped` status |
-| `ContainerStarted` | user clicks Start | container in `stopped`/`paused` | container in `running` status |
-| `ContainerStopped` | user clicks Stop | container in `running` | container in `stopped` status |
-| `ContainerPaused` | user clicks Pause | container in `running` | container in `paused` status |
-| `ContainerUnpaused` | user clicks Unpause | container in `paused` | container in `running` status |
-| `ContainerRemoved` | user confirms Remove | container in any status | container no longer in list |
-| `ContainerRestarted` | user clicks Restart | container in `running`/`stopped` | container in `running` status |
-| `ImagePulled` | user initiates pull | tag exists in registry | image appears in images list |
-| `ImageRemoved` | user confirms Remove | no container uses image | image no longer in list |
-| `VolumeCreated` | user creates volume | name is unique | volume in volumes list |
-| `VolumeRemoved` | user confirms Remove | no container mounts volume | volume no longer in list |
-| `NetworkCreated` | user creates network | name is unique | network in networks list |
-| `NetworkRemoved` | user confirms Remove | no container attached | network no longer in list |
+| Event                | Trigger                 | Precondition                     | Postcondition                 |
+|----------------------|-------------------------|----------------------------------|-------------------------------|
+| `ContainerCreated`   | user runs create wizard | image exists                     | container in `stopped` status |
+| `ContainerStarted`   | user clicks Start       | container in `stopped`/`paused`  | container in `running` status |
+| `ContainerStopped`   | user clicks Stop        | container in `running`           | container in `stopped` status |
+| `ContainerPaused`    | user clicks Pause       | container in `running`           | container in `paused` status  |
+| `ContainerUnpaused`  | user clicks Unpause     | container in `paused`            | container in `running` status |
+| `ContainerRemoved`   | user confirms Remove    | container in any status          | container no longer in list   |
+| `ContainerRestarted` | user clicks Restart     | container in `running`/`stopped` | container in `running` status |
+| `ImagePulled`        | user initiates pull     | tag exists in registry           | image appears in images list  |
+| `ImageRemoved`       | user confirms Remove    | no container uses image          | image no longer in list       |
+| `VolumeCreated`      | user creates volume     | name is unique                   | volume in volumes list        |
+| `VolumeRemoved`      | user confirms Remove    | no container mounts volume       | volume no longer in list      |
+| `NetworkCreated`     | user creates network    | name is unique                   | network in networks list      |
+| `NetworkRemoved`     | user confirms Remove    | no container attached            | network no longer in list     |
 
 ## UI state transitions per event
 
@@ -55,6 +56,7 @@ ContainerStarted:
 ## Port contract implications
 
 Events imply `IContainerDriver` methods:
+
 - `ContainerStarted` → `start_container(id: &str) -> Result<(), ContainerError>`
 - `ContainerStopped` → `stop_container(id: &str) -> Result<(), ContainerError>`
 - `ContainerRemoved` → `remove_container(id: &str, force: bool) -> Result<(), ContainerError>`
@@ -65,6 +67,7 @@ For each new event, a corresponding method on `IContainerDriver` is needed.
 ## Output format
 
 An event model document with:
+
 1. Event catalog (table above, expanded with error states)
 2. State machine diagram (ASCII)
 3. Port contract implications (new `IContainerDriver` methods if any)

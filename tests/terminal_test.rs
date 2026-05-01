@@ -8,9 +8,7 @@ mod support;
 use gtk_cross_platform::infrastructure::containers::error::ContainerError;
 use gtk_cross_platform::ports::use_cases::i_container_use_case::IContainerUseCase;
 
-use support::{
-    RUNNING_CONTAINER_ID, STOPPED_CONTAINER_ID, UNKNOWN_CONTAINER_ID, container_uc,
-};
+use support::{RUNNING_CONTAINER_ID, STOPPED_CONTAINER_ID, UNKNOWN_CONTAINER_ID, container_uc};
 
 #[test]
 fn exec_running_container_returns_output() {

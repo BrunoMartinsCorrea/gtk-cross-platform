@@ -698,8 +698,12 @@ impl ContainersView {
                     let hdr_weak = header.downgrade();
                     let iw_start = iw.clone();
                     start_btn.connect_clicked(move |_| {
-                        let Some(header) = hdr_weak.upgrade() else { return };
-                        let Some(inner) = iw_start.upgrade() else { return };
+                        let Some(header) = hdr_weak.upgrade() else {
+                            return;
+                        };
+                        let Some(inner) = iw_start.upgrade() else {
+                            return;
+                        };
                         let n = header.n_items();
                         let pos = header.start();
                         let ids: Vec<String> = (pos..pos + n)
@@ -730,10 +734,7 @@ impl ContainersView {
                                 }
                                 Err(ref e) => {
                                     log_container_error(&AppLogger::new(LOG_DOMAIN), e);
-                                    (cb.on_toast)(&format!(
-                                        "{}: {e}",
-                                        gettext("Start all failed")
-                                    ));
+                                    (cb.on_toast)(&format!("{}: {e}", gettext("Start all failed")));
                                 }
                             },
                         );
@@ -745,8 +746,12 @@ impl ContainersView {
                     let hdr_weak = header.downgrade();
                     let iw_stop = iw.clone();
                     stop_btn.connect_clicked(move |_| {
-                        let Some(header) = hdr_weak.upgrade() else { return };
-                        let Some(inner) = iw_stop.upgrade() else { return };
+                        let Some(header) = hdr_weak.upgrade() else {
+                            return;
+                        };
+                        let Some(inner) = iw_stop.upgrade() else {
+                            return;
+                        };
                         let n = header.n_items();
                         let pos = header.start();
                         let ids: Vec<String> = (pos..pos + n)
@@ -777,10 +782,7 @@ impl ContainersView {
                                 }
                                 Err(ref e) => {
                                     log_container_error(&AppLogger::new(LOG_DOMAIN), e);
-                                    (cb.on_toast)(&format!(
-                                        "{}: {e}",
-                                        gettext("Stop all failed")
-                                    ));
+                                    (cb.on_toast)(&format!("{}: {e}", gettext("Stop all failed")));
                                 }
                             },
                         );
@@ -1269,6 +1271,7 @@ fn build_info_tab(inner: &Rc<Inner>, c: &Container) -> gtk4::ScrolledWindow {
 // ── Stats tab ─────────────────────────────────────────────────────────────────
 
 type StatsHandle = (Rc<RefCell<SparklineData>>, Rc<dyn Fn(f64, f64, f64, f64)>);
+type MappingRows = Rc<RefCell<Vec<(gtk4::Box, gtk4::Entry, gtk4::Entry)>>>;
 
 fn build_stats_tab(is_running: bool) -> (gtk4::Box, Option<StatsHandle>) {
     let vbox = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
@@ -2246,7 +2249,13 @@ fn show_create_dialog_impl(root: Option<&gtk4::Window>, inner: Rc<Inner>, prefil
         let rows = port_rows.clone();
         let parent = ports_rows_box.clone();
         add_port_btn.connect_clicked(move |_| {
-            add_mapping_row(&rows, &parent, &gettext("Host port"), &gettext("Container port"), false);
+            add_mapping_row(
+                &rows,
+                &parent,
+                &gettext("Host port"),
+                &gettext("Container port"),
+                false,
+            );
         });
     }
 
@@ -2255,7 +2264,13 @@ fn show_create_dialog_impl(root: Option<&gtk4::Window>, inner: Rc<Inner>, prefil
         let rows = vol_rows.clone();
         let parent = vols_rows_box.clone();
         add_vol_btn.connect_clicked(move |_| {
-            add_mapping_row(&rows, &parent, &gettext("Host path"), &gettext("Container path"), true);
+            add_mapping_row(
+                &rows,
+                &parent,
+                &gettext("Host path"),
+                &gettext("Container path"),
+                true,
+            );
         });
     }
 
@@ -2439,7 +2454,11 @@ fn show_create_dialog_impl(root: Option<&gtk4::Window>, inner: Rc<Inner>, prefil
                 .filter_map(|(_, host_e, cont_e)| {
                     let h = host_e.text().trim().to_string();
                     let c = cont_e.text().trim().to_string();
-                    if h.is_empty() || c.is_empty() { None } else { Some((h, c)) }
+                    if h.is_empty() || c.is_empty() {
+                        None
+                    } else {
+                        Some((h, c))
+                    }
                 })
                 .collect();
             let env = env_w
@@ -2509,7 +2528,7 @@ fn show_create_dialog_impl(root: Option<&gtk4::Window>, inner: Rc<Inner>, prefil
 /// The row is pushed into `rows` and removed from both `rows` and `parent_box` when
 /// the remove button is clicked. Set `path_mode = true` for path entries (wider input).
 fn add_mapping_row(
-    rows: &Rc<RefCell<Vec<(gtk4::Box, gtk4::Entry, gtk4::Entry)>>>,
+    rows: &MappingRows,
     parent_box: &gtk4::Box,
     left_placeholder: &str,
     right_placeholder: &str,
@@ -2551,14 +2570,17 @@ fn add_mapping_row(
     let parent_w = parent_box.downgrade();
     let row_w = row_box.downgrade();
     rem_btn.connect_clicked(move |_| {
-        let Some(rows) = rows_rc.upgrade() else { return };
-        let Some(parent) = parent_w.upgrade() else { return };
+        let Some(rows) = rows_rc.upgrade() else {
+            return;
+        };
+        let Some(parent) = parent_w.upgrade() else {
+            return;
+        };
         let Some(rbox) = row_w.upgrade() else { return };
         parent.remove(&rbox);
         rows.borrow_mut().retain(|(b, _, _)| b != &rbox);
     });
 
     parent_box.append(&row_box.clone());
-    rows.borrow_mut()
-        .push((row_box, left_e, right_e));
+    rows.borrow_mut().push((row_box, left_e, right_e));
 }

@@ -20,11 +20,11 @@ For CI (fail-fast mode): `make test-unit NEXTEST_PROFILE=ci`
 
 ## Test layer rules
 
-| Layer | Location | Rule |
-|-------|----------|------|
-| Unit | `#[cfg(test)]` inline in `src/core/` | No gtk4/adw/glib imports; access private internals |
-| Integration | `tests/*.rs` | Public API only; use MockContainerDriver |
-| Widget | `tests/widget_test.rs` | Marked `#[ignore]`; require display; not in default CI |
+| Layer       | Location                             | Rule                                                   |
+|-------------|--------------------------------------|--------------------------------------------------------|
+| Unit        | `#[cfg(test)]` inline in `src/core/` | No gtk4/adw/glib imports; access private internals     |
+| Integration | `tests/*.rs`                         | Public API only; use MockContainerDriver               |
+| Widget      | `tests/widget_test.rs`               | Marked `#[ignore]`; require display; not in default CI |
 
 **Rule: no `tests/unit/` directory** — domain unit tests live inline (Rust convention for private access).
 
@@ -78,11 +78,11 @@ Every `Result`-returning function must have at least one error test:
 #[test]
 fn test_start_container_propagates_runtime_not_available() {
     let driver = Arc::new(MockContainerDriver::with_error(
-        ContainerError::RuntimeNotAvailable
+        ContainerError::RuntimeNotAvailable("no runtime".into())
     ));
     let use_case = ContainerUseCase::new(driver);
     let result = use_case.start_container("abc123");
-    assert!(matches!(result, Err(ContainerError::RuntimeNotAvailable)));
+    assert!(matches!(result, Err(ContainerError::RuntimeNotAvailable(_))));
 }
 ```
 
@@ -96,6 +96,7 @@ xvfb-run cargo test --test widget_test -- --test-threads=1 --ignored
 ```
 
 Widget tests must:
+
 - Initialize GTK with `gtk4::init()`
 - Not call GObject methods from multiple threads
 - Not assume a specific screen size

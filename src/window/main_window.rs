@@ -562,10 +562,8 @@ impl MainWindow {
                     ds.set_visible_child_name("empty");
                 }
                 if let Some(win) = win_weak_nav.upgrade() {
-                    if !is_home {
-                        if let Some(dv) = win.imp().dashboard_view.get() {
-                            dv.stop_auto_refresh();
-                        }
+                    if !is_home && let Some(dv) = win.imp().dashboard_view.get() {
+                        dv.stop_auto_refresh();
                     }
                     win.reload_visible_page();
                 }

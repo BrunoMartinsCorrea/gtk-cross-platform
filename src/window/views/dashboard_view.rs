@@ -255,10 +255,9 @@ impl DashboardView {
             make_stat_card(&running_lbl, &gettext("Running"), "success", move || {
                 nav1("containers:running")
             });
-        let paused_card =
-            make_stat_card(&paused_lbl, &gettext("Paused"), "dim-label", move || {
-                nav2("containers:paused")
-            });
+        let paused_card = make_stat_card(&paused_lbl, &gettext("Paused"), "dim-label", move || {
+            nav2("containers:paused")
+        });
         let stopped_card =
             make_stat_card(&stopped_lbl, &gettext("Stopped"), "dim-label", move || {
                 nav3("containers:stopped")
@@ -484,7 +483,12 @@ impl DashboardView {
 
             match result {
                 Ok(snapshot) => {
-                    Self::apply_fast(&inner, &snapshot.containers, snapshot.networks_count, &snapshot.events);
+                    Self::apply_fast(
+                        &inner,
+                        &snapshot.containers,
+                        snapshot.networks_count,
+                        &snapshot.events,
+                    );
                     // Show timestamp immediately after the fast load so the user
                     // knows the container data is current; updated again after system_df.
                     Self::update_last_updated(&inner);
@@ -519,9 +523,9 @@ impl DashboardView {
             |uc| {
                 let usage = uc.network.system_df()?;
                 let host = uc.network.host_stats().unwrap_or_default();
-                Ok::<_, gtk_cross_platform::infrastructure::containers::error::ContainerError>(
-                    (usage, host),
-                )
+                Ok::<_, gtk_cross_platform::infrastructure::containers::error::ContainerError>((
+                    usage, host,
+                ))
             },
             move |result| {
                 let Some(inner) = inner_weak.upgrade() else {
@@ -629,18 +633,26 @@ impl DashboardView {
         let paused_desc = gettext("Paused");
         let stopped_desc = gettext("Stopped");
         let errors_desc = gettext("Errors");
-        inner.running_btn.update_property(&[gtk4::accessible::Property::Label(
-            &format!("{running} {running_desc}"),
-        )]);
-        inner.paused_btn.update_property(&[gtk4::accessible::Property::Label(
-            &format!("{paused} {paused_desc}"),
-        )]);
-        inner.stopped_btn.update_property(&[gtk4::accessible::Property::Label(
-            &format!("{stopped} {stopped_desc}"),
-        )]);
-        inner.errored_btn.update_property(&[gtk4::accessible::Property::Label(
-            &format!("{errored} {errors_desc}"),
-        )]);
+        inner
+            .running_btn
+            .update_property(&[gtk4::accessible::Property::Label(&format!(
+                "{running} {running_desc}"
+            ))]);
+        inner
+            .paused_btn
+            .update_property(&[gtk4::accessible::Property::Label(&format!(
+                "{paused} {paused_desc}"
+            ))]);
+        inner
+            .stopped_btn
+            .update_property(&[gtk4::accessible::Property::Label(&format!(
+                "{stopped} {stopped_desc}"
+            ))]);
+        inner
+            .errored_btn
+            .update_property(&[gtk4::accessible::Property::Label(&format!(
+                "{errored} {errors_desc}"
+            ))]);
 
         inner.networks_lbl.set_text(&networks_count.to_string());
 
@@ -726,12 +738,16 @@ impl DashboardView {
         // Expose value text so screen readers announce the storage size.
         let images_label = gettext("Images");
         let volumes_label = gettext("Volumes");
-        inner.images_bar.update_property(&[gtk4::accessible::Property::ValueText(
-            &format!("{images_label} — {img_size_text}"),
-        )]);
-        inner.volumes_bar.update_property(&[gtk4::accessible::Property::ValueText(
-            &format!("{volumes_label} — {vol_size_text}"),
-        )]);
+        inner
+            .images_bar
+            .update_property(&[gtk4::accessible::Property::ValueText(&format!(
+                "{images_label} — {img_size_text}"
+            ))]);
+        inner
+            .volumes_bar
+            .update_property(&[gtk4::accessible::Property::ValueText(&format!(
+                "{volumes_label} — {vol_size_text}"
+            ))]);
 
         inner.usage_stack.set_visible_child_name("content");
     }
@@ -760,14 +776,20 @@ impl DashboardView {
         let cpu_label = gettext("CPU");
         let mem_label = gettext("Memory");
         let disk_label = gettext("Disk");
-        inner.cpu_bar.update_property(&[gtk4::accessible::Property::ValueText(
-            &format!("{cpu_label} — {cpu_pct}%"),
-        )]);
-        inner.mem_bar.update_property(&[gtk4::accessible::Property::ValueText(
-            &format!("{mem_label} — {mem_pct}%"),
-        )]);
-        inner.disk_bar.update_property(&[gtk4::accessible::Property::ValueText(
-            &format!("{disk_label} — {disk_pct}%"),
-        )]);
+        inner
+            .cpu_bar
+            .update_property(&[gtk4::accessible::Property::ValueText(&format!(
+                "{cpu_label} — {cpu_pct}%"
+            ))]);
+        inner
+            .mem_bar
+            .update_property(&[gtk4::accessible::Property::ValueText(&format!(
+                "{mem_label} — {mem_pct}%"
+            ))]);
+        inner
+            .disk_bar
+            .update_property(&[gtk4::accessible::Property::ValueText(&format!(
+                "{disk_label} — {disk_pct}%"
+            ))]);
     }
 }

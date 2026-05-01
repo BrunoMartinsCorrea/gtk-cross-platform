@@ -17,7 +17,7 @@ make build-release    # Compile with cargo build --release
 make run              # Build and run the application
 make test             # Run all tests (unit + integration + i18n)
 make test-unit        # Unit tests only (cargo nextest --lib)
-make test-integration # Integration tests only (container_driver + greet_use_case)
+make test-integration # Integration tests only (cargo nextest, all tests/ except i18n and widget)
 make lint             # Run cargo clippy -- -D warnings
 make fmt              # Check formatting (cargo fmt --check)
 make fmt-fix          # Auto-format code (cargo fmt)
@@ -140,7 +140,7 @@ The codebase follows **Hexagonal Architecture** (Ports & Adapters):
 |---------------------|------------|-------------------------------------------------------------------------------------|
 | Desktop normal      | > 768 sp   | Margins 48 sp                                                                       |
 | Desktop compact     | ≤ 768 sp   | Margins 32 sp                                                                       |
-| Split-view collapse | ≤ 720 sp   | `AdwNavigationSplitView` collapses; `AdwViewSwitcherBar` revealed; `AdwViewSwitcher` (top) hidden |
+| Split-view collapse | ≤ 900 sp   | `AdwNavigationSplitView` collapses; `AdwViewSwitcherBar` revealed; `AdwViewSwitcher` (top) hidden |
 | Tablet              | ≤ 600 sp   | Margins 24 sp                                                                       |
 | GNOME Mobile        | ≤ 360 sp   | Margins 16 sp                                                                       |
 
@@ -149,15 +149,18 @@ alternative to right-click context.
 
 **Runtime detection order** (implemented in `src/infrastructure/containers/factory.rs`):
 
-| Order | Check                                           | Runtime                               |
-|-------|-------------------------------------------------|---------------------------------------|
-| 1     | `/var/run/docker.sock` accessible               | Docker                                |
-| 2     | `/run/user/{uid}/podman/podman.sock` accessible | Podman (rootless)                     |
-| 3     | `/run/podman/podman.sock` accessible            | Podman (root)                         |
-| 4     | `nerdctl version` exits 0                       | containerd/nerdctl                    |
-| —     | None found                                      | `ContainerError::RuntimeNotAvailable` |
+| Order | Check                                                        | Runtime                               |
+|-------|--------------------------------------------------------------|---------------------------------------|
+| 1     | `/var/run/docker.sock` or `~/.rd/docker.sock` accessible     | Docker (or Rancher Desktop on macOS)  |
+| 2     | `CONTAINER_HOST` env var socket path accessible              | Podman (explicit override)            |
+| 3     | `/run/user/{uid}/podman/podman.sock` accessible              | Podman (rootless, Linux)              |
+| 4     | `/run/podman/podman.sock` accessible                         | Podman (root, Linux)                  |
+| 5     | `~/.local/share/containers/podman/machine/default/podman.sock` | Podman 5.x (macOS)                 |
+| 6     | `~/.local/share/containers/podman/machine/qemu/podman.sock`  | Podman 4.x (macOS)                   |
+| 7     | `nerdctl version` exits 0                                    | containerd/nerdctl                    |
+| —     | None found                                                   | `ContainerError::RuntimeNotAvailable` |
 
-When adding a new runtime adapter, register it after order 4 in `ContainerDriverFactory::detect()`.
+When adding a new runtime adapter, register it after order 7 in `ContainerDriverFactory::detect()`.
 
 **G_LOG_DOMAIN convention** (`AppLogger` sub-domain hierarchy):
 
@@ -176,10 +179,10 @@ GLib prefix-matches `G_MESSAGES_DEBUG` against the log domain (see `gmessages.c`
 enables all GLib messages globally and is set automatically when `config::PROFILE == "development"`.
 
 Log level mapping: GLib has no TRACE level — `AppLogger::trace` maps to `g_debug!`. Use `AppLogger::critical` for
-`PermissionDenied` and `ParseError` variants; `AppLogger::info` for `NotFound`; `AppLogger::warning` for all
-other `ContainerError` variants. Normalised via `log_container_error()` in `error.rs`.
+`PermissionDenied` and `ParseError` variants; `AppLogger::info` for `NotFound` and `AlreadyExists`; `AppLogger::warning`
+for all other `ContainerError` variants. Normalised via `log_container_error(&logger, &err)` in `error.rs`.
 
-**Dependencies:** gtk4 = 0.9 (feature `v4_12`), libadwaita = 0.7 (feature `v1_4`), glib = 0.20, gio = 0.20, gettext-rs = 0.7 (i18n runtime), serde_json = 1 (JSON inspect + syntax highlighting), async-channel = 2 (cross-thread messaging). Build dependency: glib-build-tools = 0.20 (GResource compiler). Minimum runtime: GTK4 ≥ 4.12, LibAdwaita ≥ 1.4.
+**Dependencies:** gtk4 = 0.9 (feature `v4_12`), libadwaita = 0.7 (feature `v1_4`), glib = 0.20, gio = 0.20, gettext-rs = 0.7 (i18n runtime), serde_json = 1 (JSON inspect + syntax highlighting), async-channel = 2 (cross-thread messaging), sysinfo = 0.33 (CPU/memory/disk stats for dashboard). Build dependency: glib-build-tools = 0.20 (GResource compiler). Minimum runtime: GTK4 ≥ 4.12, LibAdwaita ≥ 1.4.
 
 **GResource:** UI files are compiled into `compiled.gresource` at build time via `glib-build-tools` (see `build.rs`).
 Resources are registered in `main()` before the application starts via `gio::resources_register_include!`.
@@ -225,31 +228,18 @@ glib::spawn_local { rx.recv() → cb }
 end_loading() + update_ui
 ```
 
-- Use `async_channel::bounded(1)` — never `std::sync::mpsc` or `tokio` channels
-- `tokio` is banned: it conflicts with the GLib event loop
-- Views (`src/window/views/`) are the primary layer that calls `spawn_driver_task`. `MainWindow` may also call it for
-  window-scoped actions (e.g., system prune) that do not belong to any single resource view.
-  `src/app.rs` may also call it for app-lifecycle actions that execute before the window is ready.
-- The `cb` callback runs on the GTK main loop via `glib::spawn_local`
+- `tokio` is banned — conflicts with the GLib event loop; use `async_channel::bounded(1)` instead
+- Views are the primary callers; `MainWindow` and `src/app.rs` may also call it for window/app-scoped actions
 
 ## Design Standards
 
-This project follows the [GNOME Human Interface Guidelines (HIG)](https://developer.gnome.org/hig/). When adding or
-modifying UI:
+Follow the [GNOME HIG](https://developer.gnome.org/hig/). Use `adw::*` widgets over raw GTK; declare layout in `.ui`
+files (Composite Templates); wire signals in Rust. Support Wayland and X11.
 
-- Use Adwaita widgets (`adw::*`) over raw GTK widgets whenever an equivalent exists
-- Declare layout in `.ui` files (Composite Templates); wire signals and closures in Rust
-- Follow GNOME naming conventions, spacing, and layout patterns
-- Support both Wayland and X11; never assume a specific display server
-- Add an `AdwBreakpoint` in `window.ui` for every new layout change at 360/600/768 sp thresholds
-- Use `adw::ToastOverlay` for transient feedback instead of dialogs where appropriate
-- All touch targets must be ≥ 44×44 sp; never rely on `hover` as the sole state indicator
-- Avoid menus activated only by right-click — provide `gtk4::GestureLongPress` equivalent
-- Icon-only buttons must have both `set_tooltip_text` (keyboard-visible) and
-  `update_property(&[gtk4::accessible::Property::Label(...)])` — tooltip alone is insufficient for screen readers
-- Focus management: after a destructive action (remove), move focus to the next row or the empty-state widget; after any
-  dialog closes, return focus to the widget that triggered it
-- Never use color alone to convey state — `StatusBadge` must show a text label alongside the color indicator
+Key A11Y rules (full checklist in `.claude/rules/standards/accessibility.md`):
+- Add an `AdwBreakpoint` for every layout change at 360/600/768 sp thresholds; touch targets ≥ 44×44 sp
+- Icon-only buttons need both `set_tooltip_text` AND `update_property(&[Property::Label(...)])`
+- Never use color alone to convey state — `StatusBadge` always pairs color with a text label
 
 ## Documentation Philosophy
 
@@ -280,7 +270,18 @@ reading the source:
   Wayland-first, Flatpak)
 - Never omit breakpoint values, licensing, or layer rules from documentation
 
-When updating the README, use `/project:knowledge-planning`.
+When updating the README, use `/meta:knowledge-planning`.
+
+### Separation: docs/ vs .claude/docs/
+
+- **`docs/`** — human-authored documents intended for contributors and maintainers. Must follow human-first principles.
+  Keep this folder minimal: only documents a developer would actively seek out (roadmap, architecture decisions, gap
+  tracking).
+- **`.claude/docs/reports/`** — AI-generated audit outputs (audit reports, analysis, code review reports). Claude artifacts exempt from
+  human-first requirements. Skills and prompts must write their reports here, never to `docs/`.
+- **`.claude/docs/reference/`** — Static reference material for AI agents (GNOME HIG, GTK learning resources). Rarely changes.
+
+A file in `docs/` written by an AI agent is a violation of this rule — move it to `.claude/docs/reports/`.
 
 ### Code comments
 
@@ -332,9 +333,10 @@ src/
       containerd_driver.rs               # containerd adapter
       mock_driver.rs                     # In-memory mock for tests
       dynamic_driver.rs                  # DynamicDriver — wraps Arc<dyn IContainerDriver> for runtime switching
+      host_stats.rs                      # read_host_stats() — CPU/memory/disk from sysinfo (used by DashboardView)
       http_over_unix.rs                  # HTTP client routed through a Unix domain socket
       background.rs                      # spawn_driver_task — bridges blocking driver calls to GTK main loop
-      error.rs                           # ContainerError type
+      error.rs                           # ContainerError type + log_container_error()
     greeting/
       mod.rs
       greeting_service.rs                # GreetingService — implements IGreetingService
@@ -352,7 +354,6 @@ src/
       detail_pane.rs                     # Scrollable key-value property grid (adw::PreferencesGroup)
       confirm_dialog.rs                  # adw::MessageDialog wrapper for destructive confirmations
       empty_state.rs                     # EmptyState — adw::StatusPage wrapper for empty list states
-      list_factory.rs                    # GtkSignalListItemFactory helpers for ColumnView/ListView
       toast_util.rs                      # ToastUtil — fire-and-forget adw::Toast helpers
     objects/
       mod.rs
@@ -360,6 +361,10 @@ src/
       image_object.rs                    # ImageObject — GObject wrapper for Image domain model
       network_object.rs                  # NetworkObject — GObject wrapper for Network domain model
       volume_object.rs                   # VolumeObject — GObject wrapper for Volume domain model
+    utils/
+      mod.rs
+      format.rs                          # fmt_bytes() — human-readable byte sizes (B / MB / GB)
+      store.rs                           # find_store_position() — typed linear scan over gio::ListStore
     views/
       mod.rs
       containers_view.rs                 # Sidebar list + detail pane for containers
@@ -368,7 +373,27 @@ src/
       networks_view.rs                   # Sidebar list + detail pane for networks
       dashboard_view.rs                  # DashboardView — system overview: running containers, disk usage
 tests/
-  container_driver_test.rs              # Integration tests using MockContainerDriver
+  support/mod.rs                        # Shared test helpers (fixture builders, assertions)
+  cancellable_test.rs                   # Task cancellation
+  compose_grouping_test.rs              # Compose project grouping
+  compose_lifecycle_test.rs             # Compose start/stop lifecycle
+  container_driver_test.rs              # Core driver operations with MockContainerDriver
+  container_lifecycle_test.rs           # Container start/stop/remove lifecycle
+  container_logs_test.rs                # Log streaming
+  container_stats_test.rs               # Stats polling
+  create_container_test.rs              # Container creation options
+  dashboard_test.rs                     # DashboardView data assembly
+  env_masking_test.rs                   # Environment variable masking (secrets)
+  greet_use_case_test.rs                # GreetUseCase domain logic
+  i18n_test.rs                          # i18n structural (po files, POTFILES, LINGUAS)
+  image_layers_test.rs                  # Image layer inspection
+  inspect_test.rs                       # Container/image inspect JSON
+  pull_image_streaming_test.rs          # pull progress streaming
+  pull_image_test.rs                    # Image pull
+  runtime_switcher_test.rs              # Runtime switching via DynamicDriver
+  search_filter_test.rs                 # Search/filter in list views
+  system_events_test.rs                 # Docker/Podman event stream
+  terminal_test.rs                      # Terminal output integration
   widget_test.rs                        # GTK widget tests (require display; marked #[ignore])
 data/
   resources/
@@ -379,7 +404,7 @@ data/
   icons/hicolor/scalable/apps/
     com.example.GtkCrossPlatform.svg     # Application icon (scalable)
   com.example.GtkCrossPlatform.desktop   # Desktop entry (app launcher, Flathub)
-  com.example.GtkCrossPlatform.gschema.xml  # GSettings schema (sidebar-width, last-runtime)
+  com.example.GtkCrossPlatform.gschema.xml  # GSettings schema (sidebar-width-fraction, preferred-runtime)
   com.example.GtkCrossPlatform.metainfo.xml  # AppStream metainfo (GNOME Software)
 po/
   POTFILES                               # Source files with translatable strings
@@ -387,121 +412,32 @@ po/
   pt_BR.po                               # Brazilian Portuguese
   *.po                                   # 20+ community translations (see po/LINGUAS for full list)
 com.example.GtkCrossPlatform.json        # Flatpak manifest (GNOME Platform 48, rust-stable)
-Cargo.toml                               # Rust manifest (gtk4, libadwaita, glib, gio, gettext-rs)
+Cargo.toml                               # Rust manifest (gtk4, libadwaita, glib, gio, gettext-rs, sysinfo)
 build.rs                                 # Injects APP_ID/PROFILE/PKGDATADIR/LOCALEDIR; compiles GResource
 Makefile                                 # Convenience wrappers for Cargo/Flatpak commands
 .claude/
   settings.json                          # Project-level permissions (cargo/make allow-list)
   settings.local.json                    # Local overrides — gitignored
-  commands/
-    refactor-components.md               # /project:refactor-components
-    add-runtime-driver.md                # /project:add-runtime-driver <runtime>
-    implement-container-ui.md            # /project:implement-container-ui
-    scaffold-oss-docs.md                 # /project:scaffold-oss-docs
-    compliance-audit.md                  # /project:compliance-audit
-    github-audit.md                      # /project:github-audit
-    concept-audit.md                     # /project:concept-audit
-    hexagonal-refactor.md                # /project:hexagonal-refactor
-    add-quality-gates.md                 # /project:add-quality-gates
-    optimize-dashboard-loading.md        # /project:optimize-dashboard-loading
-    release-audit.md                     # /project:release-audit
-    apply-requester-patterns.md          # /project:apply-requester-patterns
-    apply-conceptual-improvements.md     # /project:apply-conceptual-improvements
-    knowledge-audit.md                   # /project:knowledge-audit
-    knowledge-planning.md                # /project:knowledge-planning
-    implement-v02-mvp.md                 # /project:implement-v02-mvp
-    redesign-claude-setup.md             # /project:redesign-claude-setup
-    coverage-analysis.md                 # /project:coverage-analysis
-    structural-improvement.md            # /project:structural-improvement
-    test-quality-guardrail.md            # /project:test-quality-guardrail
-    tooling-design.md                    # /project:tooling-design
-    dist-audit.md                        # /project:dist-audit
-    sync-pull-request.md                 # /project:sync-pull-request
-    content-audit.md                     # /project:content-audit
-    plan-content-improvements.md         # /project:plan-content-improvements
-    create-prompt.md                     # /project:create-prompt <context>
-  skills/
-    pipeline/
-      work-planning/SKILL.md             # pipeline:work-planning — decompose scope into prioritized tasks
-      acceptance-gate/SKILL.md           # pipeline:acceptance-gate — pre-PR gate: lint + tests + i18n + A11Y
-      scope-definition/SKILL.md          # pipeline:scope-definition — define problem, objectives, acceptance criteria
-      dependency-mapping/SKILL.md        # pipeline:dependency-mapping — map module/port dependency chains
-      risk-assessment/SKILL.md           # pipeline:risk-assessment — evaluate breaking changes and cross-platform risk
-      readiness-check/SKILL.md           # pipeline:readiness-check — verify prerequisites before starting a feature
-    craft/
-      fault-analysis/SKILL.md            # craft:fault-analysis — structured debugging: GTK/GLib/async-channel root cause
-      contract-testing/SKILL.md          # craft:contract-testing — validate IContainerDriver contracts with MockContainerDriver
-    ops/
-      fault-recovery/SKILL.md            # ops:fault-recovery — platform recovery playbooks (Flatpak rollback, DMG revert)
-      artifact-packaging/SKILL.md        # ops:artifact-packaging — build Flatpak x86_64/aarch64, macOS .app/.dmg, Windows ZIP
-      artifact-signing/SKILL.md          # ops:artifact-signing — codesign + notarization, Flatpak GPG, SHA256 checksums
-      store-submission/SKILL.md          # ops:store-submission — GitHub Release, Flathub submission, CHANGELOG update
-  agents/
-    craft--quality-inspector.md          # Autonomous code review: hexagonal, A11Y, i18n, threading
-    craft--environment-inspector.md      # Repository health audit: CI/CD, security, distribution, docs
-    craft--knowledge-writer.md           # Generate/update README, CONTRIBUTING, CHANGELOG, prompts
-    craft--schema-designer.md            # Design domain models, port traits, GObject wrappers
-    craft--coverage-synthesizer.md       # Identify test coverage gaps; propose concrete test code
-    craft--migration-inspector.md        # GSettings schema migration audit (reserved)
-    pipeline--work-coordinator.md        # Live task board; coordinate parallel work; session handoff
-    ops--supply-chain-auditor.md         # Cargo dependency CVE, license, and version drift audit
-    ops--throughput-analyzer.md          # CI job duration, build time, cache effectiveness analysis
-    ops--incident-coordinator.md         # Coordinate incident response: CI broken, artifact, crash
-    ops--distribution-auditor.md         # Audit checksums, GitHub Release, AppStream, license, version
-    domain--event-modeler.md             # Model container lifecycle events and UI state transitions
-  rules/
-    domain/
-      container-management.md            # globs: src/core/domain/**, src/infrastructure/containers/**, src/ports/**
-    standards/
-      language.md                        # globs: **/*.rs — threading, async, logging, code quality, i18n
-      interface.md                       # globs: src/ports/**, src/infrastructure/containers/**
-      verification.md                    # globs: tests/**, src/**/tests/**
-      observability.md                   # globs: src/infrastructure/logging/**, src/**/*.rs
-  docs/
-    content-audit.md                     # Generated by /project:content-audit; managed automatically
-    content-improvement-plan.md          # Generated by /project:plan-content-improvements; managed automatically
-  prompts/
-    INDEX.md                             # Index of all generated prompts
-    *.md                                 # Generated by /project:create-prompt; stored here permanently
+  skills/plan/                           # Planning & scoping workflows (invoke: /plan:<name>)
+  skills/build/                          # Implementation & coding workflows (invoke: /build:<name>)
+  skills/verify/                         # Quality, audit & review workflows (invoke: /verify:<name>)
+  skills/release/                        # Delivery & distribution workflows (invoke: /release:<name>)
+  skills/meta/                           # Claude tooling meta-workflows (invoke: /meta:<name>)
+  agents/                                # Autonomous subagent prompts (scope-prefixed: plan--, build--, verify--, release--, meta--, domain--)
+  rules/domain/container-management.md  # globs: src/core/domain/**, src/infrastructure/containers/**, src/ports/**
+  rules/standards/language.md            # globs: **/*.rs — threading, async, logging, i18n
+  rules/standards/interface.md           # globs: src/ports/**, src/infrastructure/containers/**
+  rules/standards/verification.md        # globs: tests/**, src/**/tests/**
+  rules/standards/observability.md       # globs: src/infrastructure/logging/**, src/**/*.rs
+  rules/standards/makefile.md            # globs: Makefile
+  rules/standards/accessibility.md       # globs: src/window/**, data/resources/**
+  docs/reports/                          # AI-generated audit outputs (artifact-structure-proposal.md, content-audit.md, conceptual-improvements.md, design-vs-implementation.md, test-quality-audit.md)
+  docs/reference/                        # Static reference material (gtk-sources.md, adwaita.md)
+  prompts/                               # Stored reusable prompts (INDEX.md + *.md)
 docs/
-  compliance-plan.md                     # 18 documented-vs-implemented gaps + guardrails
-.prompt/                                 # Legacy prompt templates (gitignored; superseded by .claude/commands/)
+  compliance-plan.md                     # 18 documented-vs-implemented gaps + guardrails (human-authored, human-facing)
+.prompt/                                 # Legacy prompt templates (gitignored; superseded by .claude/skills/)
 ```
-
-## Slash Commands
-
-Invoke with `/project:<name>` inside a Claude Code session. Each command is self-contained —
-it does not require reading prior conversation context to execute correctly.
-
-| Command                              | When to use                                                                             |
-|--------------------------------------|-----------------------------------------------------------------------------------------|
-| `/project:refactor-components`       | Decompose `src/window/` into finer-grained components and views                         |
-| `/project:add-runtime-driver <name>` | Add a new container runtime adapter (e.g., `nerdctl`, `lima`)                           |
-| `/project:implement-container-ui`    | Implement or overhaul the GTK4/Adwaita UI layer for container management                |
-| `/project:scaffold-oss-docs`         | Generate OSS documentation structure for any repository                                 |
-| `/project:update-gitignore`          | Audit `.gitignore` against detected extensions and community best practices, then apply |
-| `/project:compliance-audit`          | Audit documented concepts vs. implementation; outputs gap report with severity          |
-| `/project:github-audit`              | Audit the repository across six dimensions (CI/CD, security, distribution, etc.)        |
-| `/project:concept-audit`             | Find internal conceptual inconsistencies: naming, layer leaks, trait contracts, threading |
-| `/project:hexagonal-refactor`        | Introduce driver ports (inbound traits) + container use cases; wire views through use cases |
-| `/project:add-quality-gates`         | Implement all missing CI quality gates (AppStream, desktop, deny, typos, nextest, coverage) |
-| `/project:release-audit`             | Audit the cross-platform release pipeline (workflows, bundling, artifacts, publishing)  |
-| `/project:optimize-dashboard-loading` | Fix startup latency: lazy view loading, deferred `system_df`, debounced search, duplicate-call elimination |
-| `/project:apply-requester-patterns`  | Apply GTK4/Adwaita patterns from Requester: GSettings, CommonActions, EmptyState, ToastUtil, AdwClamp, SplitButton, domain derives, CSS split |
-| `/project:apply-conceptual-improvements` | Migrate ListBox→GListModel+SignalListItemFactory, add GObject wrappers, FilterListModel, reactive bindings, CustomSorter |
-| `/project:knowledge-audit`               | Audit documentation layer for staleness, cross-document inconsistencies, coverage gaps, and README/CLAUDE.md accuracy  |
-| `/project:knowledge-planning`            | Apply targeted doc fixes (Mode A) or regenerate README from scratch (Mode B)            |
-| `/project:implement-v02-mvp`             | Implement v0.2 MVP features from Doca.zip specs (search, pull wizard, stats, terminal, compose, dashboard, runtime switcher) |
-| `/project:redesign-claude-setup`         | Survey and regenerate the full `.claude/commands/` set for the complete FLOSS development lifecycle |
-| `/project:coverage-analysis`             | Audit and plan the full Rust test strategy; identify coverage gaps and missing test categories |
-| `/project:structural-improvement`        | Remove dead code (`#[allow(dead_code)]`), useless comments, and duplicated view helpers; extract shared `window/utils/` module |
-| `/project:test-quality-guardrail`        | Guardrail de qualidade: audita testes contra princípios universais, identifica antipadrões e aplica abstrações (Builder, Object Mother, fixtures compartilhadas, parametrização) |
-| `/project:tooling-design`                | Redesign Makefile as SOLID lifecycle instrument (Phase 1) + consolidate GitHub Actions into 2 workflow files (Phase 2) |
-| `/project:dist-audit`                    | Audit distributed artifacts (Flatpak, macOS DMG, Windows ZIP) for runtime completeness, identity consistency, store compliance, and first-install UX |
-| `/project:sync-pull-request`             | Create or update the PR for the current branch — enforces title/body/base contracts and reports state, review status, and CI checks |
-| `/project:content-audit`                 | Audit content quality: human-first readability, AI-free codebase, Mermaid-over-ASCII diagrams, comment quality, terminology consistency, and placeholder hygiene |
-| `/project:plan-content-improvements`     | Build or refresh a prioritised improvement plan from the latest content audit; tracks status, effort, and quick wins |
-| `/project:create-prompt <context>`       | Generate a high-quality, self-contained AI prompt for a given context; saves to `.claude/prompts/` |
 
 ## Dependency Versioning Rule
 
@@ -510,25 +446,13 @@ commit. `Cargo.toml` is the source of truth — CLAUDE.md must never diverge fro
 
 ## Testing
 
-- `make test` — runs all tests via `cargo nextest` (unit + integration + i18n).
-- `make test-unit` — unit tests only (`cargo nextest --lib`).
-- `make test-integration` — integration tests only (`container_driver_test` + `greet_use_case_test`).
-- `make test-i18n` — i18n structural tests only.
-- `make test-nextest` — alias for `make test` (backwards compatibility).
-- `make coverage` — runs `cargo llvm-cov` summary for lib + integration tests (manual tool; not part of CI).
-- `NEXTEST_PROFILE` — pass `NEXTEST_PROFILE=ci` to activate fail-fast mode (`.config/nextest.toml`).
-
-**Test layers:**
+`make test` / `make test-unit` / `make test-integration` / `make test-i18n`. Pass `NEXTEST_PROFILE=ci` for fail-fast.
+`make coverage` runs `cargo llvm-cov` (not part of CI).
 
 | Layer | Location | Rule |
 |-------|----------|------|
-| Unit | `#[cfg(test)]` inline in `src/core/` and `src/infrastructure/logging/` | No `gtk4` / `adw` imports |
-| Integration | `tests/container_driver_test.rs`, `tests/greet_use_case_test.rs`, `tests/i18n_test.rs` | Public API only; use `MockContainerDriver` |
-| Widget | `tests/widget_test.rs` | Marked `#[ignore]`; run with `xvfb-run cargo test --test widget_test -- --test-threads=1 --ignored` |
+| Unit | `#[cfg(test)]` inline in `src/core/` | No `gtk4` / `adw` imports |
+| Integration | `tests/*.rs` | Public API only; `MockContainerDriver` — never real sockets |
+| Widget | `tests/widget_test.rs` | `#[ignore]`; needs display (`xvfb-run`) |
 
-**Rules:**
-- `tests/unit/` does **not** exist — domain unit tests live inline via `#[cfg(test)]` (Rust convention for accessing private internals).
-- Domain tests (`src/core/`) must not import `gtk4`, `adw`, or `glib`.
-- Tests for a new use case go in `tests/<use_case>_test.rs` or inline in `src/core/use_cases/<use_case>.rs`.
-- `MockContainerDriver` is the sole driver used in all integration tests — never use Docker/Podman sockets in CI.
-- Widget tests require a display; CI runs them only with `xvfb-run` on explicit request (not part of default CI pipeline).
+`tests/unit/` does **not** exist — domain unit tests live inline (Rust convention for private access).

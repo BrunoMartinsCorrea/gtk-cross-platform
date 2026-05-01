@@ -37,7 +37,11 @@ fn stop_all_with_timeout_succeeds() {
     let ids = ["aabbccdd1122"];
     let results = uc.stop_all(&ids, Some(30)).expect("stop_all");
     assert_eq!(results.len(), 1);
-    assert!(results[0].is_ok(), "stop_all with timeout failed: {:?}", results[0]);
+    assert!(
+        results[0].is_ok(),
+        "stop_all with timeout failed: {:?}",
+        results[0]
+    );
 }
 
 #[test]

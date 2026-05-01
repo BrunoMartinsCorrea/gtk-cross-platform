@@ -4,6 +4,7 @@ name = "gtk-cross-platform"
 version = "0.1.0"
 edition = "2024"
 license = "GPL-3.0-or-later"
+description = "A native GNOME container manager for Docker, Podman, and containerd"
 
 [lib]
 name = "gtk_cross_platform"

@@ -8,16 +8,12 @@ mod support;
 use gtk_cross_platform::infrastructure::containers::error::ContainerError;
 use gtk_cross_platform::ports::use_cases::i_container_use_case::IContainerUseCase;
 
-use support::{
-    RUNNING_CONTAINER_ID, STOPPED_CONTAINER_ID, UNKNOWN_CONTAINER_ID, container_uc,
-};
+use support::{RUNNING_CONTAINER_ID, STOPPED_CONTAINER_ID, UNKNOWN_CONTAINER_ID, container_uc};
 
 #[test]
 fn logs_running_container_returns_string() {
     let uc = container_uc();
-    let logs = uc
-        .logs(RUNNING_CONTAINER_ID, None, false)
-        .expect("logs");
+    let logs = uc.logs(RUNNING_CONTAINER_ID, None, false).expect("logs");
     assert!(
         !logs.is_empty(),
         "expected non-empty log output for running container"

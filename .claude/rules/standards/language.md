@@ -43,16 +43,17 @@ glib::spawn_local(clone!(@weak widget => async move {
 
 // REQUIRED — logging via AppLogger, not println! or eprintln!
 logger.info("Container list refreshed");
-log_container_error(&error, &logger);  // for ContainerError variants
+log_container_error(&logger, &error);  // logger is first, error is second
 ```
 
 ## Logging conventions
 
 ```rust
 // Log level mapping (from CLAUDE.md):
-// AppLogger::critical → ContainerError::PermissionDenied, ContainerError::ParseError
-// AppLogger::info     → ContainerError::NotFound
+// AppLogger::critical → ContainerError::PermissionDenied, ContainerError::ParseError(_)
+// AppLogger::info     → ContainerError::NotFound(_), ContainerError::AlreadyExists(_)
 // AppLogger::warning  → all other ContainerError variants
+// Signature: log_container_error(&logger, &err)  — logger first, error second
 
 // G_LOG_DOMAIN hierarchy:
 // "com.example.GtkCrossPlatform" — app-level

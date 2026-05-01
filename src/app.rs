@@ -347,9 +347,13 @@ mod imp {
                 });
                 let focus_ctrl = gtk4::EventControllerFocus::new();
                 let settings_c2 = settings.clone();
-                focus_ctrl.connect_leave(glib::clone!(#[weak] runtime_row, move |_| {
-                    let _ = settings_c2.set_string("preferred-runtime", &runtime_row.text());
-                }));
+                focus_ctrl.connect_leave(glib::clone!(
+                    #[weak]
+                    runtime_row,
+                    move |_| {
+                        let _ = settings_c2.set_string("preferred-runtime", &runtime_row.text());
+                    }
+                ));
                 runtime_row.add_controller(focus_ctrl);
             }
 
