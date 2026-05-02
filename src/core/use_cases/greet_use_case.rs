@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Domain logic — no GTK/Adw imports allowed in src/core/.
 pub struct GreetUseCase;
 
 impl GreetUseCase {

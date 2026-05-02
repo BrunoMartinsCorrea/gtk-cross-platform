@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Write(.claude/**)",
+      "Bash(cargo build:*)",
+      "Bash(cargo test:*)",
+      "Bash(cargo check:*)",
+      "Bash(cargo clippy:*)",
+      "Bash(cargo fmt:*)",
+      "Bash(make build:*)",
+      "Bash(make test:*)",
+      "Bash(make lint:*)",
+      "Bash(make fmt:*)",
+      "Bash(make fmt-fix:*)",
+      "Bash(make run:*)",
+      "Bash(make setup:*)",
+      "Bash(make clean:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(make ci:*)",
+      "Bash(make validate:*)",
+      "Bash(make validate-metainfo:*)",
+      "Bash(make check-version:*)",
+      "Bash(make check-potfiles:*)",
+      "Bash(make audit:*)",
+      "Bash(make deny:*)",
+      "Bash(make dist-flatpak:*)",
+      "Bash(make dist-macos:*)",
+      "Bash(make release-tag:*)",
+      "Bash(make release-github:*)",
+      "Bash(make help:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh release view:*)"
+    ],
+    "deny": [
+      "Write(.claude/settings.json)"
+    ]
+  }
+}

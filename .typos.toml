@@ -1,0 +1,8 @@
+[files]
+# Translation files and Portuguese-language documentation contain non-English
+# words that are not typos.
+extend-exclude = ["po/", "docs/"]
+
+[default.extend-identifiers]
+# Short callback alias used in make_callbacks! macro (on_toast → ot, on_loading → ol).
+ot = "ot"

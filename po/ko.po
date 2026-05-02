@@ -1,0 +1,331 @@
+# Korean translation for gtk-cross-platform.
+# Copyright (C) 2026 gtk-cross-platform contributors
+# This file is distributed under the same license as the gtk-cross-platform package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gtk-cross-platform 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-26 00:00+0000\n"
+"PO-Revision-Date: 2026-04-26 00:00+0000\n"
+"Last-Translator: NOME <email@example.com>\n"
+"Language-Team: Korean <ko@li.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/window/main_window.rs
+msgid "Containers"
+msgstr "컨테이너"
+
+#: src/window/main_window.rs
+msgid "Images"
+msgstr "이미지"
+
+#: src/window/main_window.rs
+msgid "Volumes"
+msgstr "볼륨"
+
+#: src/window/main_window.rs
+msgid "Networks"
+msgstr "네트워크"
+
+#: src/window/main_window.rs
+msgid "Prune System?"
+msgstr "시스템을 정리하시겠습니까?"
+
+#: src/window/main_window.rs
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+"이 작업은 모든 중지된 컨테이너, 사용되지 않는 이미지, 미사용 네트워크를 "
+"제거합니다. 이 작업은 취소할 수 없습니다."
+
+#: src/window/main_window.rs
+msgid "Prune"
+msgstr "정리"
+
+#: src/window/main_window.rs
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] "{n}개의 컨테이너를 정리했습니다"
+
+#: src/window/main_window.rs
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] "{n}개의 이미지"
+
+#: src/window/main_window.rs
+msgid "Prune failed"
+msgstr "정리 실패"
+
+#: src/window/components/confirm_dialog.rs
+msgid "Cancel"
+msgstr "취소"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Stop container"
+msgstr "컨테이너 중지"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Start container"
+msgstr "컨테이너 시작"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Pause container"
+msgstr "컨테이너 일시정지"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Unpause container"
+msgstr "컨테이너 재개"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove container"
+msgstr "컨테이너 제거"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove"
+msgstr "제거"
+
+#: src/window/views/containers_view.rs
+msgid "Container stopped"
+msgstr "컨테이너가 중지되었습니다"
+
+#: src/window/views/containers_view.rs
+msgid "Container started"
+msgstr "컨테이너가 시작되었습니다"
+
+#: src/window/views/containers_view.rs
+msgid "Container paused"
+msgstr "컨테이너가 일시정지되었습니다"
+
+#: src/window/views/containers_view.rs
+msgid "Container unpaused"
+msgstr "컨테이너가 재개되었습니다"
+
+#: src/window/views/containers_view.rs
+msgid "Container removed"
+msgstr "컨테이너가 제거되었습니다"
+
+#: src/window/views/containers_view.rs
+msgid "Container restarted"
+msgstr "컨테이너가 재시작되었습니다"
+
+#: src/window/views/containers_view.rs
+msgid "Remove Container?"
+msgstr "컨테이너를 제거하시겠습니까?"
+
+#: src/window/views/containers_view.rs
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr "컨테이너 \"{name}\"을(를) 제거하시겠습니까? 이 작업은 취소할 수 없습니다."
+
+#: src/window/views/containers_view.rs
+msgid "Failed to load containers"
+msgstr "컨테이너 로드 실패"
+
+#: src/window/views/containers_view.rs
+msgid "Stop failed"
+msgstr "중지 실패"
+
+#: src/window/views/containers_view.rs
+msgid "Start failed"
+msgstr "시작 실패"
+
+#: src/window/views/containers_view.rs
+msgid "Pause failed"
+msgstr "일시정지 실패"
+
+#: src/window/views/containers_view.rs
+msgid "Unpause failed"
+msgstr "재개 실패"
+
+#: src/window/views/containers_view.rs
+msgid "Remove failed"
+msgstr "제거 실패"
+
+#: src/window/views/containers_view.rs
+msgid "Restart failed"
+msgstr "재시작 실패"
+
+#: src/window/views/containers_view.rs
+msgid "Restart"
+msgstr "재시작"
+
+#: src/window/views/containers_view.rs
+msgid "Restart this container"
+msgstr "이 컨테이너 재시작"
+
+#: src/window/views/containers_view.rs
+msgid "Name"
+msgstr "이름"
+
+#: src/window/views/containers_view.rs
+msgid "ID"
+msgstr "ID"
+
+#: src/window/views/containers_view.rs
+msgid "Image"
+msgstr "이미지"
+
+#: src/window/views/containers_view.rs
+msgid "Command"
+msgstr "명령"
+
+#: src/window/views/containers_view.rs
+msgid "Status"
+msgstr "상태"
+
+#: src/window/views/containers_view.rs
+msgid "Ports"
+msgstr "포트"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove image"
+msgstr "이미지 제거"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove"
+msgstr "제거"
+
+#: src/window/views/images_view.rs
+msgid "Remove Image?"
+msgstr "이미지를 제거하시겠습니까?"
+
+#: src/window/views/images_view.rs
+msgid "Remove image \"{tag}\"?"
+msgstr "이미지 \"{tag}\"을(를) 제거하시겠습니까?"
+
+#: src/window/views/images_view.rs
+msgid "Image removed"
+msgstr "이미지가 제거되었습니다"
+
+#: src/window/views/images_view.rs
+msgid "Failed to load images"
+msgstr "이미지 로드 실패"
+
+#: src/window/views/images_view.rs
+msgid "Tag"
+msgstr "태그"
+
+#: src/window/views/images_view.rs
+msgid "Size"
+msgstr "크기"
+
+#: src/window/views/images_view.rs
+msgid "Created"
+msgstr "생성됨"
+
+#: src/window/views/images_view.rs
+msgid "Digest"
+msgstr "다이제스트"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr "볼륨 제거"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove"
+msgstr "제거"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove Volume?"
+msgstr "볼륨을 제거하시겠습니까?"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr "볼륨 \"{name}\"을(를) 제거하시겠습니까? 모든 데이터가 손실됩니다."
+
+#: src/window/views/volumes_view.rs
+msgid "Volume removed"
+msgstr "볼륨이 제거되었습니다"
+
+#: src/window/views/volumes_view.rs
+msgid "Failed to load volumes"
+msgstr "볼륨 로드 실패"
+
+#: src/window/views/volumes_view.rs
+msgid "Driver"
+msgstr "드라이버"
+
+#: src/window/views/volumes_view.rs
+msgid "Mountpoint"
+msgstr "마운트 포인트"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove network"
+msgstr "네트워크 제거"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove"
+msgstr "제거"
+
+#: src/window/views/networks_view.rs
+msgid "Remove Network?"
+msgstr "네트워크를 제거하시겠습니까?"
+
+#: src/window/views/networks_view.rs
+msgid "Remove network \"{name}\"?"
+msgstr "네트워크 \"{name}\"을(를) 제거하시겠습니까?"
+
+#: src/window/views/networks_view.rs
+msgid "Network removed"
+msgstr "네트워크가 제거되었습니다"
+
+#: src/window/views/networks_view.rs
+msgid "Failed to load networks"
+msgstr "네트워크 로드 실패"
+
+#: src/window/views/networks_view.rs
+msgid "Scope"
+msgstr "범위"
+
+#: src/window/views/networks_view.rs
+msgid "Subnet"
+msgstr "서브넷"
+
+#: data/resources/window.ui
+msgid "Container Manager"
+msgstr "컨테이너 관리자"
+
+#: data/resources/window.ui
+msgid "No Selection"
+msgstr "선택 없음"
+
+#: data/resources/window.ui
+msgid "Select an item from the list to view its details."
+msgstr "목록에서 항목을 선택하여 세부 정보를 확인합니다."
+
+#: data/resources/window.ui
+msgid "Main Menu"
+msgstr "기본 메뉴"
+
+#: data/resources/window.ui
+msgid "Refresh"
+msgstr "새로고침"
+
+#: data/resources/window.ui
+msgid "Detail"
+msgstr "세부 정보"
+
+#: data/resources/window.ui
+msgid "_Prune System…"
+msgstr "시스템 정리(_P)…"
+
+#: data/resources/window.ui
+msgid "_About Container Manager"
+msgstr "컨테이너 관리자 정보(_A)"

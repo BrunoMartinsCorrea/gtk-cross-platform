@@ -1,0 +1,22 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+.status-badge {
+  border-radius: 100px;
+  padding: 1px 8px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Icon-only action buttons in list rows: minimum 44×44 sp touch target (GNOME HIG). */
+.action-button {
+  min-width:  44px;
+  min-height: 44px;
+}
+
+/* Host resource progress bars: color-coded by utilization level */
+progressbar.level-warning trough progress {
+  background-color: @warning_color;
+}
+progressbar.level-error trough progress {
+  background-color: @error_color;
+}

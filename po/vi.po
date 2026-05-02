@@ -1,0 +1,331 @@
+# Vietnamese translation for gtk-cross-platform.
+# Copyright (C) 2026 gtk-cross-platform contributors
+# This file is distributed under the same license as the gtk-cross-platform package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gtk-cross-platform 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-26 00:00+0000\n"
+"PO-Revision-Date: 2026-04-26 00:00+0000\n"
+"Last-Translator: NOME <email@example.com>\n"
+"Language-Team: Vietnamese <vi@li.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/window/main_window.rs
+msgid "Containers"
+msgstr "Vùng chứa"
+
+#: src/window/main_window.rs
+msgid "Images"
+msgstr "Hình ảnh"
+
+#: src/window/main_window.rs
+msgid "Volumes"
+msgstr "Ổ đĩa"
+
+#: src/window/main_window.rs
+msgid "Networks"
+msgstr "Mạng"
+
+#: src/window/main_window.rs
+msgid "Prune System?"
+msgstr "Dọn dẹp hệ thống?"
+
+#: src/window/main_window.rs
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+"Thao tác này sẽ xóa tất cả vùng chứa đã dừng, hình ảnh lơ lửng và mạng "
+"không sử dụng. Không thể hoàn tác."
+
+#: src/window/main_window.rs
+msgid "Prune"
+msgstr "Dọn dẹp"
+
+#: src/window/main_window.rs
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] "Đã dọn dẹp {n} vùng chứa"
+
+#: src/window/main_window.rs
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] "{n} hình ảnh"
+
+#: src/window/main_window.rs
+msgid "Prune failed"
+msgstr "Dọn dẹp thất bại"
+
+#: src/window/components/confirm_dialog.rs
+msgid "Cancel"
+msgstr "Hủy"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Stop container"
+msgstr "Dừng vùng chứa"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Start container"
+msgstr "Khởi động vùng chứa"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Pause container"
+msgstr "Tạm dừng vùng chứa"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Unpause container"
+msgstr "Tiếp tục vùng chứa"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove container"
+msgstr "Xóa vùng chứa"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove"
+msgstr "Xóa"
+
+#: src/window/views/containers_view.rs
+msgid "Container stopped"
+msgstr "Vùng chứa đã dừng"
+
+#: src/window/views/containers_view.rs
+msgid "Container started"
+msgstr "Vùng chứa đã khởi động"
+
+#: src/window/views/containers_view.rs
+msgid "Container paused"
+msgstr "Vùng chứa đã tạm dừng"
+
+#: src/window/views/containers_view.rs
+msgid "Container unpaused"
+msgstr "Vùng chứa đã tiếp tục"
+
+#: src/window/views/containers_view.rs
+msgid "Container removed"
+msgstr "Vùng chứa đã xóa"
+
+#: src/window/views/containers_view.rs
+msgid "Container restarted"
+msgstr "Vùng chứa đã khởi động lại"
+
+#: src/window/views/containers_view.rs
+msgid "Remove Container?"
+msgstr "Xóa vùng chứa?"
+
+#: src/window/views/containers_view.rs
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr "Xóa vùng chứa \"{name}\"? Không thể hoàn tác."
+
+#: src/window/views/containers_view.rs
+msgid "Failed to load containers"
+msgstr "Không thể tải vùng chứa"
+
+#: src/window/views/containers_view.rs
+msgid "Stop failed"
+msgstr "Dừng thất bại"
+
+#: src/window/views/containers_view.rs
+msgid "Start failed"
+msgstr "Khởi động thất bại"
+
+#: src/window/views/containers_view.rs
+msgid "Pause failed"
+msgstr "Tạm dừng thất bại"
+
+#: src/window/views/containers_view.rs
+msgid "Unpause failed"
+msgstr "Tiếp tục thất bại"
+
+#: src/window/views/containers_view.rs
+msgid "Remove failed"
+msgstr "Xóa thất bại"
+
+#: src/window/views/containers_view.rs
+msgid "Restart failed"
+msgstr "Khởi động lại thất bại"
+
+#: src/window/views/containers_view.rs
+msgid "Restart"
+msgstr "Khởi động lại"
+
+#: src/window/views/containers_view.rs
+msgid "Restart this container"
+msgstr "Khởi động lại vùng chứa này"
+
+#: src/window/views/containers_view.rs
+msgid "Name"
+msgstr "Tên"
+
+#: src/window/views/containers_view.rs
+msgid "ID"
+msgstr "ID"
+
+#: src/window/views/containers_view.rs
+msgid "Image"
+msgstr "Hình ảnh"
+
+#: src/window/views/containers_view.rs
+msgid "Command"
+msgstr "Lệnh"
+
+#: src/window/views/containers_view.rs
+msgid "Status"
+msgstr "Trạng thái"
+
+#: src/window/views/containers_view.rs
+msgid "Ports"
+msgstr "Cổng"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove image"
+msgstr "Xóa hình ảnh"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove"
+msgstr "Xóa"
+
+#: src/window/views/images_view.rs
+msgid "Remove Image?"
+msgstr "Xóa hình ảnh?"
+
+#: src/window/views/images_view.rs
+msgid "Remove image \"{tag}\"?"
+msgstr "Xóa hình ảnh \"{tag}\"?"
+
+#: src/window/views/images_view.rs
+msgid "Image removed"
+msgstr "Hình ảnh đã xóa"
+
+#: src/window/views/images_view.rs
+msgid "Failed to load images"
+msgstr "Không thể tải hình ảnh"
+
+#: src/window/views/images_view.rs
+msgid "Tag"
+msgstr "Thẻ"
+
+#: src/window/views/images_view.rs
+msgid "Size"
+msgstr "Kích thước"
+
+#: src/window/views/images_view.rs
+msgid "Created"
+msgstr "Đã tạo"
+
+#: src/window/views/images_view.rs
+msgid "Digest"
+msgstr "Tóm lược"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr "Xóa ổ đĩa"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove"
+msgstr "Xóa"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove Volume?"
+msgstr "Xóa ổ đĩa?"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr "Xóa ổ đĩa \"{name}\"? Tất cả dữ liệu sẽ bị mất."
+
+#: src/window/views/volumes_view.rs
+msgid "Volume removed"
+msgstr "Ổ đĩa đã xóa"
+
+#: src/window/views/volumes_view.rs
+msgid "Failed to load volumes"
+msgstr "Không thể tải ổ đĩa"
+
+#: src/window/views/volumes_view.rs
+msgid "Driver"
+msgstr "Trình điều khiển"
+
+#: src/window/views/volumes_view.rs
+msgid "Mountpoint"
+msgstr "Điểm gắn kết"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove network"
+msgstr "Xóa mạng"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove"
+msgstr "Xóa"
+
+#: src/window/views/networks_view.rs
+msgid "Remove Network?"
+msgstr "Xóa mạng?"
+
+#: src/window/views/networks_view.rs
+msgid "Remove network \"{name}\"?"
+msgstr "Xóa mạng \"{name}\"?"
+
+#: src/window/views/networks_view.rs
+msgid "Network removed"
+msgstr "Mạng đã xóa"
+
+#: src/window/views/networks_view.rs
+msgid "Failed to load networks"
+msgstr "Không thể tải mạng"
+
+#: src/window/views/networks_view.rs
+msgid "Scope"
+msgstr "Phạm vi"
+
+#: src/window/views/networks_view.rs
+msgid "Subnet"
+msgstr "Mạng con"
+
+#: data/resources/window.ui
+msgid "Container Manager"
+msgstr "Trình quản lý vùng chứa"
+
+#: data/resources/window.ui
+msgid "No Selection"
+msgstr "Không có lựa chọn"
+
+#: data/resources/window.ui
+msgid "Select an item from the list to view its details."
+msgstr "Chọn một mục từ danh sách để xem chi tiết."
+
+#: data/resources/window.ui
+msgid "Main Menu"
+msgstr "Menu chính"
+
+#: data/resources/window.ui
+msgid "Refresh"
+msgstr "Làm mới"
+
+#: data/resources/window.ui
+msgid "Detail"
+msgstr "Chi tiết"
+
+#: data/resources/window.ui
+msgid "_Prune System…"
+msgstr "_Dọn dẹp hệ thống…"
+
+#: data/resources/window.ui
+msgid "_About Container Manager"
+msgstr "_Giới thiệu Trình quản lý vùng chứa"

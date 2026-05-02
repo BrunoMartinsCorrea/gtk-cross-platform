@@ -1,0 +1,333 @@
+# French translation for gtk-cross-platform.
+# Copyright (C) 2026 gtk-cross-platform contributors
+# This file is distributed under the same license as the gtk-cross-platform package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gtk-cross-platform 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-26 00:00+0000\n"
+"PO-Revision-Date: 2026-04-26 00:00+0000\n"
+"Last-Translator: NOME <email@example.com>\n"
+"Language-Team: French <fr@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: src/window/main_window.rs
+msgid "Containers"
+msgstr "Conteneurs"
+
+#: src/window/main_window.rs
+msgid "Images"
+msgstr "Images"
+
+#: src/window/main_window.rs
+msgid "Volumes"
+msgstr "Volumes"
+
+#: src/window/main_window.rs
+msgid "Networks"
+msgstr "Réseaux"
+
+#: src/window/main_window.rs
+msgid "Prune System?"
+msgstr "Nettoyer le système ?"
+
+#: src/window/main_window.rs
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+"Ceci supprimera tous les conteneurs arrêtés, les images orphelines et les "
+"réseaux inutilisés. Cette action est irréversible."
+
+#: src/window/main_window.rs
+msgid "Prune"
+msgstr "Nettoyer"
+
+#: src/window/main_window.rs
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] "1 conteneur nettoyé"
+msgstr[1] "{n} conteneurs nettoyés"
+
+#: src/window/main_window.rs
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] "1 image"
+msgstr[1] "{n} images"
+
+#: src/window/main_window.rs
+msgid "Prune failed"
+msgstr "Échec du nettoyage"
+
+#: src/window/components/confirm_dialog.rs
+msgid "Cancel"
+msgstr "Annuler"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Stop container"
+msgstr "Arrêter le conteneur"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Start container"
+msgstr "Démarrer le conteneur"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Pause container"
+msgstr "Mettre le conteneur en pause"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Unpause container"
+msgstr "Reprendre le conteneur"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove container"
+msgstr "Supprimer le conteneur"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove"
+msgstr "Supprimer"
+
+#: src/window/views/containers_view.rs
+msgid "Container stopped"
+msgstr "Conteneur arrêté"
+
+#: src/window/views/containers_view.rs
+msgid "Container started"
+msgstr "Conteneur démarré"
+
+#: src/window/views/containers_view.rs
+msgid "Container paused"
+msgstr "Conteneur mis en pause"
+
+#: src/window/views/containers_view.rs
+msgid "Container unpaused"
+msgstr "Conteneur repris"
+
+#: src/window/views/containers_view.rs
+msgid "Container removed"
+msgstr "Conteneur supprimé"
+
+#: src/window/views/containers_view.rs
+msgid "Container restarted"
+msgstr "Conteneur redémarré"
+
+#: src/window/views/containers_view.rs
+msgid "Remove Container?"
+msgstr "Supprimer le conteneur ?"
+
+#: src/window/views/containers_view.rs
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr "Supprimer le conteneur « {name} » ? Cette action est irréversible."
+
+#: src/window/views/containers_view.rs
+msgid "Failed to load containers"
+msgstr "Échec du chargement des conteneurs"
+
+#: src/window/views/containers_view.rs
+msgid "Stop failed"
+msgstr "Échec de l'arrêt"
+
+#: src/window/views/containers_view.rs
+msgid "Start failed"
+msgstr "Échec du démarrage"
+
+#: src/window/views/containers_view.rs
+msgid "Pause failed"
+msgstr "Échec de la mise en pause"
+
+#: src/window/views/containers_view.rs
+msgid "Unpause failed"
+msgstr "Échec de la reprise"
+
+#: src/window/views/containers_view.rs
+msgid "Remove failed"
+msgstr "Échec de la suppression"
+
+#: src/window/views/containers_view.rs
+msgid "Restart failed"
+msgstr "Échec du redémarrage"
+
+#: src/window/views/containers_view.rs
+msgid "Restart"
+msgstr "Redémarrer"
+
+#: src/window/views/containers_view.rs
+msgid "Restart this container"
+msgstr "Redémarrer ce conteneur"
+
+#: src/window/views/containers_view.rs
+msgid "Name"
+msgstr "Nom"
+
+#: src/window/views/containers_view.rs
+msgid "ID"
+msgstr "ID"
+
+#: src/window/views/containers_view.rs
+msgid "Image"
+msgstr "Image"
+
+#: src/window/views/containers_view.rs
+msgid "Command"
+msgstr "Commande"
+
+#: src/window/views/containers_view.rs
+msgid "Status"
+msgstr "État"
+
+#: src/window/views/containers_view.rs
+msgid "Ports"
+msgstr "Ports"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove image"
+msgstr "Supprimer l'image"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove"
+msgstr "Supprimer"
+
+#: src/window/views/images_view.rs
+msgid "Remove Image?"
+msgstr "Supprimer l'image ?"
+
+#: src/window/views/images_view.rs
+msgid "Remove image \"{tag}\"?"
+msgstr "Supprimer l'image « {tag} » ?"
+
+#: src/window/views/images_view.rs
+msgid "Image removed"
+msgstr "Image supprimée"
+
+#: src/window/views/images_view.rs
+msgid "Failed to load images"
+msgstr "Échec du chargement des images"
+
+#: src/window/views/images_view.rs
+msgid "Tag"
+msgstr "Balise"
+
+#: src/window/views/images_view.rs
+msgid "Size"
+msgstr "Taille"
+
+#: src/window/views/images_view.rs
+msgid "Created"
+msgstr "Créé"
+
+#: src/window/views/images_view.rs
+msgid "Digest"
+msgstr "Condensé"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr "Supprimer le volume"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove"
+msgstr "Supprimer"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove Volume?"
+msgstr "Supprimer le volume ?"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr "Supprimer le volume « {name} » ? Toutes les données seront perdues."
+
+#: src/window/views/volumes_view.rs
+msgid "Volume removed"
+msgstr "Volume supprimé"
+
+#: src/window/views/volumes_view.rs
+msgid "Failed to load volumes"
+msgstr "Échec du chargement des volumes"
+
+#: src/window/views/volumes_view.rs
+msgid "Driver"
+msgstr "Pilote"
+
+#: src/window/views/volumes_view.rs
+msgid "Mountpoint"
+msgstr "Point de montage"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove network"
+msgstr "Supprimer le réseau"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove"
+msgstr "Supprimer"
+
+#: src/window/views/networks_view.rs
+msgid "Remove Network?"
+msgstr "Supprimer le réseau ?"
+
+#: src/window/views/networks_view.rs
+msgid "Remove network \"{name}\"?"
+msgstr "Supprimer le réseau « {name} » ?"
+
+#: src/window/views/networks_view.rs
+msgid "Network removed"
+msgstr "Réseau supprimé"
+
+#: src/window/views/networks_view.rs
+msgid "Failed to load networks"
+msgstr "Échec du chargement des réseaux"
+
+#: src/window/views/networks_view.rs
+msgid "Scope"
+msgstr "Portée"
+
+#: src/window/views/networks_view.rs
+msgid "Subnet"
+msgstr "Sous-réseau"
+
+#: data/resources/window.ui
+msgid "Container Manager"
+msgstr "Gestionnaire de conteneurs"
+
+#: data/resources/window.ui
+msgid "No Selection"
+msgstr "Aucune sélection"
+
+#: data/resources/window.ui
+msgid "Select an item from the list to view its details."
+msgstr "Sélectionnez un élément dans la liste pour afficher ses détails."
+
+#: data/resources/window.ui
+msgid "Main Menu"
+msgstr "Menu principal"
+
+#: data/resources/window.ui
+msgid "Refresh"
+msgstr "Actualiser"
+
+#: data/resources/window.ui
+msgid "Detail"
+msgstr "Détail"
+
+#: data/resources/window.ui
+msgid "_Prune System…"
+msgstr "_Nettoyer le système…"
+
+#: data/resources/window.ui
+msgid "_About Container Manager"
+msgstr "_À propos du gestionnaire de conteneurs"

@@ -1,0 +1,333 @@
+# German translation for gtk-cross-platform.
+# Copyright (C) 2026 gtk-cross-platform contributors
+# This file is distributed under the same license as the gtk-cross-platform package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gtk-cross-platform 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-26 00:00+0000\n"
+"PO-Revision-Date: 2026-04-26 00:00+0000\n"
+"Last-Translator: NOME <email@example.com>\n"
+"Language-Team: German <de@li.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/window/main_window.rs
+msgid "Containers"
+msgstr "Container"
+
+#: src/window/main_window.rs
+msgid "Images"
+msgstr "Images"
+
+#: src/window/main_window.rs
+msgid "Volumes"
+msgstr "Volumes"
+
+#: src/window/main_window.rs
+msgid "Networks"
+msgstr "Netzwerke"
+
+#: src/window/main_window.rs
+msgid "Prune System?"
+msgstr "System bereinigen?"
+
+#: src/window/main_window.rs
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+"Dies entfernt alle gestoppten Container, verwaiste Images und nicht "
+"verwendete Netzwerke. Diese Aktion kann nicht rückgängig gemacht werden."
+
+#: src/window/main_window.rs
+msgid "Prune"
+msgstr "Bereinigen"
+
+#: src/window/main_window.rs
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] "1 Container bereinigt"
+msgstr[1] "{n} Container bereinigt"
+
+#: src/window/main_window.rs
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] "1 Image"
+msgstr[1] "{n} Images"
+
+#: src/window/main_window.rs
+msgid "Prune failed"
+msgstr "Bereinigung fehlgeschlagen"
+
+#: src/window/components/confirm_dialog.rs
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Stop container"
+msgstr "Container stoppen"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Start container"
+msgstr "Container starten"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Pause container"
+msgstr "Container pausieren"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Unpause container"
+msgstr "Container fortsetzen"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove container"
+msgstr "Container entfernen"
+
+#: src/window/views/containers_view.rs
+msgctxt "container action"
+msgid "Remove"
+msgstr "Entfernen"
+
+#: src/window/views/containers_view.rs
+msgid "Container stopped"
+msgstr "Container gestoppt"
+
+#: src/window/views/containers_view.rs
+msgid "Container started"
+msgstr "Container gestartet"
+
+#: src/window/views/containers_view.rs
+msgid "Container paused"
+msgstr "Container pausiert"
+
+#: src/window/views/containers_view.rs
+msgid "Container unpaused"
+msgstr "Container fortgesetzt"
+
+#: src/window/views/containers_view.rs
+msgid "Container removed"
+msgstr "Container entfernt"
+
+#: src/window/views/containers_view.rs
+msgid "Container restarted"
+msgstr "Container neu gestartet"
+
+#: src/window/views/containers_view.rs
+msgid "Remove Container?"
+msgstr "Container entfernen?"
+
+#: src/window/views/containers_view.rs
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr "Container \"{name}\" entfernen? Diese Aktion kann nicht rückgängig gemacht werden."
+
+#: src/window/views/containers_view.rs
+msgid "Failed to load containers"
+msgstr "Container konnten nicht geladen werden"
+
+#: src/window/views/containers_view.rs
+msgid "Stop failed"
+msgstr "Stoppen fehlgeschlagen"
+
+#: src/window/views/containers_view.rs
+msgid "Start failed"
+msgstr "Starten fehlgeschlagen"
+
+#: src/window/views/containers_view.rs
+msgid "Pause failed"
+msgstr "Pausieren fehlgeschlagen"
+
+#: src/window/views/containers_view.rs
+msgid "Unpause failed"
+msgstr "Fortsetzen fehlgeschlagen"
+
+#: src/window/views/containers_view.rs
+msgid "Remove failed"
+msgstr "Entfernen fehlgeschlagen"
+
+#: src/window/views/containers_view.rs
+msgid "Restart failed"
+msgstr "Neustart fehlgeschlagen"
+
+#: src/window/views/containers_view.rs
+msgid "Restart"
+msgstr "Neu starten"
+
+#: src/window/views/containers_view.rs
+msgid "Restart this container"
+msgstr "Diesen Container neu starten"
+
+#: src/window/views/containers_view.rs
+msgid "Name"
+msgstr "Name"
+
+#: src/window/views/containers_view.rs
+msgid "ID"
+msgstr "ID"
+
+#: src/window/views/containers_view.rs
+msgid "Image"
+msgstr "Image"
+
+#: src/window/views/containers_view.rs
+msgid "Command"
+msgstr "Befehl"
+
+#: src/window/views/containers_view.rs
+msgid "Status"
+msgstr "Status"
+
+#: src/window/views/containers_view.rs
+msgid "Ports"
+msgstr "Ports"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove image"
+msgstr "Image entfernen"
+
+#: src/window/views/images_view.rs
+msgctxt "image action"
+msgid "Remove"
+msgstr "Entfernen"
+
+#: src/window/views/images_view.rs
+msgid "Remove Image?"
+msgstr "Image entfernen?"
+
+#: src/window/views/images_view.rs
+msgid "Remove image \"{tag}\"?"
+msgstr "Image \"{tag}\" entfernen?"
+
+#: src/window/views/images_view.rs
+msgid "Image removed"
+msgstr "Image entfernt"
+
+#: src/window/views/images_view.rs
+msgid "Failed to load images"
+msgstr "Images konnten nicht geladen werden"
+
+#: src/window/views/images_view.rs
+msgid "Tag"
+msgstr "Tag"
+
+#: src/window/views/images_view.rs
+msgid "Size"
+msgstr "Größe"
+
+#: src/window/views/images_view.rs
+msgid "Created"
+msgstr "Erstellt"
+
+#: src/window/views/images_view.rs
+msgid "Digest"
+msgstr "Hash"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr "Volume entfernen"
+
+#: src/window/views/volumes_view.rs
+msgctxt "volume action"
+msgid "Remove"
+msgstr "Entfernen"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove Volume?"
+msgstr "Volume entfernen?"
+
+#: src/window/views/volumes_view.rs
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr "Volume \"{name}\" entfernen? Alle Daten gehen verloren."
+
+#: src/window/views/volumes_view.rs
+msgid "Volume removed"
+msgstr "Volume entfernt"
+
+#: src/window/views/volumes_view.rs
+msgid "Failed to load volumes"
+msgstr "Volumes konnten nicht geladen werden"
+
+#: src/window/views/volumes_view.rs
+msgid "Driver"
+msgstr "Treiber"
+
+#: src/window/views/volumes_view.rs
+msgid "Mountpoint"
+msgstr "Einhängepunkt"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove network"
+msgstr "Netzwerk entfernen"
+
+#: src/window/views/networks_view.rs
+msgctxt "network action"
+msgid "Remove"
+msgstr "Entfernen"
+
+#: src/window/views/networks_view.rs
+msgid "Remove Network?"
+msgstr "Netzwerk entfernen?"
+
+#: src/window/views/networks_view.rs
+msgid "Remove network \"{name}\"?"
+msgstr "Netzwerk \"{name}\" entfernen?"
+
+#: src/window/views/networks_view.rs
+msgid "Network removed"
+msgstr "Netzwerk entfernt"
+
+#: src/window/views/networks_view.rs
+msgid "Failed to load networks"
+msgstr "Netzwerke konnten nicht geladen werden"
+
+#: src/window/views/networks_view.rs
+msgid "Scope"
+msgstr "Umfang"
+
+#: src/window/views/networks_view.rs
+msgid "Subnet"
+msgstr "Subnetz"
+
+#: data/resources/window.ui
+msgid "Container Manager"
+msgstr "Container-Manager"
+
+#: data/resources/window.ui
+msgid "No Selection"
+msgstr "Keine Auswahl"
+
+#: data/resources/window.ui
+msgid "Select an item from the list to view its details."
+msgstr "Wählen Sie ein Element aus der Liste aus, um dessen Details anzuzeigen."
+
+#: data/resources/window.ui
+msgid "Main Menu"
+msgstr "Hauptmenü"
+
+#: data/resources/window.ui
+msgid "Refresh"
+msgstr "Aktualisieren"
+
+#: data/resources/window.ui
+msgid "Detail"
+msgstr "Details"
+
+#: data/resources/window.ui
+msgid "_Prune System…"
+msgstr "_System bereinigen…"
+
+#: data/resources/window.ui
+msgid "_About Container Manager"
+msgstr "_Über den Container-Manager"

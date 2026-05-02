@@ -1,0 +1,1110 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the com.example.GtkCrossPlatform package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: com.example.GtkCrossPlatform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-02 01:35-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: src/app.rs:233 data/resources/window.ui:4 data/resources/window.ui:71
+msgid "Container Manager"
+msgstr ""
+
+#: src/app.rs:237
+msgid ""
+"A native GNOME application for managing Docker, Podman, and containerd "
+"containers."
+msgstr ""
+
+#: src/app.rs:245
+msgid "translator-credits"
+msgstr ""
+
+#: src/app.rs:254
+msgid "Source Code on GitHub"
+msgstr ""
+
+#: src/app.rs:258
+msgid "Report an Issue"
+msgstr ""
+
+#: src/app.rs:263
+msgid "Toolkit"
+msgstr ""
+
+#: src/app.rs:271
+msgid "Unknown"
+msgstr ""
+
+#: src/app.rs:274 src/app.rs:331
+msgid "Runtime"
+msgstr ""
+
+#: src/app.rs:286
+msgid "Preferences"
+msgstr ""
+
+#: src/app.rs:294
+msgid "Appearance"
+msgstr ""
+
+#: src/app.rs:298
+msgid "Theme"
+msgstr ""
+
+#: src/app.rs:301
+msgid "Color Scheme"
+msgstr ""
+
+#: src/app.rs:302
+msgid "Light, dark, or follow the system default"
+msgstr ""
+
+#: src/app.rs:304
+msgid "System Default"
+msgstr ""
+
+#: src/app.rs:305
+msgid "Light"
+msgstr ""
+
+#: src/app.rs:306
+msgid "Dark"
+msgstr ""
+
+#: src/app.rs:335
+msgid "Container Runtime"
+msgstr ""
+
+#: src/app.rs:337
+msgid "Custom socket path or CLI override. Leave empty to use auto-detection."
+msgstr ""
+
+#: src/app.rs:341
+msgid "Socket / CLI path"
+msgstr ""
+
+#: src/app.rs:365
+msgid "Container Defaults"
+msgstr ""
+
+#: src/app.rs:369
+msgid "New Container Defaults"
+msgstr ""
+
+#: src/app.rs:371
+msgid "Default settings applied when creating a new container."
+msgstr ""
+
+#: src/app.rs:375 src/window/views/containers_view.rs:2173
+msgid "Restart Policy"
+msgstr ""
+
+#: src/app.rs:376
+msgid "Applied when the container exits"
+msgstr ""
+
+#: src/app.rs:378 src/window/views/containers_view.rs:2167
+#: src/window/views/images_view.rs:552 src/window/views/volumes_view.rs:481
+#: src/window/views/networks_view.rs:528
+msgid "No"
+msgstr ""
+
+#: src/app.rs:379
+msgid "On Failure"
+msgstr ""
+
+#: src/app.rs:380
+msgid "Unless Stopped"
+msgstr ""
+
+#: src/app.rs:381 src/window/views/containers_view.rs:2168
+msgid "Always"
+msgstr ""
+
+#: src/app.rs:404
+msgid "Stop Timeout"
+msgstr ""
+
+#: src/app.rs:405
+msgid "Seconds to wait before killing the container"
+msgstr ""
+
+#: src/window/main_window.rs:193
+msgid "Remove cannot be undone"
+msgstr ""
+
+#: src/window/main_window.rs:217
+msgid "Prune System?"
+msgstr ""
+
+#: src/window/main_window.rs:219
+msgid ""
+"This will remove all stopped containers, dangling images, and unused "
+"networks. This cannot be undone."
+msgstr ""
+
+#: src/window/main_window.rs:222
+msgid "Prune"
+msgstr ""
+
+#: src/window/main_window.rs:242
+#, rust-format
+msgid "Pruned 1 container"
+msgid_plural "Pruned {n} containers"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/window/main_window.rs:244
+#, rust-format
+msgid "1 image"
+msgid_plural "{n} images"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/window/main_window.rs:252
+msgid "Prune failed"
+msgstr ""
+
+#: src/window/main_window.rs:425
+msgid "Home"
+msgstr ""
+
+#: src/window/main_window.rs:441 src/window/views/networks_view.rs:540
+msgid "Containers"
+msgstr ""
+
+#. Expose value text so screen readers announce the storage size.
+#: src/window/main_window.rs:468 src/window/views/dashboard_view.rs:285
+#: src/window/views/dashboard_view.rs:306
+#: src/window/views/dashboard_view.rs:745
+msgid "Images"
+msgstr ""
+
+#: src/window/main_window.rs:483 src/window/views/dashboard_view.rs:288
+#: src/window/views/dashboard_view.rs:311
+#: src/window/views/dashboard_view.rs:746
+msgid "Volumes"
+msgstr ""
+
+#: src/window/main_window.rs:499 src/window/views/dashboard_view.rs:292
+msgid "Networks"
+msgstr ""
+
+#: src/window/main_window.rs:524
+msgid "Switch container runtime"
+msgstr ""
+
+#: src/window/main_window.rs:538
+msgid "Switch to runtime"
+msgstr ""
+
+#: src/window/main_window.rs:574
+msgid "Failed to switch runtime"
+msgstr ""
+
+#: src/window/views/containers_view.rs:132
+msgid "Search containers…"
+msgstr ""
+
+#: src/window/views/containers_view.rs:211
+#: src/window/views/containers_view.rs:2089
+msgid "New Container"
+msgstr ""
+
+#: src/window/views/containers_view.rs:216
+#: src/window/views/containers_view.rs:218
+msgid "Create a new container"
+msgstr ""
+
+#: src/window/views/containers_view.rs:354
+#: src/window/views/containers_view.rs:357
+msgctxt "container action"
+msgid "Start container"
+msgstr ""
+
+#: src/window/views/containers_view.rs:366
+#: src/window/views/containers_view.rs:369
+msgctxt "container action"
+msgid "Pause container"
+msgstr ""
+
+#: src/window/views/containers_view.rs:377
+msgctxt "container action"
+msgid "Remove container"
+msgstr ""
+
+#: src/window/views/containers_view.rs:404
+msgid "Container stopped"
+msgstr ""
+
+#: src/window/views/containers_view.rs:409
+msgid "Stop failed"
+msgstr ""
+
+#: src/window/views/containers_view.rs:420
+msgid "Container started"
+msgstr ""
+
+#: src/window/views/containers_view.rs:425
+msgid "Start failed"
+msgstr ""
+
+#: src/window/views/containers_view.rs:455
+msgid "Container unpaused"
+msgstr ""
+
+#: src/window/views/containers_view.rs:462
+msgid "Unpause failed"
+msgstr ""
+
+#: src/window/views/containers_view.rs:473
+msgid "Container paused"
+msgstr ""
+
+#: src/window/views/containers_view.rs:478
+msgid "Pause failed"
+msgstr ""
+
+#: src/window/views/containers_view.rs:503
+#, rust-format
+msgid "Remove container \"{name}\"? This cannot be undone."
+msgstr ""
+
+#: src/window/views/containers_view.rs:508
+msgid "Remove Container?"
+msgstr ""
+
+#: src/window/views/containers_view.rs:510
+msgctxt "container action"
+msgid "Remove"
+msgstr ""
+
+#: src/window/views/containers_view.rs:521
+msgid "Container removed"
+msgstr ""
+
+#: src/window/views/containers_view.rs:530 src/window/views/images_view.rs:271
+#: src/window/views/volumes_view.rs:250 src/window/views/networks_view.rs:259
+msgid "Remove failed"
+msgstr ""
+
+#: src/window/views/containers_view.rs:672
+#: src/window/views/containers_view.rs:676
+msgctxt "compose action"
+msgid "Start all containers in group"
+msgstr ""
+
+#: src/window/views/containers_view.rs:686
+#: src/window/views/containers_view.rs:690
+msgctxt "compose action"
+msgid "Stop all containers in group"
+msgstr ""
+
+#: src/window/views/containers_view.rs:732
+msgid "Compose group started"
+msgstr ""
+
+#: src/window/views/containers_view.rs:737
+msgid "Start all failed"
+msgstr ""
+
+#: src/window/views/containers_view.rs:780
+msgid "Compose group stopped"
+msgstr ""
+
+#: src/window/views/containers_view.rs:785
+msgid "Stop all failed"
+msgstr ""
+
+#. Update accessible labels to include the numeric value so screen readers
+#. announce e.g. "4 Running" rather than just "Running".
+#: src/window/views/containers_view.rs:828
+#: src/window/views/dashboard_view.rs:258
+#: src/window/views/dashboard_view.rs:638
+msgid "Running"
+msgstr ""
+
+#: src/window/views/containers_view.rs:964
+msgid "Failed to load containers"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1025 src/window/views/images_view.rs:470
+#: src/window/views/volumes_view.rs:447 src/window/views/networks_view.rs:479
+msgid "No Results"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1028
+msgid "No containers matched"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1035
+msgid "No Containers"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1038
+msgid "No containers found."
+msgstr ""
+
+#: src/window/views/containers_view.rs:1057 src/window/views/images_view.rs:575
+msgid "Info"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1060
+msgid "Stats"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1065
+msgid "Inspect"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1069
+msgid "Logs"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1074
+msgid "Terminal"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1103
+#: src/window/views/volumes_view.rs:487 src/window/views/networks_view.rs:534
+msgid "Name"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1133
+msgid "Container renamed"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1141
+msgid "Rename failed"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1173 src/window/views/images_view.rs:558
+msgid "ID"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1174
+#: src/window/views/containers_view.rs:2112
+#: src/window/views/containers_view.rs:2140
+msgid "Image"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1175
+msgid "Command"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1176
+msgid "Status"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1177
+msgid "Ports"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1178
+msgid "Mounts"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1185
+#: src/window/views/containers_view.rs:2115
+msgid "Environment"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1197
+#: src/window/views/containers_view.rs:1219
+#: src/window/views/containers_view.rs:1221
+msgid "Show value"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1199
+msgid "Toggle secret visibility"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1212
+#: src/window/views/containers_view.rs:1214
+msgid "Hide value"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1237
+msgid "Restart"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1239
+#: src/window/views/containers_view.rs:1241
+msgid "Restart this container"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1254
+msgid "Container restarted"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1259
+msgid "Restart failed"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1301
+msgid "CPU %"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1302
+msgid "Memory %"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1303
+msgid "Net In KB/s"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1304
+msgid "Net Out KB/s"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1490
+#: src/window/views/containers_view.rs:1491
+msgid "Copy JSON"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1540
+msgid "Failed to inspect container"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1718
+msgid "Show timestamps"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1720
+msgid "Toggle timestamps"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1726
+msgid "Auto-scroll to newest log line"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1728
+msgid "Follow log output"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1735
+#: src/window/views/containers_view.rs:1736
+msgid "Copy logs"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1741
+#: src/window/views/containers_view.rs:1743
+msgid "Clear log output"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1749
+#: src/window/views/containers_view.rs:1750
+msgid "Refresh logs"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1843
+msgid "Failed to load logs"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1896
+msgid "Command…"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1899 src/window/views/images_view.rs:519
+msgid "Run"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1904
+#: src/window/views/containers_view.rs:1908
+msgctxt "terminal action"
+msgid "Run command in container"
+msgstr ""
+
+#: src/window/views/containers_view.rs:1919
+msgid "Terminal is only available for running containers."
+msgstr ""
+
+#: src/window/views/containers_view.rs:1954
+msgid "Session closed."
+msgstr ""
+
+#: src/window/views/containers_view.rs:1995
+msgid "Exec failed"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2097 src/window/views/images_view.rs:684
+#: src/window/views/volumes_view.rs:503 src/window/views/networks_view.rs:600
+#: src/window/components/confirm_dialog.rs:18
+msgid "Cancel"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2100
+msgid "Create"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2113
+msgid "Config"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2114
+msgid "Ports & Volumes"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2146
+msgid "Image reference (e.g. nginx:latest)"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2155
+msgid "Configuration"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2162
+msgid "Container name (optional)"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2169
+msgid "Unless-Stopped"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2170
+msgid "On-Failure"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2180
+msgid "Network (optional, e.g. bridge)"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2202
+msgid "Port Mappings"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2206
+msgid "Host : Container"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2212
+msgid "Add port mapping"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2224
+msgid "Volume Mounts"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2228
+msgid "Host path : Container path"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2234
+msgid "Add volume mount"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2255
+msgid "Host port"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2256
+msgid "Container port"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2270
+msgid "Host path"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2271
+msgid "Container path"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2278
+msgid "Environment Variables"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2279
+msgid "One KEY=VALUE per line"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2307
+msgid "Back"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2309
+msgid "Next"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2494
+msgid "Container created"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2502
+#: src/window/views/volumes_view.rs:568 src/window/views/networks_view.rs:687
+msgid "Create failed"
+msgstr ""
+
+#: src/window/views/containers_view.rs:2562
+msgid "Remove"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:86
+msgid "Navigate to"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:148
+msgid "just now"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:261
+#: src/window/views/dashboard_view.rs:639
+msgid "Paused"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:265
+#: src/window/views/dashboard_view.rs:640
+msgid "Stopped"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:269
+#: src/window/views/dashboard_view.rs:641
+msgid "Errors"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:304
+msgid "Storage"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:318
+msgid "Host Resources"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:319
+#: src/window/views/dashboard_view.rs:782
+msgid "CPU"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:320
+#: src/window/views/dashboard_view.rs:783
+msgid "Memory"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:321
+#: src/window/views/dashboard_view.rs:784
+msgid "Disk"
+msgstr ""
+
+#. ── section headings ─────────────────────────────────────────────────
+#: src/window/views/dashboard_view.rs:353
+msgid "Container Status"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:357
+msgid "Resources"
+msgstr ""
+
+#. ── recent containers ────────────────────────────────────────────────
+#: src/window/views/dashboard_view.rs:362
+msgid "Recent Containers"
+msgstr ""
+
+#. ── recent events ────────────────────────────────────────────────────
+#: src/window/views/dashboard_view.rs:367
+msgid "Recent Events"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:504
+msgid "Dashboard load failed"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:550
+msgid "Usage stats failed"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:570
+msgid "Last updated"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:678
+msgid "See all containers"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:686
+msgid "No containers"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:709
+msgid "No recent events"
+msgstr ""
+
+#: src/window/views/dashboard_view.rs:740
+msgid "Percentage of total disk space used by container storage"
+msgstr ""
+
+#: src/window/views/images_view.rs:70
+msgid "Search images…"
+msgstr ""
+
+#: src/window/views/images_view.rs:115 src/window/views/images_view.rs:676
+msgid "Pull Image"
+msgstr ""
+
+#: src/window/views/images_view.rs:120
+msgid "Pull a new image"
+msgstr ""
+
+#: src/window/views/images_view.rs:121
+msgid "Pull image"
+msgstr ""
+
+#: src/window/views/images_view.rs:224
+msgctxt "image action"
+msgid "Remove image"
+msgstr ""
+
+#: src/window/views/images_view.rs:243
+#, rust-format
+msgid "Remove image \"{tag}\"?"
+msgstr ""
+
+#: src/window/views/images_view.rs:247
+msgid "Remove Image?"
+msgstr ""
+
+#: src/window/views/images_view.rs:249
+msgctxt "image action"
+msgid "Remove"
+msgstr ""
+
+#: src/window/views/images_view.rs:262
+msgid "Image removed"
+msgstr ""
+
+#: src/window/views/images_view.rs:295
+msgid "dangling"
+msgstr ""
+
+#: src/window/views/images_view.rs:418
+msgid "Failed to load images"
+msgstr ""
+
+#: src/window/views/images_view.rs:473
+msgid "No images matched"
+msgstr ""
+
+#: src/window/views/images_view.rs:480
+msgid "No Images"
+msgstr ""
+
+#: src/window/views/images_view.rs:483
+msgid "No local images found."
+msgstr ""
+
+#: src/window/views/images_view.rs:523
+msgid "Create and start a container from this image"
+msgstr ""
+
+#: src/window/views/images_view.rs:526
+msgid "Run container from image"
+msgstr ""
+
+#: src/window/views/images_view.rs:531
+msgid "Push to registry…"
+msgstr ""
+
+#: src/window/views/images_view.rs:550 src/window/views/volumes_view.rs:479
+#: src/window/views/networks_view.rs:526
+msgid "Yes"
+msgstr ""
+
+#: src/window/views/images_view.rs:557
+msgid "Tag"
+msgstr ""
+
+#: src/window/views/images_view.rs:559 src/window/views/volumes_view.rs:490
+msgid "Size"
+msgstr ""
+
+#: src/window/views/images_view.rs:560
+msgid "Created"
+msgstr ""
+
+#: src/window/views/images_view.rs:562
+msgid "Digest"
+msgstr ""
+
+#: src/window/views/images_view.rs:569 src/window/views/volumes_view.rs:491
+msgid "In Use"
+msgstr ""
+
+#: src/window/views/images_view.rs:604
+msgid "Layers"
+msgstr ""
+
+#: src/window/views/images_view.rs:654
+msgid "Total"
+msgstr ""
+
+#: src/window/views/images_view.rs:660
+msgid "Failed to load layers"
+msgstr ""
+
+#: src/window/views/images_view.rs:687
+msgid "Pull"
+msgstr ""
+
+#: src/window/views/images_view.rs:700
+msgid "Image Reference"
+msgstr ""
+
+#: src/window/views/images_view.rs:701
+msgid "e.g. ubuntu:22.04, ghcr.io/org/app:v1"
+msgstr ""
+
+#: src/window/views/images_view.rs:703
+msgid "Registry/tag"
+msgstr ""
+
+#: src/window/views/images_view.rs:717
+msgid "Pulling…"
+msgstr ""
+
+#: src/window/views/images_view.rs:788
+msgid "Image pulled"
+msgstr ""
+
+#: src/window/views/images_view.rs:796
+msgid "Pull failed"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:63
+msgid "Search volumes…"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:104 src/window/views/volumes_view.rs:502
+msgid "New Volume"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:109
+msgid "Create a new volume"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:110
+msgid "New volume"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:206
+msgctxt "volume action"
+msgid "Remove volume"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:224
+#, rust-format
+msgid "Remove volume \"{name}\"? All data will be lost."
+msgstr ""
+
+#: src/window/views/volumes_view.rs:229
+msgid "Remove Volume?"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:231
+msgctxt "volume action"
+msgid "Remove"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:243
+msgid "Volume removed"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:273
+msgid "unused"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:396
+msgid "Failed to load volumes"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:450
+msgid "No volumes matched"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:457
+msgid "No Volumes"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:460
+msgid "No volumes found."
+msgstr ""
+
+#: src/window/views/volumes_view.rs:481
+msgid "can be pruned"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:488 src/window/views/volumes_view.rs:517
+#: src/window/views/networks_view.rs:535 src/window/views/networks_view.rs:614
+msgid "Driver"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:489
+msgid "Mountpoint"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:504
+msgctxt "volume action"
+msgid "Create"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:513
+msgid "Volume name"
+msgstr ""
+
+#: src/window/views/volumes_view.rs:563
+msgid "Volume created"
+msgstr ""
+
+#: src/window/views/networks_view.rs:66
+msgid "Search networks…"
+msgstr ""
+
+#: src/window/views/networks_view.rs:108 src/window/views/networks_view.rs:599
+msgid "New Network"
+msgstr ""
+
+#: src/window/views/networks_view.rs:113
+msgid "Create a new network"
+msgstr ""
+
+#: src/window/views/networks_view.rs:114
+msgid "New network"
+msgstr ""
+
+#: src/window/views/networks_view.rs:215
+msgctxt "network action"
+msgid "Remove network"
+msgstr ""
+
+#: src/window/views/networks_view.rs:234
+#, rust-format
+msgid "Remove network \"{name}\"?"
+msgstr ""
+
+#: src/window/views/networks_view.rs:238
+msgid "Remove Network?"
+msgstr ""
+
+#: src/window/views/networks_view.rs:240
+msgctxt "network action"
+msgid "Remove"
+msgstr ""
+
+#: src/window/views/networks_view.rs:252
+msgid "Network removed"
+msgstr ""
+
+#: src/window/views/networks_view.rs:283
+msgid "container"
+msgstr ""
+
+#: src/window/views/networks_view.rs:285
+msgid "containers"
+msgstr ""
+
+#: src/window/views/networks_view.rs:425
+msgid "Failed to load networks"
+msgstr ""
+
+#: src/window/views/networks_view.rs:482
+msgid "No networks matched"
+msgstr ""
+
+#: src/window/views/networks_view.rs:489
+msgid "No Networks"
+msgstr ""
+
+#: src/window/views/networks_view.rs:492
+msgid "No networks found."
+msgstr ""
+
+#: src/window/views/networks_view.rs:536
+msgid "Scope"
+msgstr ""
+
+#: src/window/views/networks_view.rs:537
+msgid "Subnet"
+msgstr ""
+
+#: src/window/views/networks_view.rs:538
+msgid "Gateway"
+msgstr ""
+
+#: src/window/views/networks_view.rs:539
+msgid "Internal"
+msgstr ""
+
+#: src/window/views/networks_view.rs:580
+msgid "Connected Containers"
+msgstr ""
+
+#: src/window/views/networks_view.rs:601
+msgctxt "network action"
+msgid "Create"
+msgstr ""
+
+#: src/window/views/networks_view.rs:610
+msgid "Network name"
+msgstr ""
+
+#: src/window/views/networks_view.rs:628
+msgid "Subnet (optional, CIDR)"
+msgstr ""
+
+#: src/window/views/networks_view.rs:661
+msgid "Invalid subnet — expected CIDR notation (e.g. 172.20.0.0/16)"
+msgstr ""
+
+#: src/window/views/networks_view.rs:682
+msgid "Network created"
+msgstr ""
+
+#: src/window/components/toast_util.rs:30
+msgid "Undo"
+msgstr ""
+
+#: data/resources/window.ui:16
+msgid "No container runtime found. Install Docker, Podman, or containerd."
+msgstr ""
+
+#: data/resources/window.ui:17
+msgid "Retry"
+msgstr ""
+
+#: data/resources/window.ui:26
+msgid "Main Menu"
+msgstr ""
+
+#: data/resources/window.ui:47 data/resources/window.ui:49
+msgid "Refresh"
+msgstr ""
+
+#: data/resources/window.ui:96
+msgid "No Selection"
+msgstr ""
+
+#: data/resources/window.ui:97
+msgid "Select an item from the list to view its details."
+msgstr ""
+
+#: data/resources/window.ui:201
+msgid "_Prune System…"
+msgstr ""
+
+#: data/resources/window.ui:207
+msgid "_Preferences"
+msgstr ""
+
+#: data/resources/window.ui:211
+msgid "_About Container Manager"
+msgstr ""

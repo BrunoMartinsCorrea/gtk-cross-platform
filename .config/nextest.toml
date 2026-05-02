@@ -1,0 +1,11 @@
+[profile.default]
+fail-fast = false
+
+[profile.ci]
+fail-fast = true
+status-level = "all"
+final-status-level = "flaky"
+
+[[profile.ci.overrides]]
+filter = "test(widget_test)"
+test-threads = "1"

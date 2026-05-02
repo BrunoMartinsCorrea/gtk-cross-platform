@@ -37,7 +37,16 @@
       "build-commands": [
         "cargo --offline build --release",
         "install -Dm755 target/release/gtk-cross-platform /app/bin/gtk-cross-platform",
-        "install -Dm644 data/icons/hicolor/scalable/apps/com.example.GtkCrossPlatform.svg /app/share/icons/hicolor/scalable/apps/com.example.GtkCrossPlatform.svg"
+        "install -Dm644 data/icons/hicolor/scalable/apps/com.example.GtkCrossPlatform.svg /app/share/icons/hicolor/scalable/apps/com.example.GtkCrossPlatform.svg",
+        "install -Dm644 data/icons/hicolor/16x16/apps/com.example.GtkCrossPlatform.png /app/share/icons/hicolor/16x16/apps/com.example.GtkCrossPlatform.png",
+        "install -Dm644 data/icons/hicolor/32x32/apps/com.example.GtkCrossPlatform.png /app/share/icons/hicolor/32x32/apps/com.example.GtkCrossPlatform.png",
+        "install -Dm644 data/icons/hicolor/48x48/apps/com.example.GtkCrossPlatform.png /app/share/icons/hicolor/48x48/apps/com.example.GtkCrossPlatform.png",
+        "install -Dm644 data/icons/hicolor/64x64/apps/com.example.GtkCrossPlatform.png /app/share/icons/hicolor/64x64/apps/com.example.GtkCrossPlatform.png",
+        "install -Dm644 data/icons/hicolor/128x128/apps/com.example.GtkCrossPlatform.png /app/share/icons/hicolor/128x128/apps/com.example.GtkCrossPlatform.png",
+        "install -Dm644 data/icons/hicolor/256x256/apps/com.example.GtkCrossPlatform.png /app/share/icons/hicolor/256x256/apps/com.example.GtkCrossPlatform.png",
+        "install -Dm644 data/icons/hicolor/512x512/apps/com.example.GtkCrossPlatform.png /app/share/icons/hicolor/512x512/apps/com.example.GtkCrossPlatform.png",
+        "install -Dm644 data/com.example.GtkCrossPlatform.desktop /app/share/applications/com.example.GtkCrossPlatform.desktop",
+        "install -Dm644 data/com.example.GtkCrossPlatform.metainfo.xml /app/share/metainfo/com.example.GtkCrossPlatform.metainfo.xml"
       ],
       "sources": [
         {

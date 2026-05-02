@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Hexagonal architecture: `IContainerDriver` port with Docker, Podman, containerd, and Mock adapters
+- `ContainerDriverFactory` — auto-detects available runtime via socket / binary probing
+- `spawn_driver_task` — bridges blocking driver calls to the GTK main loop via `async-channel`
+- `ContainersView`, `ImagesView`, `VolumesView`, `NetworksView` — sidebar + detail pane per resource type
+- `StatusBadge`, `ResourceRow`, `DetailPane`, `ConfirmDialog` reusable UI components
+- `MainWindow` redesigned as thin shell over `AdwNavigationSplitView` + `AdwViewStack`
+- Nightly Flatpak bundle published to GitHub Releases on every push to `main`
+- Governance files: `SECURITY.md`, `CODE_OF_CONDUCT.md`, `GOVERNANCE.md`, `AUTHORS`
+- CI workflow (`ci.yml`) for fast lint + unit-test validation on PRs
+- EditorConfig compliance workflow (`editorconfig.yml`)
+
+### Fixed
+
+- SVG icon viewBox made square (256×256) for correct Flatpak export
+- gtk-rs downgraded to 0.9/0.20 for GNOME 48 SDK compatibility
+- Cargo crates pre-downloaded for offline Flatpak build
+
 ## [0.1.0] - 2026-04-18
 
 ### Added
@@ -25,5 +44,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GreetUseCase` unit tests with `GLib.Test` (no GTK dependency in test executable)
 - `meson_options.txt` options: `profile` (default/development) and `platform` (linux/macos/windows/mobile)
 
-[Unreleased]: https://github.com/example/gtk-cross-platform/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/example/gtk-cross-platform/releases/tag/v0.1.0
+[Unreleased]: https://github.com/BrunoMartinsCorrea/gtk-cross-platform/compare/v0.1.0...HEAD
+
+[0.1.0]: https://github.com/BrunoMartinsCorrea/gtk-cross-platform/releases/tag/v0.1.0

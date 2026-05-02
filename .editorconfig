@@ -1,0 +1,87 @@
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 4
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# --- Structured data / config ---
+
+[*.toml]
+indent_size = 2
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.json]
+indent_size = 2
+
+[*.xml]
+indent_size = 2
+
+[*.ui]
+indent_size = 2
+
+[*.svg]
+indent_size = 2
+
+# Apple property lists: Xcode and plutil default to 4-space indentation.
+[*.plist]
+indent_size = 4
+
+[*.desktop]
+indent_size = 2
+
+[meson.build]
+indent_size = 2
+
+[meson_options.txt]
+indent_size = 2
+
+# --- Stylesheets ---
+
+[*.css]
+indent_size = 2
+
+# --- Build systems ---
+
+[Makefile]
+# GNU Make requires tab characters — spaces cause "missing separator" errors.
+indent_style = tab
+
+# --- Shell / scripting ---
+
+[*.sh]
+indent_size = 2
+
+# Windows-native scripts: CRLF is required by cmd.exe and PowerShell ISE.
+[*.{bat,cmd}]
+end_of_line = crlf
+
+[*.ps1]
+end_of_line = crlf
+indent_size = 4
+
+# --- Documentation ---
+
+[*.md]
+# Trailing two-space sequences are valid Markdown hard line-breaks.
+trim_trailing_whitespace = false
+
+# --- Gettext translations ---
+
+[*.{po,pot}]
+charset = utf-8
+# Translatable strings may contain intentional trailing spaces (e.g. sentence
+# fragments that concatenate at runtime); preserve them exactly.
+trim_trailing_whitespace = false
+
+# --- Rust ---
+
+[*.rs]
+# cargo fmt is the authority on Rust indentation; string continuation
+# lines in format!() macros use alignment spacing, not structural indent.
+indent_size = unset

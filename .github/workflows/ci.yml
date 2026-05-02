@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  lint:
+    name: Lint & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - uses: taiki-e/install-action@cargo-nextest
+
+      - name: Install system libraries
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y \
+            libgtk-4-dev libadwaita-1-dev \
+            appstream desktop-file-utils gettext
+
+      - name: Format check
+        run: make fmt
+
+      - name: Clippy
+        run: make lint
+
+      - name: Unit tests
+        run: make test-unit NEXTEST_PROFILE=ci
+
+      - name: Integration tests
+        run: make test-integration NEXTEST_PROFILE=ci
+
+      - name: Validate AppStream metadata
+        run: make validate-metainfo
+
+      - name: Validate .desktop file
+        run: make validate-desktop
+
+      - name: Check version consistency
+        run: make check-version
+
+      - name: i18n lint
+        run: make lint-i18n
+
+      - name: i18n POTFILES completeness
+        run: make check-potfiles
+
+      - name: i18n structural tests
+        run: make test-i18n NEXTEST_PROFILE=ci
+
+  editorconfig:
+    name: EditorConfig compliance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run editorconfig-checker
+        run: npx editorconfig-checker src/ data/ po/ tests/ Cargo.toml build.rs .github/
+
+  audit:
+    name: cargo audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-audit-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-audit-
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+
+      - name: Run audit
+        run: make audit
+
+  deny:
+    name: cargo deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check
+          arguments: --all-features
+
+  typos:
+    name: Spell check (typos)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: crate-ci/typos@v1
+
+  unused-deps:
+    name: Unused dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-machete
+        run: cargo install cargo-machete --locked
+
+      - name: Check for unused dependencies
+        run: make check-unused-deps

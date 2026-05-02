@@ -4,16 +4,27 @@ use std::env;
 fn main() {
     let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
 
-    let app_id = env::var("APP_ID")
-        .unwrap_or_else(|_| "com.example.GtkCrossPlatform".to_string());
-    let profile = env::var("PROFILE")
-        .unwrap_or_else(|_| "default".to_string());
-    let localedir = env::var("LOCALEDIR")
-        .unwrap_or_else(|_| "/usr/local/share/locale".to_string());
+    let app_id = env::var("APP_ID").unwrap_or_else(|_| "com.example.GtkCrossPlatform".to_string());
+    let profile = env::var("PROFILE").unwrap_or_else(|_| "default".to_string());
+    let localedir = env::var("LOCALEDIR").unwrap_or_else(|_| {
+        // On macOS, detect Homebrew prefix at compile time (arm64=/opt/homebrew, x86=/usr/local).
+        if cfg!(target_os = "macos") {
+            let arm = "/opt/homebrew/share/locale";
+            let x86 = "/usr/local/share/locale";
+            if std::path::Path::new(arm).exists() {
+                arm
+            } else {
+                x86
+            }
+            .to_string()
+        } else {
+            "/usr/share/locale".to_string()
+        }
+    });
     let pkgdatadir = env::var("PKGDATADIR")
         .unwrap_or_else(|_| "/usr/local/share/gtk-cross-platform".to_string());
-    let source_datadir = env::var("SOURCE_DATADIR")
-        .unwrap_or_else(|_| format!("{}/data", manifest_dir));
+    let source_datadir =
+        env::var("SOURCE_DATADIR").unwrap_or_else(|_| format!("{}/data", manifest_dir));
 
     println!("cargo:rustc-env=APP_ID={}", app_id);
     println!("cargo:rustc-env=PROFILE={}", profile);
@@ -30,7 +41,7 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
 
     glib_build_tools::compile_resources(
-        &["data/resources"],
+        &["data/resources", "data"],
         "data/resources/resources.gresource.xml",
         "compiled.gresource",
     );
