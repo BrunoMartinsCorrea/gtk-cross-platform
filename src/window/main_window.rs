@@ -404,10 +404,10 @@ impl MainWindow {
 
         let win_weak_banner = self.downgrade();
         let on_error = move |e: &ContainerError| {
-            if matches!(e, ContainerError::RuntimeNotAvailable(_)) {
-                if let Some(win) = win_weak_banner.upgrade() {
-                    win.imp().runtime_banner.set_revealed(true);
-                }
+            if matches!(e, ContainerError::RuntimeNotAvailable(_))
+                && let Some(win) = win_weak_banner.upgrade()
+            {
+                win.imp().runtime_banner.set_revealed(true);
             }
         };
 
