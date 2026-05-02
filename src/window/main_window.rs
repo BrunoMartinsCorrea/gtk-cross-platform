@@ -12,6 +12,7 @@ use gtk4::gio;
 use gtk_cross_platform::config;
 use gtk_cross_platform::infrastructure::containers::background::spawn_driver_task;
 use gtk_cross_platform::infrastructure::containers::dynamic_driver::DynamicDriver;
+use gtk_cross_platform::infrastructure::containers::error::ContainerError;
 use gtk_cross_platform::infrastructure::containers::factory::{
     ContainerDriverFactory, RuntimeKind,
 };
@@ -42,6 +43,8 @@ mod imp {
         #[template_child]
         pub header_bar: TemplateChild<adw::HeaderBar>,
         #[template_child]
+        pub runtime_banner: TemplateChild<adw::Banner>,
+        #[template_child]
         pub split_view: TemplateChild<adw::NavigationSplitView>,
         #[template_child]
         pub content_page: TemplateChild<adw::NavigationPage>,
@@ -55,6 +58,7 @@ mod imp {
         pub network_uc: RefCell<Option<Arc<dyn INetworkUseCase>>>,
         pub dynamic_driver: RefCell<Option<Arc<DynamicDriver>>>,
         pub available_runtimes: RefCell<Vec<RuntimeKind>>,
+        pub refresh_timer: Cell<Option<glib::SourceId>>,
 
         pub dashboard_view: OnceCell<DashboardView>,
         pub containers_view: OnceCell<ContainersView>,
@@ -86,6 +90,7 @@ mod imp {
             self.setup_refresh_action();
             self.setup_search_actions();
             self.setup_undo_remove_actions();
+            self.setup_runtime_banner();
         }
     }
 
@@ -192,6 +197,16 @@ mod imp {
             }
         }
 
+        pub fn setup_runtime_banner(&self) {
+            let win_weak = self.obj().downgrade();
+            self.runtime_banner.connect_button_clicked(move |banner| {
+                if let Some(win) = win_weak.upgrade() {
+                    banner.set_revealed(false);
+                    win.refresh_all();
+                }
+            });
+        }
+
         fn confirm_prune(&self) {
             let Some(network_uc) = self.network_uc.borrow().clone() else {
                 return;
@@ -269,11 +284,39 @@ impl MainWindow {
         win.setup_views(container_uc, image_uc, volume_uc, network_uc);
         win.setup_runtime_switcher();
         win.setup_signals();
+        win.setup_auto_refresh();
         // Dashboard is the initial tab; collapse the split view so the sidebar fills 100%.
         win.imp().content_page.set_visible(false);
         win.imp().split_view.set_collapsed(true);
         win.reload_visible_page();
         win
+    }
+
+    pub fn set_runtime_banner_visible(&self, visible: bool) {
+        self.imp().runtime_banner.set_revealed(visible);
+    }
+
+    fn setup_auto_refresh(&self) {
+        let schema_src = gio::SettingsSchemaSource::default();
+        let interval = if schema_src
+            .and_then(|s| s.lookup(config::APP_ID, true))
+            .is_some()
+        {
+            gio::Settings::new(config::APP_ID).int("refresh-interval-seconds") as u32
+        } else {
+            30
+        };
+
+        let win_weak = self.downgrade();
+        let source_id = glib::timeout_add_seconds_local(interval, move || match win_weak.upgrade()
+        {
+            Some(win) => {
+                win.refresh_all();
+                glib::ControlFlow::Continue
+            }
+            None => glib::ControlFlow::Break,
+        });
+        self.imp().refresh_timer.set(Some(source_id));
     }
 
     fn setup_views(
@@ -359,6 +402,15 @@ impl MainWindow {
             }
         });
 
+        let win_weak_banner = self.downgrade();
+        let on_error = move |e: &ContainerError| {
+            if matches!(e, ContainerError::RuntimeNotAvailable(_)) {
+                if let Some(win) = win_weak_banner.upgrade() {
+                    win.imp().runtime_banner.set_revealed(true);
+                }
+            }
+        };
+
         let (ot, _otd, ol) = make_callbacks!();
         let dv = DashboardView::new(
             container_uc.clone(),
@@ -366,6 +418,7 @@ impl MainWindow {
             on_navigate,
             move |msg: &str| ot(msg),
             move |active: bool| ol(active),
+            on_error,
         );
         let page = imp
             .view_stack

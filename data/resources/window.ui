@@ -12,6 +12,13 @@
       -->
       <object class="AdwToolbarView">
         <child type="top">
+          <object class="AdwBanner" id="runtime_banner">
+            <property name="title" translatable="yes">No container runtime found. Install Docker, Podman, or containerd.</property>
+            <property name="button-label" translatable="yes">Retry</property>
+            <property name="revealed">false</property>
+          </object>
+        </child>
+        <child type="top">
           <object class="AdwHeaderBar" id="header_bar">
             <child type="start">
               <object class="GtkMenuButton" id="menu_button">

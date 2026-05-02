@@ -184,7 +184,7 @@ validate-lint: lint ## Gate: clippy
 
 validate-metadata: validate-metainfo validate-desktop check-version ## Gate: AppStream + desktop + version consistency
 
-validate-i18n: lint-i18n check-potfiles ## Gate: .po files + POTFILES completeness
+validate-i18n: lint-i18n check-potfiles validate-pot-sync ## Gate: .po files + POTFILES completeness + .pot sync
 
 validate-deps: audit deny spell-check check-unused-deps ## Gate: security advisories + licenses + typos + unused deps
 
@@ -207,6 +207,50 @@ check-potfiles: ## Verify all files with gettext() are listed in po/POTFILES
 	 if [ -n "$$MISSING" ]; then \
 	   echo "Files with gettext() not in POTFILES:"; echo "$$MISSING"; exit 1; \
 	 fi
+
+pot-update: ## Regenerate po/gtk-cross-platform.pot from all source strings in po/POTFILES
+	@echo "Extracting translatable strings from sources..."
+	@xgettext --files-from=po/POTFILES --output=po/gtk-cross-platform.pot \
+	  --from-code=UTF-8 \
+	  --keyword=gettext --keyword=pgettext:1c,2 --keyword=ngettext:1,2 \
+	  --add-comments --package-name=$(APP_ID)
+	@echo "✓ po/gtk-cross-platform.pot updated"
+
+po-sync: ## Sync all .po files with the current .pot template via msgmerge
+	@if [ ! -f po/gtk-cross-platform.pot ]; then \
+	  echo "ERROR: po/gtk-cross-platform.pot not found — run: make pot-update first"; exit 1; \
+	fi
+	@echo "Syncing .po files with template..."
+	@for lang in $$(cat po/LINGUAS); do \
+	  if [ -f "po/$$lang.po" ]; then \
+	    msgmerge --update --no-fuzzy-matching "po/$$lang.po" po/gtk-cross-platform.pot; \
+	  else \
+	    msginit --input=po/gtk-cross-platform.pot --output-file="po/$$lang.po" --locale="$$lang" --no-translator; \
+	  fi; \
+	done
+	@echo "✓ All .po files synced"
+
+validate-pot-sync: ## Fail if po/gtk-cross-platform.pot is out of sync with source strings
+	@if [ ! -f po/gtk-cross-platform.pot ]; then \
+	  echo "ERROR: po/gtk-cross-platform.pot missing — run: make pot-update"; exit 1; \
+	fi
+	@xgettext --files-from=po/POTFILES --output=/tmp/gtk-cross-platform-check.pot \
+	  --from-code=UTF-8 \
+	  --keyword=gettext --keyword=pgettext:1c,2 --keyword=ngettext:1,2 \
+	  --package-name=$(APP_ID) 2>/dev/null; \
+	 grep '^msgid ' po/gtk-cross-platform.pot | sort > /tmp/pot-committed.txt; \
+	 grep '^msgid ' /tmp/gtk-cross-platform-check.pot | sort > /tmp/pot-current.txt; \
+	 NEW=$$(comm -13 /tmp/pot-committed.txt /tmp/pot-current.txt); \
+	 REMOVED=$$(comm -23 /tmp/pot-committed.txt /tmp/pot-current.txt); \
+	 if [ -n "$$NEW" ]; then \
+	   echo "✗ Strings in source not in .pot (run: make pot-update && make po-sync):"; \
+	   echo "$$NEW"; exit 1; \
+	 fi; \
+	 if [ -n "$$REMOVED" ]; then \
+	   echo "✗ Dead strings in .pot no longer in source (run: make pot-update):"; \
+	   echo "$$REMOVED"; exit 1; \
+	 fi; \
+	 echo "✓ .pot is in sync with source strings"
 
 audit: ## Run cargo audit (security advisories)
 	cargo audit
@@ -396,6 +440,7 @@ test-nextest:      test                 ## [alias] use test
   test test-unit test-integration test-i18n coverage \
   validate validate-format validate-lint validate-metadata validate-i18n validate-deps \
   validate-metainfo validate-desktop check-version check-potfiles \
+  pot-update po-sync validate-pot-sync \
   audit deny spell-check check-unused-deps \
   ci \
   icons icons-png icons-macos icons-windows install-icons clean-icons \

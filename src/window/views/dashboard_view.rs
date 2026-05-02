@@ -197,6 +197,7 @@ struct Inner {
     use_cases: Arc<DashboardUseCase>,
     on_loading: Rc<dyn Fn(bool)>,
     on_toast: Rc<dyn Fn(&str)>,
+    on_error: Rc<dyn Fn(&gtk_cross_platform::infrastructure::containers::error::ContainerError)>,
     on_navigate: Rc<dyn Fn(&str)>,
     loading: Cell<bool>,
     loaded: Cell<bool>,
@@ -213,6 +214,8 @@ impl DashboardView {
         on_navigate: Rc<dyn Fn(&str)>,
         on_toast: impl Fn(&str) + 'static,
         on_loading: impl Fn(bool) + 'static,
+        on_error: impl Fn(&gtk_cross_platform::infrastructure::containers::error::ContainerError)
+            + 'static,
     ) -> Self {
         // ── value labels (updated on reload) ──────────────────────────────────
         let running_lbl = gtk4::Label::new(Some("—"));
@@ -450,6 +453,7 @@ impl DashboardView {
             }),
             on_loading: Rc::new(on_loading),
             on_toast: Rc::new(on_toast),
+            on_error: Rc::new(on_error),
             on_navigate,
             loading: Cell::new(false),
             loaded: Cell::new(false),
@@ -496,6 +500,7 @@ impl DashboardView {
                     Self::load_usage_stats(inner);
                 }
                 Err(e) => {
+                    (inner.on_error)(&e);
                     (inner.on_toast)(&format!("{}: {e}", gettext("Dashboard load failed")));
                 }
             }
@@ -541,6 +546,7 @@ impl DashboardView {
                         Self::schedule_refresh(inner);
                     }
                     Err(e) => {
+                        (inner.on_error)(&e);
                         (inner.on_toast)(&format!("{}: {e}", gettext("Usage stats failed")));
                         inner.usage_stack.set_visible_child_name("content");
                         // Keep auto-refresh alive so the dashboard recovers when the driver

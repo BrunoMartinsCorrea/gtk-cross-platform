@@ -478,7 +478,7 @@ fn show_detail(inner: &Rc<Inner>, obj: &VolumeObject) {
     let in_use_str = if obj.in_use() {
         gettext("Yes")
     } else {
-        gettext("No")
+        format!("{} — {}", gettext("No"), gettext("can be pruned"))
     };
 
     let pane = detail_pane::build(&[detail_pane::PropertyGroup {

@@ -79,6 +79,18 @@ log_container_error(&logger, &error);  // logger is first, error is second
 - Plurals: `ngettext!("1 item", "{n} items", n)`
 - New source files with `gettext()` must be listed in `po/POTFILES`
 
+### Execution obligations (must follow on every edit)
+
+Whenever you **add or modify** a `gettext("…")`, `pgettext!("…")`, or `ngettext!("…")` call:
+
+1. If the source file is new, add it to `po/POTFILES` first
+2. Run `make validate-pot-sync` after the change
+3. If the check fails, run `make pot-update` then `make po-sync`
+4. Include the updated `.pot` and all changed `.po` files in the same commit
+
+**Never** deliver a `.rs` edit containing new translatable strings as complete without
+verifying `make validate-pot-sync` passes. A passing compile is not sufficient.
+
 ## Module organization
 
 ```

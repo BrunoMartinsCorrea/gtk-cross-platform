@@ -118,3 +118,5 @@ $RECYCLE.BIN/
 
 # --- Project-local tooling (not published source) ---
 .prompt/
+.claude/docs/reports/
+.claude/prompts/

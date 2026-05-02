@@ -40,5 +40,29 @@
       <summary>Sidebar width as a fraction of the window width</summary>
     </key>
 
+    <!-- Auto-refresh -->
+    <key name="refresh-interval-seconds" type="i">
+      <range min="5" max="300"/>
+      <default>30</default>
+      <summary>Auto-refresh interval in seconds (0 = disabled)</summary>
+    </key>
+
+    <!-- Container Defaults -->
+    <key name="default-restart-policy" type="s">
+      <choices>
+        <choice value="no"/>
+        <choice value="on-failure"/>
+        <choice value="unless-stopped"/>
+        <choice value="always"/>
+      </choices>
+      <default>'no'</default>
+      <summary>Default container restart policy</summary>
+    </key>
+    <key name="default-stop-timeout" type="i">
+      <range min="1" max="120"/>
+      <default>10</default>
+      <summary>Default container stop timeout in seconds</summary>
+    </key>
+
   </schema>
 </schemalist>

@@ -1,7 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Write(.claude/settings.json)",
+      "Write(.claude/**)",
       "Bash(cargo build:*)",
       "Bash(cargo test:*)",
       "Bash(cargo check:*)",
@@ -34,6 +34,9 @@
       "Bash(gh run list:*)",
       "Bash(gh pr view:*)",
       "Bash(gh release view:*)"
+    ],
+    "deny": [
+      "Write(.claude/settings.json)"
     ]
   }
 }

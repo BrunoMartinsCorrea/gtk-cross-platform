@@ -360,8 +360,65 @@ mod imp {
             runtime_group.add(&runtime_row);
             runtime_page.add(&runtime_group);
 
+            // ── Container Defaults page ──────────────────────────────────────
+            let defaults_page = adw::PreferencesPage::new();
+            defaults_page.set_title(&gettext("Container Defaults"));
+            defaults_page.set_icon_name(Some("box-symbolic"));
+
+            let defaults_group = adw::PreferencesGroup::new();
+            defaults_group.set_title(&gettext("New Container Defaults"));
+            defaults_group.set_description(Some(&gettext(
+                "Default settings applied when creating a new container.",
+            )));
+
+            let policy_row = adw::ComboRow::new();
+            policy_row.set_title(&gettext("Restart Policy"));
+            policy_row.set_subtitle(&gettext("Applied when the container exits"));
+            let policy_model = gtk4::StringList::new(&[
+                &gettext("No"),
+                &gettext("On Failure"),
+                &gettext("Unless Stopped"),
+                &gettext("Always"),
+            ]);
+            policy_row.set_model(Some(&policy_model));
+            let policy_values = ["no", "on-failure", "unless-stopped", "always"];
+
+            if let Some(settings) = self.settings.get() {
+                let current_policy = settings.string("default-restart-policy");
+                let policy_idx = policy_values
+                    .iter()
+                    .position(|&v| v == current_policy.as_str())
+                    .unwrap_or(0) as u32;
+                policy_row.set_selected(policy_idx);
+
+                let settings_c = settings.clone();
+                policy_row.connect_selected_notify(move |row| {
+                    let idx = row.selected() as usize;
+                    if idx < policy_values.len() {
+                        let _ = settings_c.set_string("default-restart-policy", policy_values[idx]);
+                    }
+                });
+            }
+
+            let timeout_row = adw::SpinRow::with_range(1.0, 120.0, 1.0);
+            timeout_row.set_title(&gettext("Stop Timeout"));
+            timeout_row.set_subtitle(&gettext("Seconds to wait before killing the container"));
+
+            if let Some(settings) = self.settings.get() {
+                timeout_row.set_value(settings.int("default-stop-timeout") as f64);
+                let settings_c = settings.clone();
+                timeout_row.connect_value_notify(move |row| {
+                    let _ = settings_c.set_int("default-stop-timeout", row.value() as i32);
+                });
+            }
+
+            defaults_group.add(&policy_row);
+            defaults_group.add(&timeout_row);
+            defaults_page.add(&defaults_group);
+
             prefs.add(&appearance_page);
             prefs.add(&runtime_page);
+            prefs.add(&defaults_page);
             prefs.present();
         }
 
