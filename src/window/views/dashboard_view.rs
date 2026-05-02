@@ -215,7 +215,7 @@ impl DashboardView {
         on_toast: impl Fn(&str) + 'static,
         on_loading: impl Fn(bool) + 'static,
         on_error: impl Fn(&gtk_cross_platform::infrastructure::containers::error::ContainerError)
-            + 'static,
+        + 'static,
     ) -> Self {
         // ── value labels (updated on reload) ──────────────────────────────────
         let running_lbl = gtk4::Label::new(Some("—"));

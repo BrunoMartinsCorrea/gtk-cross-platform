@@ -308,14 +308,14 @@ impl MainWindow {
         };
 
         let win_weak = self.downgrade();
-        let source_id = glib::timeout_add_seconds_local(interval, move || match win_weak.upgrade()
-        {
-            Some(win) => {
-                win.refresh_all();
-                glib::ControlFlow::Continue
-            }
-            None => glib::ControlFlow::Break,
-        });
+        let source_id =
+            glib::timeout_add_seconds_local(interval, move || match win_weak.upgrade() {
+                Some(win) => {
+                    win.refresh_all();
+                    glib::ControlFlow::Continue
+                }
+                None => glib::ControlFlow::Break,
+            });
         self.imp().refresh_timer.set(Some(source_id));
     }
 
